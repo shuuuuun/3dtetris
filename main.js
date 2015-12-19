@@ -1,3 +1,10 @@
+(function(){
+	var raf = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function(callback){var id=window.setTimeout(callback,1000/60);return id;};
+	window.requestAnimationFrame = raf;
+	var caf = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || function(id){window.clearTimeout(id);};
+    window.cancelAnimationFrame = caf;
+});
+
 window.onload = function(){
 	main();
 	// var main = new Main();
@@ -21,6 +28,42 @@ function main(){
 	// var i, intersector;
 	// var objects = [];
 	
+	var orthocamera,
+		ortho = false;
+	
+	var width = window.innerWidth,
+		height = window.innerHeight;
+	
+	var fieldsize = 10;
+	var fieldHeight = 20;
+	
+	var boardSizeX = 10;
+	var boardSizeY = 20; // 高さ
+	var boardSizeZ = 10;
+	var board = [];
+	for(var x=0; x<boardSizeX; x++){
+		board[x] = [];
+		for(var y=0; y<boardSizeY; y++){
+			board[x][y] = [];
+			for(var z=0; z<boardSizeZ; z++){
+				board[x][y][z] = 0;
+			}
+		}
+	}
+	
+	var current; // 現在操作しているブロック
+	var currentX, currentY; // 現在操作しているブロックのいち
+	
+	var lastAnimTime = 0,
+		framecount = 0,
+		voxels = [],
+		blocks = [];
+	
+	// 球座標
+	var r = 1400,
+		theta = 60,
+		phi = 0;
+	
 	var isAnykeyDown
 	 = isRightDown = isLeftDown = isUpDown = isDownDown
 	 = is59Down = isStarDown = isPlusDown = is190Down = is191Down = is_Down
@@ -39,62 +82,301 @@ function main(){
 	//  "0", "1", "2", "3"
 	// ];
 	
-	var orthocamera,
-		ortho = false;
-	
-	var width = window.innerWidth, height = window.innerHeight;
-	
-	var lastAnimTime = 0,
-		framecount = 0,
-		voxels = [],
-		blocks = [];
-	
-	// 球座標
-	var r = 1400,
-		theta = 60,
-		phi = 0;
-	
-	var fieldsize = 10;
-	
+	// ブロックの色
+	var colors = [
+		"rgb(254,183,76)",
+		"rgb(251,122,111)",
+		"rgb(247,181,90)",
+		"rgb(241,221,96)",
+		"rgb(191,216,94)",
+		"rgb(107,180,252)",
+		"rgb(202,162,221)",
+		"rgb(100,198,173)"
+	];
+
+	// 4 x 4 x 4
+	var shapes = [
+	  [[ // 1.横棒
+	    [1, 1, 1, 1],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ]],
+	  [[ // 2.四角
+	    [1, 1, 0, 0],
+	    [1, 1, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ]],
+	  [[ // 3.L字
+	    [1, 1, 1, 0],
+	    [1, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ]],
+	  [[ // 4.Z字(S字)
+	    [1, 1, 0, 0],
+	    [0, 1, 1, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ]],
+	  [[ // 5.T字
+	    [1, 1, 1, 0],
+	    [0, 1, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ]],
+	  [[ // 6.3方向
+	    [1, 1, 0, 0],
+	    [1, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [1, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ]],
+	  [[ // 7.うねうね1
+	    [1, 1, 0, 0],
+	    [1, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 1, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ]],
+	  [[ // 8.うねうね2
+	    [1, 1, 0, 0],
+	    [1, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [1, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ],[
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0],
+	    [0, 0, 0, 0]
+	  ]]
+	];
 	
 	// 初期化 ----------------------------------------------------------------------------------------------------
 	// this.init = function(){
 	(function init() {
-		container = document.createElement( 'div' );
-		document.body.appendChild( container );
 		
-		// var info = document.createElement( 'div' );
-		// info.style.position = 'absolute';
-		// info.style.top = '10px';
-		// info.style.width = '100%';
-		// info.style.textAlign = 'center';
-		// info.innerHTML = '<a href="http://threejs.org" target="_blank">three.js</a> - voxel painter - webgl<br><strong>click</strong>: add voxel, <strong>shift + click</strong>: remove voxel, <strong>control</strong>: rotate';
-		// container.appendChild( info );
+		// container ------------------------------
+		container = document.getElementById('canvas-container');
 		
-		perscamera = new THREE.PerspectiveCamera( 45, width / height, 1, 10000 );
-		// orthocamera = new THREE.OrthographicCamera( - width / 2, width / 2, height / 2, - height / 2, 1, 10000 );
-		orthocamera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 10000 );
-		// orthocamera = new THREE.OrthographicCamera( - 600, 600, 600, - 600, 1, 10000 );
-		// combinedcamera = new THREE.CombinedCamera( width, height, 45, 1, 10000, 1, 10000 );
-		camera = perscamera;
-		camera.position.y = 800;
 		
+		// renderer ------------------------------
+		renderer = new THREE.WebGLRenderer({ antialias: true });
+		renderer.setClearColor( 0xf0f0f0 ); // 背景色
+		renderer.setSize( width, height );
+		container.appendChild( renderer.domElement );
+		
+		
+		// scene ------------------------------
 		scene = new THREE.Scene();
 		
-		// // roll-over helpers
+		
+		// camera ------------------------------
+		perscamera = new THREE.PerspectiveCamera( 45, width / height, 1, 10000 ); // fov(視野角),aspect,near,far
+		orthocamera = new THREE.OrthographicCamera( width / -2, width / 2, height / 2, height / -2, 1, 10000 );
+		// combinedcamera = new THREE.CombinedCamera( width, height, 45, 1, 10000, 1, 10000 );
+		camera = perscamera;
+		// camera.position.y = 800;
+		camera.position.set(100, 100, 100);
+		camera.up.set(0, -1, 0);
+		camera.lookAt({ x:0, y:0, z:0 });
+		
+		
+		// axis ------------------------------
+		var axis = new THREE.AxisHelper(1000);
+		axis.position.set(0,0,0);
+		scene.add(axis);
+		
+		
+		// grid ------------------------------
+		// var gridstep = 50, // gridの間隔
+		// 	gridsize = 10, // gridのマスの数
+		// 	size = gridsize/2 * gridstep;
+		// var size = fieldsize/2 * 50,
+		var size = fieldsize * 50,
+			step = 50;
+		var geometry = new THREE.Geometry();
+		for ( var i = 0; i <= size; i += step ) {
+			geometry.vertices.push( new THREE.Vector3(    0, 0, i ) );
+			geometry.vertices.push( new THREE.Vector3( size, 0, i ) );
+			geometry.vertices.push( new THREE.Vector3( i, 0,    0 ) );
+			geometry.vertices.push( new THREE.Vector3( i, 0, size ) );
+		}
+		var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2, transparent: true } );
+		var line = new THREE.Line( geometry, material );
+		line.type = THREE.LinePieces;
+		scene.add( line );
+		
+		
+		// plane ------------------------------
+		// plane = new THREE.Mesh( new THREE.PlaneGeometry( 1000, 1000 ), new THREE.MeshBasicMaterial() );
+		// plane.rotation.x = - Math.PI / 2;
+		// plane.visible = false;
+		// scene.add( plane );
+		// objects.push( plane );
+		
+		
+		// Lights ------------------------------
+		var ambientLight = new THREE.AmbientLight( 0x606060 );
+		scene.add( ambientLight );
+		var directionalLight = new THREE.DirectionalLight( 0xffffff );
+		// directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
+		directionalLight.position.set( 0.5, 0.75, 1 ).normalize();
+		scene.add( directionalLight );
+		
+		
+		// picking ------------------------------
+		// projector = new THREE.Projector();
+		
+		
+		// mouse ------------------------------
+		mouse2D = new THREE.Vector3( 0, 10000, 0.5 );
+		
+		
+		// roll-over helpers ------------------------------
 		// rollOverGeo = new THREE.BoxGeometry( 50, 50, 50 );
 		// rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.5, transparent: true } );
 		// rollOverMesh = new THREE.Mesh( rollOverGeo, rollOverMaterial );
 		// scene.add( rollOverMesh );
 		
-		// cubes
+		
+		// event bind ------------------------------
+		document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+		// document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		document.addEventListener( 'keydown', onDocumentKeyDown, false );
+		document.addEventListener( 'keyup', onDocumentKeyUp, false );
+		window.addEventListener( 'resize', onWindowResize, false );
+		
+		
+		// stats ------------------------------
+		// stats = new Stats();
+		// stats.domElement.style.position = 'absolute';
+		// stats.domElement.style.top = '0px';
+		// container.appendChild( stats.domElement );
+		
+		
+		// cubes ------------------------------
 		cubeGeo = new THREE.BoxGeometry( 50, 50, 50 );
 		// cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, ambient: 0x00ff80, shading: THREE.FlatShading, map: THREE.ImageUtils.loadTexture( "textures/square-outline-textured.png" ) } );
 		// cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, ambient: 0x00ff80, shading: THREE.FlatShading } );
 		// cubeMaterial.ambient = cubeMaterial.color;
 		// cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, shading: THREE.FlatShading } );
 		// cubeMaterial = new THREE.MeshLambertMaterial({ color: 0xfeb74c, ambient: 0xfeb74c });
-		cubeMaterial[0] = new THREE.MeshLambertMaterial({ color: "rgb(254, 183, 76)", ambient: "rgb(254, 183, 76)" });
+		cubeMaterial[0] = new THREE.MeshLambertMaterial({ color: "rgb(254,183,76)", ambient: "rgb(254, 183, 76)" });
 		cubeMaterial[1] = new THREE.MeshLambertMaterial({ color: "rgb(251,122,111)", ambient: "rgb(251,122,111)" });
 		cubeMaterial[2] = new THREE.MeshLambertMaterial({ color: "rgb(247,181,90)", ambient: "rgb(247,181,90)" });
 		cubeMaterial[3] = new THREE.MeshLambertMaterial({ color: "rgb(241,221,96)", ambient: "rgb(241,221,96)" });
@@ -105,56 +387,7 @@ function main(){
 		// cubeMaterial.ambient = cubeMaterial.color;
 		
 		
-		// picking
-		projector = new THREE.Projector();
-		
-		// grid
-		var size = fieldsize/2 * 50, step = 50;
-		var geometry = new THREE.Geometry();
-		for ( var i = - size; i <= size; i += step ) {
-			geometry.vertices.push( new THREE.Vector3( - size, 0, i ) );
-			geometry.vertices.push( new THREE.Vector3(   size, 0, i ) );
-			geometry.vertices.push( new THREE.Vector3( i, 0, - size ) );
-			geometry.vertices.push( new THREE.Vector3( i, 0,   size ) );
-		}
-		var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2, transparent: true } );
-		var line = new THREE.Line( geometry, material );
-		line.type = THREE.LinePieces;
-		scene.add( line );
-		
-		plane = new THREE.Mesh( new THREE.PlaneGeometry( 1000, 1000 ), new THREE.MeshBasicMaterial() );
-		plane.rotation.x = - Math.PI / 2;
-		plane.visible = false;
-		scene.add( plane );
-		// objects.push( plane );
-		
-		mouse2D = new THREE.Vector3( 0, 10000, 0.5 );
-		
-		// Lights
-		var ambientLight = new THREE.AmbientLight( 0x606060 );
-		scene.add( ambientLight );
-		var directionalLight = new THREE.DirectionalLight( 0xffffff );
-		// directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
-		directionalLight.position.set( 0.5, 0.75, 1 ).normalize();
-		scene.add( directionalLight );
-		
-		renderer = new THREE.WebGLRenderer( { antialias: true } );
-		renderer.setClearColor( 0xf0f0f0 );
-		renderer.setSize( width, height );
-		container.appendChild( renderer.domElement );
-		
-		// stats = new Stats();
-		// stats.domElement.style.position = 'absolute';
-		// stats.domElement.style.top = '0px';
-		// container.appendChild( stats.domElement );
-		
-		document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-		// document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-		document.addEventListener( 'keydown', onDocumentKeyDown, false );
-		document.addEventListener( 'keyup', onDocumentKeyUp, false );
-		
-		window.addEventListener( 'resize', onWindowResize, false );
-		
+		// start ------------------------------
 		animate();
 		
 	})();   // ~ init
@@ -444,6 +677,7 @@ function main(){
 		// camera.position.x = 1400 * Math.sin( THREE.Math.degToRad( theta ) );
 		// camera.position.y = 1400 * Math.tan( THREE.Math.degToRad( thetaY ) );
 		// camera.position.z = 1400 * Math.cos( THREE.Math.degToRad( theta ) );
+		camera.position.set(0,100,-500);
 		camera.lookAt( scene.position );
 		renderer.render( scene, camera );
 	}  // ~ render
@@ -549,10 +783,10 @@ function main(){
 	}
 	
 	
-	// axis helper -----
-	var axis = new THREE.AxisHelper(1000);
-	axis.position.set(0,0,0);
-	scene.add(axis);
+	// // axis helper -----
+	// var axis = new THREE.AxisHelper(1000);
+	// axis.position.set(0,0,0);
+	// scene.add(axis);
 	
 // })();
 };
