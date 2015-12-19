@@ -1,0 +1,229 @@
+// MIXIN
+@import "compass";
+
+// custom --------------------------------------------------
+@mixin absolute($top,$right,$bottom,$left) {
+    position: absolute;
+    top: $top;
+    bottom: $bottom;
+    left: $left;
+    right: $right;
+}
+@mixin absolute-center() {
+    margin: auto;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+@mixin clearfix() {
+    &:before,
+    &:after {
+        content : '';
+        display : block;
+        clear : both;
+        height: 0;
+    }
+}
+@mixin placeholder {
+    &::-webkit-input-placeholder {
+        @content;
+    }
+    &:-moz-placeholder {
+        opacity: 1;
+        @content;
+    }
+    &::-moz-placeholder {
+        opacity: 1;
+        @content;
+    }
+    &:-ms-input-placeholder {
+        @content;
+    }
+}
+@mixin fix-webkit-placeholder {
+    ::-webkit-input-placeholder {
+        line-height: normal;
+    }
+}
+@mixin reset-btn-style {
+  button {
+    border: none;
+    outline: none;
+    padding: 0;
+    cursor: pointer;
+  }
+}
+
+@mixin anchor-state {
+    a, a:link, a:visited, a:hover, a:active {
+        @content;
+    }
+}
+
+@mixin sprite-button($url,$spritenum:2) {
+    $height: image-height($url);
+
+    height: $height / 2;
+    a, button {
+        height: $height / 2;
+    }
+    &:hover, a:hover, button:hover {
+        background-position: center bottom;
+        cursor: pointer;
+    }
+}
+
+@mixin sprite-button-retina($url,$spritenum:2) {
+    $height: image-height($url);
+
+    height: $height / 2 / 2;
+    a, button {
+        height: $height / 2 / 2;
+    }
+    &:hover, a:hover, button:hover, &.hover, a.hover, button.hover {
+        background-position: center bottom;
+        cursor: pointer;
+    }
+}
+
+
+// background --------------------
+@mixin bg-size($url,$option) {
+    $width: image-width($url);
+    $height: image-height($url);
+
+    background: image-url($url) #{$option};
+    background-size: $width $height;
+}
+@mixin bg-block($url,$textIndent: false,$center: true) {
+    $width: image-width($url);
+    $height: image-height($url);
+
+    @if $center {
+        margin: 0 auto;
+    }
+    @if $textIndent {
+        text-indent: -9999px;
+        overflow: hidden;
+    }
+    display: block;
+    background: image-url($url);
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-size: $width $height;
+    width : $width;
+    height : $height;
+}
+@mixin bg-button($url,$sprite) {
+    $width: image-width($url);
+    $height: image-height($url);
+
+    text-indent: -9999px;
+    overflow: hidden;
+    width: $width;
+    height: $height;
+
+    a, button {
+        display: block;
+        text-indent: -9999px;
+        overflow: hidden;
+        background: image-url($url);
+        background-repeat: no-repeat;
+        background-position: center top;
+        background-size: $width $height;
+        width: $width;
+        height: $height;
+    }
+    @if $sprite {
+        height: $height / 2;
+        
+        a, button {
+            height: $height / 2;
+        }
+        a:hover, button:hover {
+            background-position: center bottom;
+        }
+    }
+}
+
+// background retina --------------------
+@mixin bg-size-retina($url,$option) {
+    $width: image-width($url) / 2;
+    $height: ceil(image-height($url) / 2);
+
+    background: image-url($url) #{$option};
+    background-size: $width $height;
+}
+@mixin bg-block-retina($url,$textIndent: false,$center: true) {
+    $width: ceil(image-width($url) / 2);
+    $height: ceil(image-height($url) / 2);
+
+    @if $center {
+        margin: 0 auto;
+    }
+    @if $textIndent {
+        text-indent: -9999px;
+        overflow: hidden;
+    }
+    display: block;
+    background: image-url($url);
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    background-size: $width $height;
+    width: $width;
+    height: $height;
+}
+@mixin bg-button-retina($url,$sprite) {
+    $width: image-width($url) / 2;
+    $height: ceil(image-height($url) / 2);
+
+    text-indent: -9999px;
+    overflow: hidden;
+    width: $width;
+    height: $height;
+
+    a, button {
+        display: block;
+        text-indent: -9999px;
+        overflow: hidden;
+        background: image-url($url);
+        background-repeat: no-repeat;
+        background-position: center top;
+        background-size: $width $height;
+        width: $width;
+        height: $height;
+    }
+    @if $sprite {
+        height: $height / 2;
+        
+        a, button {
+            height: $height / 2;
+        }
+        a:hover, button:hover {
+            background-position: center bottom;
+        }
+    }
+}
+
+// retina --------------------
+@mixin image-retina($url, $center: true) {
+    @if $center {
+        margin: 0 auto;
+    }
+
+    $width: image-width($url) / 2;
+    $height: ceil(image-height($url) / 2);
+    width: $width;
+    height: $height;
+    display: block;
+}
+
+// prefix --------------------------------------------------
+@mixin prefix($prop, $value) {
+    #{$prop}: $value;
+    @each $prefix in webkit, moz, ms, o {
+        -#{$prefix}-#{$prop}: $value;
+    }
+}

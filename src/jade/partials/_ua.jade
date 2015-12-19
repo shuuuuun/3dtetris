@@ -1,0 +1,14 @@
+mixin ua(ns)
+  script.
+    (function(win, doc){
+      var ns = win.#{ns} = win.#{ns} || {};
+      var ua = win.navigator.userAgent.toLowerCase();
+      ns.ua = {};
+      ns.ua.isSP = /ipod|iphone|ipad|android/i.test(ua);
+      ns.ua.isPC = !ns.ua.isSP;
+      ns.ua.isAndroid = /android/.test(ua);
+      ns.ua.isIE8 = /msie 8/.test(ua);
+      ns.ua.isIE9 = /msie 9/.test(ua);
+      if (ns.ua.isSP) doc.body.className += " isSP";
+      if (ns.ua.isPC) doc.body.className += " isPC";
+    })(this, document);
