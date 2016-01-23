@@ -291,7 +291,7 @@
     this.camera = this.perscamera;
     // this.camera.position.y = 800;
     this.camera.position.set(100, 100, 100);
-    this.camera.up.set(0, -1, 0);
+    this.camera.up.set(0, 1, 0);
     this.camera.lookAt({ x:0, y:0, z:0 });
     
     
@@ -299,12 +299,6 @@
     var axis = new THREE.AxisHelper(1000);
     axis.position.set(0,0,0);
     this.scene.add(axis);
-    
-    
-    // // axis helper -----
-    // var axis = new THREE.AxisHelper(1000);
-    // axis.position.set(0,0,0);
-    // scene.add(axis);
     
     
     // grid ------------------------------
