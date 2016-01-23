@@ -5,26 +5,7 @@
     <meta name="viewport" content="width=device-width,user-scalable=no">
     <title>3Dtetris</title>
     <meta name="description" content="3Dtetris">
-    <meta name="keywords" content="3Dtetris, tetris">
-    <meta property="og:locale" content="ja_JP">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="http://localhost">
-    <meta property="og:title" content="3Dtetris">
-    <meta property="og:site_name" content="3Dtetris">
-    <meta property="og:description" content="3Dtetris">
-    <meta property="og:image" content="http://localhost/img/ogp.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="3Dtetris">
-    <meta name="twitter:description" content="3Dtetris">
-    <meta name="twitter:image" content="http://localhost/img/ogp.png">
-    <meta name="twitter:site" content="@hoge">
-    <meta name="twitter:creator" content="@hoge">
-    <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="/favicon.ico">
-    <link rel="icon" type="image/vnd.microsoft.icon" href="/favicon.ico">
-    <link rel="apple-touch-icon-precomposed" href="/favicon.ico">
-    <link rel="apple-touch-icon" href="/favicon.ico">
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="icon" href="/favicon.ico">
+    <meta name="keywords" content="3Dtetris,tetris">
     <link rel="stylesheet" href="./css/main.css">
     <link rel="stylesheet" href="./css/sp/main.css">
     <style>
@@ -48,22 +29,8 @@
     </style>
   </head>
   <body>
-        <script>
-          (function(win, doc){
-            var ns = win.App = win.App || {};
-            var ua = win.navigator.userAgent.toLowerCase();
-            ns.ua = {};
-            ns.ua.isSP = /ipod|iphone|ipad|android/i.test(ua);
-            ns.ua.isPC = !ns.ua.isSP;
-            ns.ua.isAndroid = /android/.test(ua);
-            ns.ua.isIE8 = /msie 8/.test(ua);
-            ns.ua.isIE9 = /msie 9/.test(ua);
-            if (ns.ua.isSP) doc.body.className += " isSP";
-            if (ns.ua.isPC) doc.body.className += " isPC";
-          })(this, document);
-        </script>
     <div class="wrapper">
-      <h1>3Dtetris</h1>
+      <h1></h1>
       <div id="canvas-container"></div>
       <p>inspired by<a href="http://threejs.org/examples/#webgl_interactive_voxelpainter" target="_blank">threejs - voxel painter</a></p>
     </div>
