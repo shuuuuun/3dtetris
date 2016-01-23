@@ -3,10 +3,17 @@
   "version": "1.0.0",
   "author": "motoki shun",
   "license": "MIT",
+  "scripts": {
+    "start": "gulp",
+    "build": "gulp build",
+    "watch": "gulp watch"
+  },
   "devDependencies": {
     "gulp": "^3.9.0",
     "gulp-compass": "^2.1.0",
     "gulp-concat": "^2.6.0",
+    "gulp-if": "^2.0.0",
+    "gulp-ignore": "^2.0.1",
     "gulp-jade": "^1.0.1",
     "gulp-minify-css": "^1.2.2",
     "gulp-plumber": "^1.0.1",

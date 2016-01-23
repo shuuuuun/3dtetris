@@ -48,12 +48,11 @@
     }
 }
 @mixin reset-btn-style {
-  button {
     border: none;
     outline: none;
+    background: none;
     padding: 0;
     cursor: pointer;
-  }
 }
 
 @mixin anchor-state {
