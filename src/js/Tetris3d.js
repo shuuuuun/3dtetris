@@ -1,7 +1,7 @@
 (function(win, doc){
   var ns = win.App = win.App || {};
   
-  var util = new ns.Util();
+  var util = new Util();
   
   ns.Tetris3d = Tetris3d;
   
