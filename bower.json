@@ -6,6 +6,7 @@
   "dependencies": {},
   "devDependencies": {
     "jquery": "~2.1.4",
-    "three.js": "threejs#*"
+    "three.js": "threejs#*",
+    "eventemitter2": "~0.4.14"
   }
 }
