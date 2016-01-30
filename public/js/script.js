@@ -4550,6 +4550,240 @@ Tetris3d.prototype.render = function () {
 module.exports = Tetris3d;
 
 },{"./../../bower_components/three.js/build/three.js":2}],4:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _three = require("./../../bower_components/three.js/build/three.js");
+
+var _three2 = _interopRequireDefault(_three);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Tetris3dView = function () {
+  function Tetris3dView() {
+    _classCallCheck(this, Tetris3dView);
+
+    this.RENDER_INTERVAL = 30;
+    this.TICK_INTERVAL = 250;
+    this.BLOCK_SIZE = 50;
+    this.FIELD_SIZE = 10;
+
+    this.framecount = 0;
+  }
+
+  _createClass(Tetris3dView, [{
+    key: 'init',
+    value: function init() {
+      // container ------------------------------
+      this.container = document.getElementById('canvas-container');
+
+      // renderer ------------------------------
+      this.renderer = new _three2.default.WebGLRenderer({ antialias: true });
+      this.renderer.setClearColor(0xf0f0f0); // 背景色
+      this.renderer.setSize(this.width, this.height);
+      this.container.appendChild(this.renderer.domElement);
+
+      // scene ------------------------------
+      this.scene = new _three2.default.Scene();
+
+      // camera ------------------------------
+      this.perscamera = new _three2.default.PerspectiveCamera(45, this.width / this.height, 1, 10000); // fov(視野角),aspect,near,far
+      this.orthocamera = new _three2.default.OrthographicCamera(this.width / -2, this.width / 2, this.height / 2, this.height / -2, 1, 10000);
+      // this.combinedcamera = new THREE.CombinedCamera( this.width, this.height, 45, 1, 10000, 1, 10000 );
+      this.camera = this.perscamera;
+      // this.camera.position.y = 800;
+      this.camera.position.set(100, 100, 100);
+      this.camera.up.set(0, 1, 0);
+      this.camera.lookAt({ x: 0, y: 0, z: 0 });
+
+      // axis ------------------------------
+      var axis = new _three2.default.AxisHelper(1000);
+      axis.position.set(0, 0, 0);
+      this.scene.add(axis);
+
+      // grid ------------------------------
+      // const gridstep = this.BLOCK_SIZE, // gridの間隔
+      //  gridsize = 10, // gridのマスの数
+      var size = this.FIELD_SIZE * this.BLOCK_SIZE;
+      var step = this.BLOCK_SIZE;
+      var geometry = new _three2.default.Geometry();
+      for (var i = 0; i <= size; i += step) {
+        geometry.vertices.push(new _three2.default.Vector3(0, 0, i));
+        geometry.vertices.push(new _three2.default.Vector3(size, 0, i));
+        geometry.vertices.push(new _three2.default.Vector3(i, 0, 0));
+        geometry.vertices.push(new _three2.default.Vector3(i, 0, size));
+      }
+      var material = new _three2.default.LineBasicMaterial({ color: 0x000000, opacity: 0.2, transparent: true });
+      var line = new _three2.default.Line(geometry, material);
+      line.type = _three2.default.LinePieces;
+      this.scene.add(line);
+
+      // plane ------------------------------
+      // plane = new THREE.Mesh( new THREE.PlaneGeometry( 1000, 1000 ), new THREE.MeshBasicMaterial() );
+      // plane.rotation.x = - Math.PI / 2;
+      // plane.visible = false;
+      // this.scene.add( plane );
+      // objects.push( plane );
+
+      // Lights ------------------------------
+      var ambientLight = new _three2.default.AmbientLight(0x606060);
+      this.scene.add(ambientLight);
+      var directionalLight = new _three2.default.DirectionalLight(0xffffff);
+      // directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
+      directionalLight.position.set(0.5, 0.75, 1).normalize();
+      this.scene.add(directionalLight);
+
+      // picking ------------------------------
+      // projector = new THREE.Projector();
+
+      // mouse ------------------------------
+      this.mouse2D = new _three2.default.Vector3(0, 10000, 0.5);
+
+      // roll-over helpers ------------------------------
+      // rollOverGeo = new THREE.BoxGeometry( this.BLOCK_SIZE, this.BLOCK_SIZE, this.BLOCK_SIZE );
+      // rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.5, transparent: true } );
+      // rollOverMesh = new THREE.Mesh( rollOverGeo, rollOverMaterial );
+      // this.scene.add( rollOverMesh );
+
+      // stats ------------------------------
+      // stats = new Stats();
+      // stats.domElement.style.position = 'absolute';
+      // stats.domElement.style.top = '0px';
+      // container.appendChild( stats.domElement );
+
+      // cubes ------------------------------
+      this.cubeGeo = new _three2.default.BoxGeometry(this.BLOCK_SIZE, this.BLOCK_SIZE, this.BLOCK_SIZE);
+      this.cubeMaterial = [];
+      // this.cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, ambient: 0x00ff80, shading: THREE.FlatShading, map: THREE.ImageUtils.loadTexture( "textures/square-outline-textured.png" ) } );
+      // this.cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, ambient: 0x00ff80, shading: THREE.FlatShading } );
+      // this.cubeMaterial.ambient = this.cubeMaterial.color;
+      // this.cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, shading: THREE.FlatShading } );
+      // this.cubeMaterial = new THREE.MeshLambertMaterial({ color: 0xfeb74c, ambient: 0xfeb74c });
+      this.cubeMaterial[0] = new _three2.default.MeshLambertMaterial({ color: "rgb(254,183,76)", ambient: "rgb(254, 183, 76)" });
+      this.cubeMaterial[1] = new _three2.default.MeshLambertMaterial({ color: "rgb(251,122,111)", ambient: "rgb(251,122,111)" });
+      this.cubeMaterial[2] = new _three2.default.MeshLambertMaterial({ color: "rgb(247,181,90)", ambient: "rgb(247,181,90)" });
+      this.cubeMaterial[3] = new _three2.default.MeshLambertMaterial({ color: "rgb(241,221,96)", ambient: "rgb(241,221,96)" });
+      this.cubeMaterial[4] = new _three2.default.MeshLambertMaterial({ color: "rgb(191,216,94)", ambient: "rgb(191,216,94)" });
+      this.cubeMaterial[5] = new _three2.default.MeshLambertMaterial({ color: "rgb(107,180,252)", ambient: "rgb(107,180,252)" });
+      this.cubeMaterial[6] = new _three2.default.MeshLambertMaterial({ color: "rgb(202,162,221)", ambient: "rgb(202,162,221)" });
+      this.cubeMaterial[7] = new _three2.default.MeshLambertMaterial({ color: "rgb(100,198,173)", ambient: "rgb(100,198,173)" });
+      // this.cubeMaterial.ambient = this.cubeMaterial.color;
+
+      this.setSize();
+    }
+  }, {
+    key: 'setSize',
+    value: function setSize() {
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
+      this.camera.aspect = this.width / this.height;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(this.width, this.height);
+    }
+  }, {
+    key: 'tick',
+    value: function tick() {
+      this.framecount++;
+
+      // this.controls.update();
+
+      // this.radius += this.radiusStep;
+      // this.phi++;
+      // this.camera.position.x = this.radius * Math.sin(this.theta /180 * Math.PI) * Math.sin(this.phi /180 * Math.PI); // 極座標変換
+      // this.camera.position.y = this.radius * Math.sin(this.theta /180 * Math.PI) * Math.cos(this.phi /180 * Math.PI);
+      // this.camera.position.z = this.radius * Math.cos(this.theta /180 * Math.PI);
+      // this.camera.lookAt( this.scene.position );
+      // if (this.radius < this.MIN_RADIUS || this.radius > this.MAX_RADIUS) this.radiusStep *= -1;
+
+      // this.camera.position.x += ( this.mouseX - this.camera.position.x ) * 0.005;
+      // this.camera.position.y += ( - this.mouseY - this.camera.position.y ) * 0.005;
+      // this.camera.lookAt( this.scene.position );
+
+      // this.camera.position.z = this.r * Math.sin(this.theta /180 * Math.PI) * Math.cos(this.phi /180 * Math.PI);
+      // this.camera.position.x = this.r * Math.sin(this.theta /180 * Math.PI) * Math.sin(this.phi /180 * Math.PI);
+      // this.camera.position.y = this.r * Math.cos(this.theta /180 * Math.PI);
+      // this.camera.position.x = 1400 * Math.sin( THREE.Math.degToRad( this.theta ) );
+      // this.camera.position.y = 1400 * Math.tan( THREE.Math.degToRad( thetaY ) );
+      // this.camera.position.z = 1400 * Math.cos( THREE.Math.degToRad( this.theta ) );
+      // this.camera.position.set(0,100,-500);
+      // this.camera.lookAt( this.scene.position );
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      this.renderer.render(this.scene, this.camera);
+
+      // this.ctx.clearRect(0, 0, this.WIDTH, this.HEIGHT);
+
+      this.renderBoard();
+      this.renderCurrentBlock();
+    }
+  }, {
+    key: 'renderBoard',
+    value: function renderBoard() {}
+  }, {
+    key: 'renderCurrentBlock',
+    value: function renderCurrentBlock() {}
+  }, {
+    key: 'drawBlock',
+    value: function drawBlock(x, y, z, id) {
+      var blockX = x * this.BLOCK_SIZE;
+      var blockY = y * this.BLOCK_SIZE + this.BLOCK_SIZE / 2;
+      var blockZ = z * this.BLOCK_SIZE;
+
+      var voxel = new _three2.default.Mesh(this.cubeGeo, this.cubeMaterial[id]);
+      voxel.position.set(blockX, blockY, blockZ);
+      // voxel.position.addScalar( this.BLOCK_SIZE / 2 );   // グリッドに合わせる。
+      // this.blocks.push(voxel);
+      // this.scene.add( this.blocks[n][j] );
+      this.scene.add(voxel);
+    }
+  }, {
+    key: 'start',
+    value: function start() {
+      var _this = this;
+      var startTime = Date.now();
+      var previousTime = startTime;
+      var previousRenderTime = previousTime;
+      var previousTickTime = previousTime;
+      this.loopId = null;
+
+      (function loop(timestamp) {
+        var nowTime = Date.now();
+        var elapsedTime = nowTime - startTime;
+        var deltaTime = nowTime - previousTime;
+        var deltaRenderTime = nowTime - previousRenderTime;
+        var deltaTickTime = nowTime - previousTickTime;
+
+        if (deltaRenderTime > _this.RENDER_INTERVAL) {
+          previousRenderTime = nowTime;
+          _this.render();
+        }
+        if (deltaTickTime > _this.TICK_INTERVAL) {
+          previousTickTime = nowTime;
+          _this.tick();
+        }
+
+        previousTime = nowTime;
+        _this.loopId = requestAnimationFrame(loop);
+      })();
+    }
+  }, {
+    key: 'stop',
+    value: function stop() {
+      cancelAnimationFrame(this.loopId);
+    }
+  }]);
+
+  return Tetris3dView;
+}();
+
+module.exports = Tetris3dView;
+
+},{"./../../bower_components/three.js/build/three.js":2}],5:[function(require,module,exports){
 "use strict";
 
 var _jquery = require("./../../bower_components/jquery/dist/jquery.js");
@@ -4560,74 +4794,114 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var $win = (0, _jquery2.default)(window);
 
-function Util() {
-  this.getWinSize();
-}
-
-Util.prototype.bindOnResize = function () {
-  var that = this;
-
-  $win.on("resize", that.throttle(function () {
-    that.getWinSize();
-  }, 500));
+// prefix:
+window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
+  var id = window.setTimeout(callback, 1000 / 60);return id;
+};
+window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || function (id) {
+  window.clearTimeout(id);
 };
 
-Util.prototype.getWinSize = function () {
-  window.winW = Math.max($win.width(), window.innerWidth || 0);
-  window.winH = Math.max($win.height(), window.innerHeight || 0);
-};
-
-Util.prototype.getRandomInt = function (min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-};
-
-Util.prototype.throttle = function (fn, interval) {
-  var isWaiting = false;
-  var exec = function exec(event) {
-    if (isWaiting) return;
-    isWaiting = true;
-    setTimeout(function () {
-      isWaiting = false;
-      fn(event);
-    }, interval);
-  };
-  return exec;
-};
-
-Util.prototype.debounce = function (fn, interval) {
-  var timer;
-  var exec = function exec(event) {
-    clearTimeout(timer);
-    timer = setTimeout(function () {
-      fn(event);
-    }, interval);
-  };
-  return exec;
-};
-
-Util.prototype.async = function (fnList) {
-  // fnList ... 第一引数にcallbackを取る関数の配列
-  (function exec(index) {
-    if (!fnList[index]) return;
-    fnList[index](function () {
-      exec(index + 1);
-    });
-  })(0);
-};
-Util.prototype.delay = function (time) {
-  // asyncで使う用
-  return function (callback) {
-    setTimeout(callback, time);
-  };
-};
-
-Util.prototype.zeroPadding = function (num, len) {
-  return (new Array(len).join("0") + num).slice(-len);
+var Util = {
+  TRANSITIONEND: "transitionend webkitTransitionEnd mozTransitionEnd msTransitionEnd oTransitionEnd",
+  ANIMATIONEND: "animationend webkitAnimationEnd mozAnimationEnd msAnimationEnd oAnimationEnd",
+  getWinSize: function getWinSize() {
+    window.winW = Math.max($win.width(), window.innerWidth || 0);
+    window.winH = Math.max($win.height(), window.innerHeight || 0);
+  },
+  getRandomInt: function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  },
+  throttle: function throttle(fn, interval) {
+    var isWaiting = false;
+    var exec = function exec(event) {
+      if (isWaiting) return;
+      isWaiting = true;
+      setTimeout(function () {
+        isWaiting = false;
+        fn(event);
+      }, interval);
+    };
+    return exec;
+  },
+  debounce: function debounce(fn, interval) {
+    var timer;
+    var exec = function exec(event) {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        fn(event);
+      }, interval);
+    };
+    return exec;
+  },
+  async: function async(fnList) {
+    // fnList ... 第一引数にcallbackを取る関数の配列
+    (function exec(index) {
+      if (!fnList[index]) return;
+      fnList[index](function () {
+        exec(index + 1);
+      });
+    })(0);
+  },
+  delay: function delay(time) {
+    // asyncで使う用
+    return function (callback) {
+      setTimeout(callback, time);
+    };
+  },
+  sleep: function sleep(time) {
+    // Deferred
+    return function () {
+      var dfd = _jquery2.default.Deferred();
+      setTimeout(function () {
+        dfd.resolve();
+      }, time);
+      return dfd.promise();
+    };
+  },
+  zeroPadding: function zeroPadding(num, len) {
+    return (new Array(len).join("0") + num).slice(-len);
+  },
+  getQueryString: function getQueryString() {
+    var result = {};
+    var search = win.location.search;
+    if (search.length > 1) {
+      var query = search.substring(1);
+      var parameters = query.split("&");
+      for (var i = 0; i < parameters.length; i++) {
+        var element = parameters[i].split("=");
+        var paramName = decodeURIComponent(element[0]);
+        var paramValue = decodeURIComponent(element[1]);
+        result[paramName] = paramValue;
+      }
+    }
+    return result;
+  },
+  getUserAgent: function getUserAgent() {
+    Util.ua = {};
+    Util.ua.name = window.navigator.userAgent.toLowerCase();
+    Util.ua.isSP = /ipod|iphone|ipad|android/i.test(Util.ua.name);
+    Util.ua.isPC = !Util.ua.isSP;
+    Util.ua.isIOS = /ipod|iphone|ipad/i.test(Util.ua.name);
+    Util.ua.isAndroid = /android/.test(Util.ua.name);
+    Util.ua.isIE8 = /msie 8/.test(Util.ua.name);
+    Util.ua.isIE9 = /msie 9/.test(Util.ua.name);
+    if (Util.ua.isSP) document.body.className += " isSP";
+    if (Util.ua.isPC) document.body.className += " isPC";
+    return Util.ua;
+  },
+  removeOtherDeviceElement: function removeOtherDeviceElement() {
+    if (Util.ua.isSP) {
+      (0, _jquery2.default)('.onlypc').remove();
+    } else {
+      (0, _jquery2.default)('.onlysp').remove();
+    }
+  }
 };
 
 module.exports = Util;
 
-},{"./../../bower_components/jquery/dist/jquery.js":1}],5:[function(require,module,exports){
+},{"./../../bower_components/jquery/dist/jquery.js":1}],6:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -4645,19 +4919,16 @@ var _Tetris3d = require('./Tetris3d');
 
 var _Tetris3d2 = _interopRequireDefault(_Tetris3d);
 
+var _Tetris3dView = require('./Tetris3dView');
+
+var _Tetris3dView2 = _interopRequireDefault(_Tetris3dView);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var util = new _Util2.default();
-var tetris = new _Tetris3d2.default();
-
-window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
-  var id = window.setTimeout(callback, 1000 / 60);return id;
-};
-window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || function (id) {
-  window.clearTimeout(id);
-};
+// const tetris = new Tetris3d();
+var tetrisView = new _Tetris3dView2.default();
 
 var Main = function () {
   function Main() {
@@ -4667,7 +4938,11 @@ var Main = function () {
   _createClass(Main, [{
     key: 'exec',
     value: function exec() {
-      tetris.init();
+      // tetris.init();
+      tetrisView.init();
+      tetrisView.start();
+      tetrisView.drawBlock(0, 0, 0, 0);
+      tetrisView.drawBlock(0, 0, 1, 1);
     }
   }]);
 
@@ -4677,4 +4952,4 @@ var Main = function () {
 var main = new Main();
 main.exec();
 
-},{"./../../bower_components/jquery/dist/jquery.js":1,"./Tetris3d":3,"./Util":4}]},{},[5]);
+},{"./../../bower_components/jquery/dist/jquery.js":1,"./Tetris3d":3,"./Tetris3dView":4,"./Util":5}]},{},[6]);
