@@ -1,67 +1,105 @@
 import $ from 'jquery';
 
-var $win = $(window);
+const $win = $(window);
 
-function Util(){
-  this.getWinSize();
-}
+// prefix: 
+window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function(callback){ var id = window.setTimeout(callback,1000/60); return id; };
+window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || function(id){ window.clearTimeout(id); };
 
-Util.prototype.bindOnResize = function(){
-  var that = this;
-  
-  $win.on("resize", that.throttle(function(){
-    that.getWinSize();
-  },500));
-};
-
-Util.prototype.getWinSize = function(){
-  window.winW = Math.max( $win.width(), (window.innerWidth || 0) );
-  window.winH = Math.max( $win.height(), (window.innerHeight || 0) );
-};
-
-Util.prototype.getRandomInt = function(min, max){
-  return Math.floor( Math.random() * (max - min + 1) ) + min;
-};
-
-Util.prototype.throttle = function(fn, interval){
-  var isWaiting = false;
-  var exec = function(event) {
-    if (isWaiting) return;
-    isWaiting = true;
-    setTimeout(function() {
+const Util = {
+  TRANSITIONEND: "transitionend webkitTransitionEnd mozTransitionEnd msTransitionEnd oTransitionEnd",
+  ANIMATIONEND: "animationend webkitAnimationEnd mozAnimationEnd msAnimationEnd oAnimationEnd",
+  getWinSize: function(){
+    window.winW = Math.max( $win.width(), (window.innerWidth || 0) );
+    window.winH = Math.max( $win.height(), (window.innerHeight || 0) );
+  },
+  getRandomInt: function(min, max){
+    return Math.floor( Math.random() * (max - min + 1) ) + min;
+  },
+  throttle: function(fn, interval){
+    var isWaiting = false;
+    var exec = function(event) {
+      if (isWaiting) return;
+      isWaiting = true;
+      setTimeout(function() {
         isWaiting = false;
         fn(event);
-    }, interval);
-  };
-  return exec;
-};
-
-Util.prototype.debounce = function(fn, interval){
-  var timer;
-  var exec = function(event) {
-    clearTimeout(timer);
-    timer = setTimeout(function() {
-      fn(event);
-    }, interval);
-  };
-  return exec;
-};
-
-Util.prototype.async = function(fnList){
-  // fnList ... 第一引数にcallbackを取る関数の配列
-  (function exec(index){
-    if (!fnList[index]) return;
-    fnList[index](function(){
-      exec(index + 1);
-    });
-  })(0);
-};
-Util.prototype.delay = function(time){ // asyncで使う用
-  return function(callback){ setTimeout(callback,time); };
-};
-
-Util.prototype.zeroPadding = function(num, len){
-  return (new Array(len).join("0") + num).slice(-len);
+      }, interval);
+    };
+    return exec;
+  },
+  debounce: function(fn, interval){
+    var timer;
+    var exec = function(event) {
+      clearTimeout(timer);
+      timer = setTimeout(function() {
+        fn(event);
+      }, interval);
+    };
+    return exec;
+  },
+  async: function(fnList){
+    // fnList ... 第一引数にcallbackを取る関数の配列
+    (function exec(index){
+      if (!fnList[index]) return;
+      fnList[index](function(){
+        exec(index + 1);
+      });
+    })(0);
+  },
+  delay: function(time){ // asyncで使う用
+    return function(callback){
+      setTimeout(callback, time);
+    };
+  },
+  sleep: function(time){ // Deferred
+    return function(){
+      var dfd = $.Deferred();
+      setTimeout(function(){
+        dfd.resolve();
+      }, time);
+      return dfd.promise(); 
+    };
+  },
+  zeroPadding: function(num, len){
+    return (new Array(len).join("0") + num).slice(-len);
+  },
+  getQueryString: function(){
+    var result = {};
+    var search = win.location.search;
+    if (search.length > 1) {
+      var query = search.substring(1);
+      var parameters = query.split("&");
+      for(var i = 0; i < parameters.length; i++){
+        var element = parameters[i].split("=");
+        var paramName = decodeURIComponent(element[0]);
+        var paramValue = decodeURIComponent(element[1]);
+        result[paramName] = paramValue;
+      }
+    }
+    return result;
+  },
+  getUserAgent: function(){
+    Util.ua = {};
+    Util.ua.name = window.navigator.userAgent.toLowerCase();
+    Util.ua.isSP = /ipod|iphone|ipad|android/i.test(Util.ua.name);
+    Util.ua.isPC = !Util.ua.isSP;
+    Util.ua.isIOS = /ipod|iphone|ipad/i.test(Util.ua.name);
+    Util.ua.isAndroid = /android/.test(Util.ua.name);
+    Util.ua.isIE8 = /msie 8/.test(Util.ua.name);
+    Util.ua.isIE9 = /msie 9/.test(Util.ua.name);
+    if (Util.ua.isSP) document.body.className += " isSP";
+    if (Util.ua.isPC) document.body.className += " isPC";
+    return Util.ua;
+  },
+  removeOtherDeviceElement: function(){
+    if (Util.ua.isSP) {
+      $('.onlypc').remove();
+    }
+    else {
+      $('.onlysp').remove();
+    }
+  },
 };
 
 module.exports = Util;
