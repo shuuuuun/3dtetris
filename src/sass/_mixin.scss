@@ -1,7 +1,12 @@
-// MIXIN
-@import "compass";
+@charset "UTF-8";
 
-// custom --------------------------------------------------
+// mixin --------------------------------------------------
+@mixin sp {
+  @media (max-width: $breakpoint) {
+    @content;
+  }
+}
+
 @mixin absolute($top,$right,$bottom,$left) {
     position: absolute;
     top: $top;
@@ -9,6 +14,7 @@
     left: $left;
     right: $right;
 }
+
 @mixin absolute-center() {
     margin: auto;
     position: absolute;
@@ -17,6 +23,7 @@
     left: 0;
     right: 0;
 }
+
 @mixin clearfix() {
     &:before,
     &:after {
@@ -26,6 +33,7 @@
         height: 0;
     }
 }
+
 @mixin placeholder {
     &::-webkit-input-placeholder {
         @content;
@@ -42,11 +50,13 @@
         @content;
     }
 }
+
 @mixin fix-webkit-placeholder {
     ::-webkit-input-placeholder {
         line-height: normal;
     }
 }
+
 @mixin reset-btn-style {
     border: none;
     outline: none;
@@ -96,6 +106,7 @@
     background: image-url($url) #{$option};
     background-size: $width $height;
 }
+
 @mixin bg-block($url,$textIndent: false,$center: true) {
     $width: image-width($url);
     $height: image-height($url);
@@ -115,6 +126,7 @@
     width : $width;
     height : $height;
 }
+
 @mixin bg-button($url,$sprite) {
     $width: image-width($url);
     $height: image-height($url);
@@ -155,6 +167,7 @@
     background: image-url($url) #{$option};
     background-size: $width $height;
 }
+
 @mixin bg-block-retina($url,$textIndent: false,$center: true) {
     $width: ceil(image-width($url) / 2);
     $height: ceil(image-height($url) / 2);
@@ -174,6 +187,7 @@
     width: $width;
     height: $height;
 }
+
 @mixin bg-button-retina($url,$sprite) {
     $width: image-width($url) / 2;
     $height: ceil(image-height($url) / 2);

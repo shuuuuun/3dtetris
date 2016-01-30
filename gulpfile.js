@@ -13,9 +13,11 @@ var SRC_SASS = SRC_PATH + 'sass/';
 var SRC_JS = SRC_PATH + 'js/';
 var GLOB_UNBUILD = '!' + SRC_PATH + '**/_**';
 var GLOB_JADE = SRC_JADE + '**/*.jade';
-var GLOB_SASS = SRC_SASS + '**/*.scss';
+var GLOB_SASS = SRC_SASS + '**/*.sass';
+var GLOB_SCSS = SRC_SASS + '**/*.scss';
 var GLOB_JS = SRC_JS + '**/*.js';
 var GLOB_CONFIG = CONFIG_PATH + '**/*';
+var COMPASS_CONFIG_PATH = CONFIG_PATH + 'compass.rb';
 
 var gulp = require('gulp');
 var plumber = require('gulp-plumber');
@@ -26,14 +28,18 @@ var webserver = require('gulp-webserver');
 var uglify = require('gulp-uglify');
 var gutil = require('gulp-util');
 var rename = require('gulp-rename');
-var concat = require('gulp-concat');
+var browserify = require('browserify');
+var debowerify = require('debowerify');
+var source = require('vinyl-source-stream');
+var babelify = require('babelify');
 var minifyCss = require('gulp-minify-css');
 var gulpif = require('gulp-if');
 var gulpIgnore = require('gulp-ignore');
 
 var config = {
-  concat: require(CONFIG_PATH + 'concat.js'),
   site: require(CONFIG_PATH + 'site.js'),
+  jsCopy: require(CONFIG_PATH + 'js-copy.js'),
+  browserify: require(CONFIG_PATH + 'browserify.js'),
 };
 
 if (gutil.env.port) PORT = gutil.env.port;
@@ -44,9 +50,11 @@ if (gutil.env.port) PORT = gutil.env.port;
 
 
 // tasks
-gulp.task('default',['watch', 'server', 'jade', 'js', 'compass']);
-
-gulp.task('build', ['jade', 'js', 'compass']);
+gulp.task('default',['watch', 'server', 'html', 'css', 'js']);
+gulp.task('build', ['html', 'css', 'js']);
+gulp.task('html', ['jade']);
+gulp.task('css', ['compass']);
+gulp.task('js', ['browserify', 'js-copy']);
 
 gulp.task('watch',function(){
   // gulp.watch(['./src/jade/*.jade','./src/jade/**/*.jade','./src/jade/**/_*.jade'],['jade']);
@@ -56,7 +64,7 @@ gulp.task('watch',function(){
   watch(GLOB_JS,function(){
     gulp.start('js');
   });
-  watch(GLOB_SASS,function(){
+  watch([GLOB_SASS, GLOB_SCSS],function(){
     gulp.start('compass');
   });
 });
@@ -92,34 +100,32 @@ gulp.task('jade',function(){
     .pipe(gulp.dest(DEST_HTML));
 });
 
-gulp.task('js',function(){
-  gulp.src(config.concat.files) // concat
-    .pipe(plumber())
-    .pipe(concat(config.concat.dest))
-    .pipe(gulpif(!gutil.env.develop, uglify({preserveComments: 'some'}))) // developモードではminifyしない
-    .pipe(gulp.dest(DEST_JS));
-  
-  gulp.src([GLOB_JS, GLOB_UNBUILD]) // copy
-    .pipe(plumber())
-    .pipe(gulpIgnore.exclude(function(file){ // concatconfigにあるファイルは除く
-      return config.concat.files.some(function(val){
-        return (file.path.indexOf(val) >= 0);
-      });
-    }))
-    .pipe(gulpif(!gutil.env.develop, uglify({preserveComments: 'some'}))) // developモードではminifyしない
-    .pipe(gulp.dest(DEST_JS));
-});
-
-gulp.task('css', ['compass']);
-
 gulp.task('compass',function(){
-  gulp.src([GLOB_SASS, GLOB_UNBUILD])
+  gulp.src([GLOB_SASS, GLOB_SCSS, GLOB_UNBUILD])
     .pipe(plumber())
     .pipe(compass({
-      config_file: './config.rb',
+      config_file: COMPASS_CONFIG_PATH,
       css: DEST_CSS,
       sass: SRC_SASS,
     }))
     .pipe(gulpif(!gutil.env.develop, minifyCss({ advanced: false }))) // developモードではminifyしない
     .pipe(gulp.dest(DEST_CSS));
+});
+
+gulp.task('js-copy',function(){
+  gulp.src(config.jsCopy.files)
+    .pipe(plumber())
+    .pipe(gulpif(!gutil.env.develop, uglify({preserveComments: 'some'}))) // developモードではminifyしない
+    .pipe(gulp.dest(DEST_JS));
+});
+
+gulp.task('browserify',function(){
+  browserify({
+    entries: config.browserify.entries,
+  })
+  .transform(babelify, { presets: ['es2015'] })
+  .transform(debowerify)
+  .bundle()
+  .pipe(source(config.browserify.dest))
+  .pipe(gulp.dest(DEST_JS));
 });

@@ -1,0 +1,40 @@
+@charset "UTF-8"
+
+// common ------------------------------
+.onlysp
+  display: none
+  
+  +sp
+    display: initial
+
+.onlypc
+  display: initial
+  
+  +sp
+    display: none
+
+.isSP
+  .onlysp
+    display: initial
+  
+  .onlypc
+    display: none
+
+.hidden
+  display: none !important
+
+
+// element ------------------------------
+html, body
+  font-family: $MAIN_FONT
+  font-size: 10px
+
+body *
+  box-sizing: border-box
+
+
+// wrapper ------------------------------
+.wrapper
+  font-size: 1.6rem
+  min-width: 320px
+
