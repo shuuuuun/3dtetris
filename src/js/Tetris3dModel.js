@@ -7,7 +7,6 @@ const CONST = Tetris3dCONST;
 class Tetris3dModel extends EventEmitter2 {
   constructor() {
     super();
-    
   };
   
   newGame() {
@@ -32,7 +31,7 @@ class Tetris3dModel extends EventEmitter2 {
   
   startGame() {
     this.isPlayng = true;
-    this.createNewBlock();
+    this.createCurrentBlock();
     this.createNextBlock();
     this.tick();
     // this.renderId = setInterval(() => { this.render(); }, this.RENDER_INTERVAL);
@@ -53,62 +52,58 @@ class Tetris3dModel extends EventEmitter2 {
   };
   
   initBlock() {
-    this.currentBlock = [];
+    this.nextBlock = this.createBlock(null);
+    this.currentBlock = this.createBlock(null);
+    this.currentBlock.x = CONST.START_X;
+    this.currentBlock.y = CONST.START_Y;
+    this.currentBlock.z = CONST.START_Z;
+  };
+  
+  createBlock(id) {
+    // id = id || 0;
+    // const block = {};
+    // Object.assign(block, CONST.BLOCK_LIST[id]); // オブジェクトの複製（シャローコピー）
+    const blockCONST = CONST.BLOCK_LIST[id] || {};
+    const block = {
+      id: id,
+      color: blockCONST.color,
+      shape: [], // blockの形状
+      x: 0,
+      y: 0,
+      z: 0,
+    };
+    const shape = blockCONST.shape;
+    block.shape = [];
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
-      this.currentBlock[z] = [];
+      block.shape[z] = [];
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
-        this.currentBlock[z][y] = [];
+        block.shape[z][y] = [];
         for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
-          this.currentBlock[z][y][x] = 0;
+          block.shape[z][y][x] = shape[z][y][x] || 0;
         }
       }
     }
-    this.currentBlockId = 0;
-    this.currentX = CONST.START_X;
-    this.currentY = CONST.START_Y;
-    this.currentZ = CONST.START_Z;
-  };
-  
-  createNewBlock(index) {
-    const block = {};
-    Object.assign(block, CONST.BLOCK_LIST[index]); // オブジェクトの複製
     this.emit('newblockcreated');
     return block;
   };
   
   createCurrentBlock() {
-    if (!this.nextBlock[0]) this.createNextBlock();
+    if (!this.nextBlock) this.createNextBlock();
     this.currentBlock = this.nextBlock;
-    this.currentBlockId = this.nextBlockId;
-    this.currentX = CONST.START_X;
-    this.currentY = CONST.START_Y;
+    this.currentBlock.x = CONST.START_X;
+    this.currentBlock.y = CONST.START_Y;
+    this.currentBlock.z = CONST.START_Z;
     this.emit('currentblockcreated');
   };
   
   createNextBlock() {
-    var index = Math.floor(Math.random() * CONST.SHAPE_LIST.length);
-    this.createNewBlock(index);
-    var shape = CONST.SHAPE_LIST[index];
-    if (this.frameCount > 0 && this.frameCount % this.SPECIAL_SHAPE_INCIDENCE === 0) {
-      index = Math.floor(Math.random() * CONST.SPECIAL_SHAPE_LIST.length);
-      shape = CONST.SPECIAL_SHAPE_LIST[index];
-      index += CONST.SHAPE_LIST.length;
-    }
-    this.nextBlockId = index;
-    this.nextBlock = [];
-    for (var y = 0; y < CONST.VOXEL_LENGTH; ++y) {
-      this.nextBlock[y] = [];
-      for (var x = 0; x < CONST.VOXEL_LENGTH; ++x) {
-        var i = CONST.VOXEL_LENGTH * y + x;
-        this.nextBlock[y][x] = (!!shape[i]) ? (index + 1) : 0;
-      }
-    }
+    var id = Math.floor(Math.random() * CONST.BLOCK_LIST.length);
+    this.nextBlock = this.createBlock(id);
     this.emit('nextblockcreated');
   };
   
   // メインでループする関数
   tick() {
-    var _this = this;
     clearTimeout(this.tickId);
     if (!this.moveBlock('down')) {
       this.freeze();
@@ -116,38 +111,35 @@ class Tetris3dModel extends EventEmitter2 {
       if (this.checkGameOver()) {
         this.emit('gameover');
         this.quitGame().then(function(){
-          // _this.newGame();
         });
         return false;
       }
       this.frameCount++;
-      this.createNewBlock();
+      this.createCurrentBlock();
       this.createNextBlock();
     }
-    this.tickId = setTimeout(function(){ _this.tick(); }, this.tickInterval);
+    this.tickId = setTimeout(() => { this.tick(); }, this.tickInterval);
     this.emit('tick');
   };
   
   quitGame() {
-    var _this = this;
     var dfd = $.Deferred();
-    this.gameOverEffect().then(function(){
-      _this.isPlayng = false;
-      _this.emit('gamequit');
+    this.gameOverEffect().then(() => {
+      this.isPlayng = false;
+      this.emit('gamequit');
       dfd.resolve();
     });
     return dfd.promise();
   };
-  stopGame alias
+  stopGame() { this.quitGame() }; // alias
   
   pauseGame() {
     clearTimeout(this.tickId);
   };
   
   resumeGame() {
-    var _this = this;
     if (!this.isPlayng) return;
-    this.tickId = setTimeout(function(){ _this.tick(); }, this.tickInterval);
+    this.tickId = setTimeout(() => { this.tick(); }, this.tickInterval);
   };
   
   freeze() {
