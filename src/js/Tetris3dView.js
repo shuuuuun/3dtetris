@@ -44,16 +44,16 @@ class Tetris3dView {
     
     
     // grid ------------------------------
-    // const gridstep = this.BLOCK_SIZE, // gridの間隔
-    //  gridsize = 10, // gridのマスの数
     const size = this.FIELD_SIZE * this.BLOCK_SIZE;
     const step = this.BLOCK_SIZE;
     const geometry = new THREE.Geometry();
     for ( let i = 0; i <= size; i += step ) {
-      geometry.vertices.push( new THREE.Vector3(    0, 0, i ) );
-      geometry.vertices.push( new THREE.Vector3( size, 0, i ) );
-      geometry.vertices.push( new THREE.Vector3( i, 0,    0 ) );
-      geometry.vertices.push( new THREE.Vector3( i, 0, size ) );
+      geometry.vertices.push( new THREE.Vector3(    0, 0,    i ) );
+      geometry.vertices.push( new THREE.Vector3( size, 0,    i ) );
+      geometry.vertices.push( new THREE.Vector3(    i, 0,    i ) );
+      geometry.vertices.push( new THREE.Vector3(    i, 0,    0 ) );
+      geometry.vertices.push( new THREE.Vector3(    i, 0, size ) );
+      geometry.vertices.push( new THREE.Vector3(    0, 0, size ) );
     }
     const material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2, transparent: true } );
     const line = new THREE.Line( geometry, material );
