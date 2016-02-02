@@ -44,21 +44,10 @@ class Tetris3dView {
     
     
     // grid ------------------------------
-    const size = this.FIELD_SIZE * this.BLOCK_SIZE;
+    const size = this.FIELD_SIZE * this.BLOCK_SIZE / 2;
     const step = this.BLOCK_SIZE;
-    const geometry = new THREE.Geometry();
-    for ( let i = 0; i <= size; i += step ) {
-      geometry.vertices.push( new THREE.Vector3(    0, 0,    i ) );
-      geometry.vertices.push( new THREE.Vector3( size, 0,    i ) );
-      geometry.vertices.push( new THREE.Vector3(    i, 0,    i ) );
-      geometry.vertices.push( new THREE.Vector3(    i, 0,    0 ) );
-      geometry.vertices.push( new THREE.Vector3(    i, 0, size ) );
-      geometry.vertices.push( new THREE.Vector3(    0, 0, size ) );
-    }
-    const material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2, transparent: true } );
-    const line = new THREE.Line( geometry, material );
-    line.type = THREE.LinePieces;
-    this.scene.add( line );
+    const grid = new THREE.GridHelper(size, step);
+    this.scene.add( grid );
     
     
     // plane ------------------------------
