@@ -14,6 +14,7 @@ class Main {
   }
   exec() {
     // tetris.init();
+    tetris3dModel.newGame();
     tetrisView.init();
     tetrisView.start();
     tetrisView.drawBlock(0, 0, 0, 0);

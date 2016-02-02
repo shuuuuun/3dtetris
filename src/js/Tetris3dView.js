@@ -32,7 +32,7 @@ class Tetris3dView {
     // this.combinedcamera = new THREE.CombinedCamera( this.width, this.height, 45, 1, 10000, 1, 10000 );
     this.camera = this.perscamera;
     // this.camera.position.y = 800;
-    this.camera.position.set(100, 100, 100);
+    this.camera.position.set(500, 500, 500);
     this.camera.up.set(0, 1, 0);
     this.camera.lookAt({ x:0, y:0, z:0 });
     

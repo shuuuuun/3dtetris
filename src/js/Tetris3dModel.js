@@ -1,10 +1,10 @@
 import $ from 'jquery';
-import EventEmitter2 from 'eventemitter2';
+import EE2 from 'eventemitter2';
 import Tetris3dCONST from './Tetris3dCONST';
 
 const CONST = Tetris3dCONST;
 
-class Tetris3dModel extends EventEmitter2 {
+class Tetris3dModel extends EE2.EventEmitter2 {
   constructor() {
     super();
   };
@@ -43,7 +43,7 @@ class Tetris3dModel extends EventEmitter2 {
     for ( let z = 0; z < CONST.LOGICAL_ROWS; ++z ) {
       this.board[z] = [];
       for ( let y = 0; y < CONST.COLS; ++y ) {
-        this.board[z][y] = 0;
+        this.board[z][y] = [];
         for ( let x = 0; x < CONST.COLS; ++x ) {
           this.board[z][y][x] = 0;
         }
@@ -52,8 +52,8 @@ class Tetris3dModel extends EventEmitter2 {
   };
   
   initBlock() {
-    this.nextBlock = this.createBlock(null);
-    this.currentBlock = this.createBlock(null);
+    this.nextBlock = this.createBlock(0);
+    this.currentBlock = this.createBlock(0);
     this.currentBlock.x = CONST.START_X;
     this.currentBlock.y = CONST.START_Y;
     this.currentBlock.z = CONST.START_Z;
@@ -110,8 +110,7 @@ class Tetris3dModel extends EventEmitter2 {
       this.clearLines();
       if (this.checkGameOver()) {
         this.emit('gameover');
-        this.quitGame().then(function(){
-        });
+        // this.quitGame().then(function(){});
         return false;
       }
       this.frameCount++;
@@ -124,11 +123,11 @@ class Tetris3dModel extends EventEmitter2 {
   
   quitGame() {
     var dfd = $.Deferred();
-    this.gameOverEffect().then(() => {
-      this.isPlayng = false;
-      this.emit('gamequit');
-      dfd.resolve();
-    });
+    // this.gameOverEffect().then(() => {
+    //   this.isPlayng = false;
+    //   this.emit('gamequit');
+    //   dfd.resolve();
+    // });
     return dfd.promise();
   };
   stopGame() { this.quitGame() }; // alias
@@ -143,26 +142,29 @@ class Tetris3dModel extends EventEmitter2 {
   };
   
   freeze() {
-    for ( var y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
-      for ( var x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
-        var boardX = x + this.currentX;
-        var boardY = y + this.currentY;
-        if (!this.currentBlock[y][x] || boardY < 0) continue;
-        this.board[boardY][boardX] = this.currentBlock[y][x];
+    for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
+      for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
+        for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
+          let boardX = x + this.currentBlock.x;
+          let boardY = y + this.currentBlock.y;
+          let boardZ = z + this.currentBlock.z;
+          if (!this.currentBlock.shape[z][y][x] || boardZ < 0) continue;
+          this.board[boardZ][boardY][boardX] = this.currentBlock.shape[z][y][x];
+        }
       }
     }
     this.emit('freeze');
   };
   
   clearLines() {
-    var _this = this;
-    var clearLineLength = 0; // 同時消去ライン数
-    var filledRowList = [];
-    var blankRow = Array.apply(null, Array(CONST.COLS)).map(function(){ return 0; }); // => [0,0,0,0,0,...]
-    var dfd = $.Deferred();
+    let _this = this;
+    let clearLineLength = 0; // 同時消去ライン数
+    let filledRowList = [];
+    let blankRow = Array.apply(null, Array(CONST.COLS)).map(function(){ return 0; }); // => [0,0,0,0,0,...]
+    let dfd = $.Deferred();
     dfd.resolve();
-    for ( var y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
-      var isRowFilled = this.board[y].every(function(val){
+    for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
+      let isRowFilled = this.board[y].every(function(val){
         return val !== 0;
       });
       if (!isRowFilled) continue;
@@ -172,7 +174,7 @@ class Tetris3dModel extends EventEmitter2 {
       this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
     }
     // clear line drop
-    dfd.then(dropRow(x, y));
+    // dfd.then(dropRow(x, y));
     
     // calc score
     this.score += (clearLineLength <= 1) ? clearLineLength : Math.pow(2, clearLineLength);
@@ -181,7 +183,7 @@ class Tetris3dModel extends EventEmitter2 {
     
     function dropRow(x, y) {
       return function(){
-        var dfd = $.Deferred();
+        let dfd = $.Deferred();
         if (!filledRowList.length) return;
         filledRowList.reverse().forEach(function(row){
           _this.board.splice(row, 1);
@@ -197,29 +199,29 @@ class Tetris3dModel extends EventEmitter2 {
     switch (code) {
       case 'left':
         if ( this.valid(-1, 0) ) {
-          --this.currentX;
+          --this.currentBlock.x;
           return true;
         }
         return false;
         break;
       case 'right':
         if ( this.valid(1, 0) ) {
-          ++this.currentX;
+          ++this.currentBlock.x;
           return true;
         }
         return false;
         break;
       case 'down':
         if ( this.valid(0, 1) ) {
-          ++this.currentY;
+          ++this.currentBlock.y;
           return true;
         }
         return false;
         break;
       case 'rotate':
-        var rotatedBlock = this.rotate(this.currentBlock);
-        if ( this.valid(0, 0, rotatedBlock) ) {
-          this.currentBlock = rotatedBlock;
+        let rotatedBlockShape = this.rotate(this.currentBlock);
+        if ( this.valid(0, 0, rotatedBlockShape) ) {
+          this.currentBlock.shape = rotatedBlockShape;
           return true;
         }
         return false;
@@ -227,37 +229,45 @@ class Tetris3dModel extends EventEmitter2 {
     }
   };
   
-  rotate() {
-    var newBlock = [];
-    for ( var y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
-      newBlock[y] = [];
-      for ( var x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
-        newBlock[y][x] = this.currentBlock[CONST.VOXEL_LENGTH - 1 - x][y];
+  rotate(block) {
+    let newBlockShape = [];
+    for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
+      newBlockShape[z] = [];
+      for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
+        newBlockShape[z][y] = [];
+        for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
+          newBlockShape[z][y][x] = block.shape[CONST.VOXEL_LENGTH - 1 - x][y];
+        }
       }
     }
-    return newBlock;
+    return newBlockShape;
   };
   
-  valid(offsetX, offsetY, newBlock) {
+  valid(offsetX, offsetY, offsetZ, newBlockShape) {
     offsetX = offsetX || 0;
     offsetY = offsetY || 0;
-    var nextX = this.currentX + offsetX;
-    var nextY = this.currentY + offsetY;
-    block = newBlock || this.currentBlock;
+    offsetZ = offsetZ || 0;
+    let nextX = this.currentX + offsetX;
+    let nextY = this.currentY + offsetY;
+    let nextZ = this.currentZ + offsetZ;
+    let blockShape = newBlockShape || this.currentBlock.shape;
     
-    for ( var y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
-      for ( var x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
-        var boardX = x + nextX;
-        var boardY = y + nextY;
-        if (!block[y][x]) continue;
-        if ( typeof this.board[boardY] === 'undefined' // 次の位置が盤面外なら
-          || typeof this.board[boardY][boardX] === 'undefined' // 盤面外なら
-          || this.board[boardY][boardX] // 次の位置にブロックがあれば
-          || boardX < 0 // 左壁
-          || boardX >= CONST.COLS // 右壁
-          || boardY >= CONST.LOGICAL_ROWS ) { // 底面
-          
-          return false;
+    for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
+      for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
+        for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
+          let boardX = x + nextX;
+          let boardY = y + nextY;
+          let boardZ = z + nextZ;
+          if (!blockShape[z][y][x]) continue;
+          if ( typeof this.board[boardY] === 'undefined' // 次の位置が盤面外なら
+            || typeof this.board[boardY][boardX] === 'undefined' // 盤面外なら
+            || this.board[boardY][boardX] // 次の位置にブロックがあれば
+            || boardX < 0 // 左壁
+            || boardX >= CONST.COLS // 右壁
+            || boardY >= CONST.LOGICAL_ROWS ) { // 底面
+            
+            return false;
+          }
         }
       }
     }
@@ -266,14 +276,17 @@ class Tetris3dModel extends EventEmitter2 {
   
   checkGameOver() {
     // ブロックの全てが画面外ならゲームオーバー
-    var isGameOver = true;
-    for ( var y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
-      for ( var x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
-        var boardX = x + this.currentX;
-        var boardY = y + this.currentY;
-        if (boardY >= CONST.HIDDEN_ROWS) {
-          isGameOver = false;
-          break;
+    let isGameOver = true;
+    for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
+      for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
+        for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
+          let boardX = x + this.currentX;
+          let boardY = y + this.currentY;
+          let boardZ = z + this.currentZ;
+          if (boardZ >= CONST.HIDDEN_ROWS) {
+            isGameOver = false;
+            break;
+          }
         }
       }
     }
@@ -281,4 +294,4 @@ class Tetris3dModel extends EventEmitter2 {
   };
 }
 
-module.exports = Tetris3dView;
+module.exports = Tetris3dModel;
