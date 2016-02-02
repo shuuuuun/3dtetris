@@ -1,4 +1,568 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+/*!
+ * EventEmitter2
+ * https://github.com/hij1nx/EventEmitter2
+ *
+ * Copyright (c) 2013 hij1nx
+ * Licensed under the MIT license.
+ */
+;!function (undefined) {
+
+  var isArray = Array.isArray ? Array.isArray : function _isArray(obj) {
+    return Object.prototype.toString.call(obj) === "[object Array]";
+  };
+  var defaultMaxListeners = 10;
+
+  function init() {
+    this._events = {};
+    if (this._conf) {
+      configure.call(this, this._conf);
+    }
+  }
+
+  function configure(conf) {
+    if (conf) {
+
+      this._conf = conf;
+
+      conf.delimiter && (this.delimiter = conf.delimiter);
+      conf.maxListeners && (this._events.maxListeners = conf.maxListeners);
+      conf.wildcard && (this.wildcard = conf.wildcard);
+      conf.newListener && (this.newListener = conf.newListener);
+
+      if (this.wildcard) {
+        this.listenerTree = {};
+      }
+    }
+  }
+
+  function EventEmitter(conf) {
+    this._events = {};
+    this.newListener = false;
+    configure.call(this, conf);
+  }
+
+  //
+  // Attention, function return type now is array, always !
+  // It has zero elements if no any matches found and one or more
+  // elements (leafs) if there are matches
+  //
+  function searchListenerTree(handlers, type, tree, i) {
+    if (!tree) {
+      return [];
+    }
+    var listeners = [],
+        leaf,
+        len,
+        branch,
+        xTree,
+        xxTree,
+        isolatedBranch,
+        endReached,
+        typeLength = type.length,
+        currentType = type[i],
+        nextType = type[i + 1];
+    if (i === typeLength && tree._listeners) {
+      //
+      // If at the end of the event(s) list and the tree has listeners
+      // invoke those listeners.
+      //
+      if (typeof tree._listeners === 'function') {
+        handlers && handlers.push(tree._listeners);
+        return [tree];
+      } else {
+        for (leaf = 0, len = tree._listeners.length; leaf < len; leaf++) {
+          handlers && handlers.push(tree._listeners[leaf]);
+        }
+        return [tree];
+      }
+    }
+
+    if (currentType === '*' || currentType === '**' || tree[currentType]) {
+      //
+      // If the event emitted is '*' at this part
+      // or there is a concrete match at this patch
+      //
+      if (currentType === '*') {
+        for (branch in tree) {
+          if (branch !== '_listeners' && tree.hasOwnProperty(branch)) {
+            listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i + 1));
+          }
+        }
+        return listeners;
+      } else if (currentType === '**') {
+        endReached = i + 1 === typeLength || i + 2 === typeLength && nextType === '*';
+        if (endReached && tree._listeners) {
+          // The next element has a _listeners, add it to the handlers.
+          listeners = listeners.concat(searchListenerTree(handlers, type, tree, typeLength));
+        }
+
+        for (branch in tree) {
+          if (branch !== '_listeners' && tree.hasOwnProperty(branch)) {
+            if (branch === '*' || branch === '**') {
+              if (tree[branch]._listeners && !endReached) {
+                listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], typeLength));
+              }
+              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i));
+            } else if (branch === nextType) {
+              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i + 2));
+            } else {
+              // No match on this one, shift into the tree but not in the type array.
+              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i));
+            }
+          }
+        }
+        return listeners;
+      }
+
+      listeners = listeners.concat(searchListenerTree(handlers, type, tree[currentType], i + 1));
+    }
+
+    xTree = tree['*'];
+    if (xTree) {
+      //
+      // If the listener tree will allow any match for this part,
+      // then recursively explore all branches of the tree
+      //
+      searchListenerTree(handlers, type, xTree, i + 1);
+    }
+
+    xxTree = tree['**'];
+    if (xxTree) {
+      if (i < typeLength) {
+        if (xxTree._listeners) {
+          // If we have a listener on a '**', it will catch all, so add its handler.
+          searchListenerTree(handlers, type, xxTree, typeLength);
+        }
+
+        // Build arrays of matching next branches and others.
+        for (branch in xxTree) {
+          if (branch !== '_listeners' && xxTree.hasOwnProperty(branch)) {
+            if (branch === nextType) {
+              // We know the next element will match, so jump twice.
+              searchListenerTree(handlers, type, xxTree[branch], i + 2);
+            } else if (branch === currentType) {
+              // Current node matches, move into the tree.
+              searchListenerTree(handlers, type, xxTree[branch], i + 1);
+            } else {
+              isolatedBranch = {};
+              isolatedBranch[branch] = xxTree[branch];
+              searchListenerTree(handlers, type, { '**': isolatedBranch }, i + 1);
+            }
+          }
+        }
+      } else if (xxTree._listeners) {
+        // We have reached the end and still on a '**'
+        searchListenerTree(handlers, type, xxTree, typeLength);
+      } else if (xxTree['*'] && xxTree['*']._listeners) {
+        searchListenerTree(handlers, type, xxTree['*'], typeLength);
+      }
+    }
+
+    return listeners;
+  }
+
+  function growListenerTree(type, listener) {
+
+    type = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+
+    //
+    // Looks for two consecutive '**', if so, don't add the event at all.
+    //
+    for (var i = 0, len = type.length; i + 1 < len; i++) {
+      if (type[i] === '**' && type[i + 1] === '**') {
+        return;
+      }
+    }
+
+    var tree = this.listenerTree;
+    var name = type.shift();
+
+    while (name) {
+
+      if (!tree[name]) {
+        tree[name] = {};
+      }
+
+      tree = tree[name];
+
+      if (type.length === 0) {
+
+        if (!tree._listeners) {
+          tree._listeners = listener;
+        } else if (typeof tree._listeners === 'function') {
+          tree._listeners = [tree._listeners, listener];
+        } else if (isArray(tree._listeners)) {
+
+          tree._listeners.push(listener);
+
+          if (!tree._listeners.warned) {
+
+            var m = defaultMaxListeners;
+
+            if (typeof this._events.maxListeners !== 'undefined') {
+              m = this._events.maxListeners;
+            }
+
+            if (m > 0 && tree._listeners.length > m) {
+
+              tree._listeners.warned = true;
+              console.error('(node) warning: possible EventEmitter memory ' + 'leak detected. %d listeners added. ' + 'Use emitter.setMaxListeners() to increase limit.', tree._listeners.length);
+              console.trace();
+            }
+          }
+        }
+        return true;
+      }
+      name = type.shift();
+    }
+    return true;
+  }
+
+  // By default EventEmitters will print a warning if more than
+  // 10 listeners are added to it. This is a useful default which
+  // helps finding memory leaks.
+  //
+  // Obviously not all Emitters should be limited to 10. This function allows
+  // that to be increased. Set to zero for unlimited.
+
+  EventEmitter.prototype.delimiter = '.';
+
+  EventEmitter.prototype.setMaxListeners = function (n) {
+    this._events || init.call(this);
+    this._events.maxListeners = n;
+    if (!this._conf) this._conf = {};
+    this._conf.maxListeners = n;
+  };
+
+  EventEmitter.prototype.event = '';
+
+  EventEmitter.prototype.once = function (event, fn) {
+    this.many(event, 1, fn);
+    return this;
+  };
+
+  EventEmitter.prototype.many = function (event, ttl, fn) {
+    var self = this;
+
+    if (typeof fn !== 'function') {
+      throw new Error('many only accepts instances of Function');
+    }
+
+    function listener() {
+      if (--ttl === 0) {
+        self.off(event, listener);
+      }
+      fn.apply(this, arguments);
+    }
+
+    listener._origin = fn;
+
+    this.on(event, listener);
+
+    return self;
+  };
+
+  EventEmitter.prototype.emit = function () {
+
+    this._events || init.call(this);
+
+    var type = arguments[0];
+
+    if (type === 'newListener' && !this.newListener) {
+      if (!this._events.newListener) {
+        return false;
+      }
+    }
+
+    // Loop through the *_all* functions and invoke them.
+    if (this._all) {
+      var l = arguments.length;
+      var args = new Array(l - 1);
+      for (var i = 1; i < l; i++) {
+        args[i - 1] = arguments[i];
+      }for (i = 0, l = this._all.length; i < l; i++) {
+        this.event = type;
+        this._all[i].apply(this, args);
+      }
+    }
+
+    // If there is no 'error' event listener then throw.
+    if (type === 'error') {
+
+      if (!this._all && !this._events.error && !(this.wildcard && this.listenerTree.error)) {
+
+        if (arguments[1] instanceof Error) {
+          throw arguments[1]; // Unhandled 'error' event
+        } else {
+            throw new Error("Uncaught, unspecified 'error' event.");
+          }
+        return false;
+      }
+    }
+
+    var handler;
+
+    if (this.wildcard) {
+      handler = [];
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      searchListenerTree.call(this, handler, ns, this.listenerTree, 0);
+    } else {
+      handler = this._events[type];
+    }
+
+    if (typeof handler === 'function') {
+      this.event = type;
+      if (arguments.length === 1) {
+        handler.call(this);
+      } else if (arguments.length > 1) switch (arguments.length) {
+        case 2:
+          handler.call(this, arguments[1]);
+          break;
+        case 3:
+          handler.call(this, arguments[1], arguments[2]);
+          break;
+        // slower
+        default:
+          var l = arguments.length;
+          var args = new Array(l - 1);
+          for (var i = 1; i < l; i++) {
+            args[i - 1] = arguments[i];
+          }handler.apply(this, args);
+      }
+      return true;
+    } else if (handler) {
+      var l = arguments.length;
+      var args = new Array(l - 1);
+      for (var i = 1; i < l; i++) {
+        args[i - 1] = arguments[i];
+      }var listeners = handler.slice();
+      for (var i = 0, l = listeners.length; i < l; i++) {
+        this.event = type;
+        listeners[i].apply(this, args);
+      }
+      return listeners.length > 0 || !!this._all;
+    } else {
+      return !!this._all;
+    }
+  };
+
+  EventEmitter.prototype.on = function (type, listener) {
+
+    if (typeof type === 'function') {
+      this.onAny(type);
+      return this;
+    }
+
+    if (typeof listener !== 'function') {
+      throw new Error('on only accepts instances of Function');
+    }
+    this._events || init.call(this);
+
+    // To avoid recursion in the case that type == "newListeners"! Before
+    // adding it to the listeners, first emit "newListeners".
+    this.emit('newListener', type, listener);
+
+    if (this.wildcard) {
+      growListenerTree.call(this, type, listener);
+      return this;
+    }
+
+    if (!this._events[type]) {
+      // Optimize the case of one listener. Don't need the extra array object.
+      this._events[type] = listener;
+    } else if (typeof this._events[type] === 'function') {
+      // Adding the second element, need to change to array.
+      this._events[type] = [this._events[type], listener];
+    } else if (isArray(this._events[type])) {
+      // If we've already got an array, just append.
+      this._events[type].push(listener);
+
+      // Check for listener leak
+      if (!this._events[type].warned) {
+
+        var m = defaultMaxListeners;
+
+        if (typeof this._events.maxListeners !== 'undefined') {
+          m = this._events.maxListeners;
+        }
+
+        if (m > 0 && this._events[type].length > m) {
+
+          this._events[type].warned = true;
+          console.error('(node) warning: possible EventEmitter memory ' + 'leak detected. %d listeners added. ' + 'Use emitter.setMaxListeners() to increase limit.', this._events[type].length);
+          console.trace();
+        }
+      }
+    }
+    return this;
+  };
+
+  EventEmitter.prototype.onAny = function (fn) {
+
+    if (typeof fn !== 'function') {
+      throw new Error('onAny only accepts instances of Function');
+    }
+
+    if (!this._all) {
+      this._all = [];
+    }
+
+    // Add the function to the event listener collection.
+    this._all.push(fn);
+    return this;
+  };
+
+  EventEmitter.prototype.addListener = EventEmitter.prototype.on;
+
+  EventEmitter.prototype.off = function (type, listener) {
+    if (typeof listener !== 'function') {
+      throw new Error('removeListener only takes instances of Function');
+    }
+
+    var handlers,
+        leafs = [];
+
+    if (this.wildcard) {
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0);
+    } else {
+      // does not use listeners(), so no side effect of creating _events[type]
+      if (!this._events[type]) return this;
+      handlers = this._events[type];
+      leafs.push({ _listeners: handlers });
+    }
+
+    for (var iLeaf = 0; iLeaf < leafs.length; iLeaf++) {
+      var leaf = leafs[iLeaf];
+      handlers = leaf._listeners;
+      if (isArray(handlers)) {
+
+        var position = -1;
+
+        for (var i = 0, length = handlers.length; i < length; i++) {
+          if (handlers[i] === listener || handlers[i].listener && handlers[i].listener === listener || handlers[i]._origin && handlers[i]._origin === listener) {
+            position = i;
+            break;
+          }
+        }
+
+        if (position < 0) {
+          continue;
+        }
+
+        if (this.wildcard) {
+          leaf._listeners.splice(position, 1);
+        } else {
+          this._events[type].splice(position, 1);
+        }
+
+        if (handlers.length === 0) {
+          if (this.wildcard) {
+            delete leaf._listeners;
+          } else {
+            delete this._events[type];
+          }
+        }
+        return this;
+      } else if (handlers === listener || handlers.listener && handlers.listener === listener || handlers._origin && handlers._origin === listener) {
+        if (this.wildcard) {
+          delete leaf._listeners;
+        } else {
+          delete this._events[type];
+        }
+      }
+    }
+
+    return this;
+  };
+
+  EventEmitter.prototype.offAny = function (fn) {
+    var i = 0,
+        l = 0,
+        fns;
+    if (fn && this._all && this._all.length > 0) {
+      fns = this._all;
+      for (i = 0, l = fns.length; i < l; i++) {
+        if (fn === fns[i]) {
+          fns.splice(i, 1);
+          return this;
+        }
+      }
+    } else {
+      this._all = [];
+    }
+    return this;
+  };
+
+  EventEmitter.prototype.removeListener = EventEmitter.prototype.off;
+
+  EventEmitter.prototype.removeAllListeners = function (type) {
+    if (arguments.length === 0) {
+      !this._events || init.call(this);
+      return this;
+    }
+
+    if (this.wildcard) {
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      var leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0);
+
+      for (var iLeaf = 0; iLeaf < leafs.length; iLeaf++) {
+        var leaf = leafs[iLeaf];
+        leaf._listeners = null;
+      }
+    } else {
+      if (!this._events[type]) return this;
+      this._events[type] = null;
+    }
+    return this;
+  };
+
+  EventEmitter.prototype.listeners = function (type) {
+    if (this.wildcard) {
+      var handlers = [];
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      searchListenerTree.call(this, handlers, ns, this.listenerTree, 0);
+      return handlers;
+    }
+
+    this._events || init.call(this);
+
+    if (!this._events[type]) this._events[type] = [];
+    if (!isArray(this._events[type])) {
+      this._events[type] = [this._events[type]];
+    }
+    return this._events[type];
+  };
+
+  EventEmitter.prototype.listenersAny = function () {
+
+    if (this._all) {
+      return this._all;
+    } else {
+      return [];
+    }
+  };
+
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(function () {
+      return EventEmitter;
+    });
+  } else if ((typeof exports === 'undefined' ? 'undefined' : _typeof(exports)) === 'object') {
+    // CommonJS
+    exports.EventEmitter2 = EventEmitter;
+  } else {
+    // Browser global.
+    window.EventEmitter2 = EventEmitter;
+  }
+}();
+
+},{}],2:[function(require,module,exports){
 "use strict";var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(obj){return typeof obj;}:function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol?"symbol":typeof obj;}; /*!
  * jQuery JavaScript Library v2.1.4
  * http://jquery.com/
@@ -1455,7 +2019,7 @@ _$=window.$;jQuery.noConflict=function(deep){if(window.$===jQuery){window.$=_$;}
 // and CommonJS for browser emulators (#13566)
 if((typeof noGlobal==="undefined"?"undefined":_typeof(noGlobal))===strundefined){window.jQuery=window.$=jQuery;}return jQuery;});
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 'use strict';var _typeof=typeof Symbol==="function"&&typeof Symbol.iterator==="symbol"?function(obj){return typeof obj;}:function(obj){return obj&&typeof Symbol==="function"&&obj.constructor===Symbol?"symbol":typeof obj;}; // File:src/Three.js
 /**
  * @author mrdoob / http://mrdoob.com/
@@ -3875,7 +4439,7 @@ for(var j=0,jl=objPos.count;j<jl;j++){v1.set(objPos.getX(j),objPos.getY(j),objPo
 // (all frames played together in 1 second)
 var numFrames=this.geometry.morphTargets.length;var name="__default";var startFrame=0;var endFrame=numFrames-1;var fps=numFrames/1;this.createAnimation(name,startFrame,endFrame,fps);this.setAnimationWeight(name,1);};THREE.MorphBlendMesh.prototype=Object.create(THREE.Mesh.prototype);THREE.MorphBlendMesh.prototype.constructor=THREE.MorphBlendMesh;THREE.MorphBlendMesh.prototype.createAnimation=function(name,start,end,fps){var animation={start:start,end:end,length:end-start+1,fps:fps,duration:(end-start)/fps,lastFrame:0,currentFrame:0,active:false,time:0,direction:1,weight:1,directionBackwards:false,mirroredLoop:false};this.animationsMap[name]=animation;this.animationsList.push(animation);};THREE.MorphBlendMesh.prototype.autoCreateAnimations=function(fps){var pattern=/([a-z]+)_?(\d+)/;var firstAnimation,frameRanges={};var geometry=this.geometry;for(var i=0,il=geometry.morphTargets.length;i<il;i++){var morph=geometry.morphTargets[i];var chunks=morph.name.match(pattern);if(chunks&&chunks.length>1){var name=chunks[1];if(!frameRanges[name])frameRanges[name]={start:Infinity,end:-Infinity};var range=frameRanges[name];if(i<range.start)range.start=i;if(i>range.end)range.end=i;if(!firstAnimation)firstAnimation=name;}}for(var name in frameRanges){var range=frameRanges[name];this.createAnimation(name,range.start,range.end,fps);}this.firstAnimation=firstAnimation;};THREE.MorphBlendMesh.prototype.setAnimationDirectionForward=function(name){var animation=this.animationsMap[name];if(animation){animation.direction=1;animation.directionBackwards=false;}};THREE.MorphBlendMesh.prototype.setAnimationDirectionBackward=function(name){var animation=this.animationsMap[name];if(animation){animation.direction=-1;animation.directionBackwards=true;}};THREE.MorphBlendMesh.prototype.setAnimationFPS=function(name,fps){var animation=this.animationsMap[name];if(animation){animation.fps=fps;animation.duration=(animation.end-animation.start)/animation.fps;}};THREE.MorphBlendMesh.prototype.setAnimationDuration=function(name,duration){var animation=this.animationsMap[name];if(animation){animation.duration=duration;animation.fps=(animation.end-animation.start)/animation.duration;}};THREE.MorphBlendMesh.prototype.setAnimationWeight=function(name,weight){var animation=this.animationsMap[name];if(animation){animation.weight=weight;}};THREE.MorphBlendMesh.prototype.setAnimationTime=function(name,time){var animation=this.animationsMap[name];if(animation){animation.time=time;}};THREE.MorphBlendMesh.prototype.getAnimationTime=function(name){var time=0;var animation=this.animationsMap[name];if(animation){time=animation.time;}return time;};THREE.MorphBlendMesh.prototype.getAnimationDuration=function(name){var duration=-1;var animation=this.animationsMap[name];if(animation){duration=animation.duration;}return duration;};THREE.MorphBlendMesh.prototype.playAnimation=function(name){var animation=this.animationsMap[name];if(animation){animation.time=0;animation.active=true;}else {console.warn("THREE.MorphBlendMesh: animation["+name+"] undefined in .playAnimation()");}};THREE.MorphBlendMesh.prototype.stopAnimation=function(name){var animation=this.animationsMap[name];if(animation){animation.active=false;}};THREE.MorphBlendMesh.prototype.update=function(delta){for(var i=0,il=this.animationsList.length;i<il;i++){var animation=this.animationsList[i];if(!animation.active)continue;var frameTime=animation.duration/animation.length;animation.time+=animation.direction*delta;if(animation.mirroredLoop){if(animation.time>animation.duration||animation.time<0){animation.direction*=-1;if(animation.time>animation.duration){animation.time=animation.duration;animation.directionBackwards=true;}if(animation.time<0){animation.time=0;animation.directionBackwards=false;}}}else {animation.time=animation.time%animation.duration;if(animation.time<0)animation.time+=animation.duration;}var keyframe=animation.start+THREE.Math.clamp(Math.floor(animation.time/frameTime),0,animation.length-1);var weight=animation.weight;if(keyframe!==animation.currentFrame){this.morphTargetInfluences[animation.lastFrame]=0;this.morphTargetInfluences[animation.currentFrame]=1*weight;this.morphTargetInfluences[keyframe]=0;animation.lastFrame=animation.currentFrame;animation.currentFrame=keyframe;}var mix=animation.time%frameTime/frameTime;if(animation.directionBackwards)mix=1-mix;if(animation.currentFrame!==animation.lastFrame){this.morphTargetInfluences[animation.currentFrame]=mix*weight;this.morphTargetInfluences[animation.lastFrame]=(1-mix)*weight;}else {this.morphTargetInfluences[animation.currentFrame]=weight;}}};
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 "use strict";
 
 var _three = require("./../../bower_components/three.js/build/three.js");
@@ -4549,7 +5113,461 @@ Tetris3d.prototype.render = function () {
 
 module.exports = Tetris3d;
 
-},{"./../../bower_components/three.js/build/three.js":2}],4:[function(require,module,exports){
+},{"./../../bower_components/three.js/build/three.js":3}],5:[function(require,module,exports){
+'use strict';
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Tetris3dCONST = function Tetris3dCONST() {
+  _classCallCheck(this, Tetris3dCONST);
+
+  this.COLS = 10; // x, y field size
+  this.ROWS = 30; // z field size
+  this.FIELD_SIZE = 10;
+
+  // NUMBER_OF_BLOCK = 4;
+  // NUMBER_OF_VOXEL = 4; // number of voxel in a block
+  this.VOXEL_LENGTH = 4; // voxel length in a block
+  // BLOCK_SIZE = 4;
+  // BLOCK_SIZE = 50;
+  this.VOXEL_SIZE = 50;
+
+  this.START_X = Math.floor((this.COLS - this.VOXEL_LENGTH) / 2);
+  this.START_Y = 0;
+  this.START_Z = 0;
+
+  this.HIDDEN_ROWS = this.VOXEL_LENGTH;
+  this.LOGICAL_ROWS = this.ROWS + this.HIDDEN_ROWS;
+
+  this.WIDTH = this.BLOCK_SIZE * this.COLS;
+  this.HEIGHT = this.BLOCK_SIZE * this.ROWS;
+
+  this.CLEARLINE_BLOCK_ID = 14;
+  this.GAMEOVER_BLOCK_ID = 15;
+
+  this.RENDER_INTERVAL = 30;
+  this.TICK_INTERVAL = 250; // default tick interval
+  this.SPEEDUP_RATE = 10;
+
+  this.KEYS = {
+    37: 'left', // ←
+    39: 'right', // →
+    40: 'down', // ↓
+    38: 'rotate', // ↑
+    32: 'rotate' // space
+  };
+  // shape: 4 x 4 x 4
+  this.BLOCK_LIST = [{
+    id: 0,
+    color: "rgb(254,183,76)",
+    shape: [// 横棒
+    [[1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
+  }, {
+    id: 1,
+    color: "rgb(251,122,111)",
+    shape: [// 四角
+    [[1, 1, 0, 0], [1, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
+  }, {
+    id: 2,
+    color: "rgb(247,181,90)",
+    shape: [// L字
+    [[1, 1, 1, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
+  }, {
+    id: 3,
+    color: "rgb(241,221,96)",
+    shape: [// Z字(S字)
+    [[1, 1, 0, 0], [0, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
+  }, {
+    id: 4,
+    color: "rgb(191,216,94)",
+    shape: [// T字
+    [[1, 1, 1, 0], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
+  }, {
+    id: 5,
+    color: "rgb(107,180,252)",
+    shape: [// 3方向
+    [[1, 1, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
+  }, {
+    id: 6,
+    color: "rgb(202,162,221)",
+    shape: [// うねうね1
+    [[1, 1, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
+  }, {
+    id: 7,
+    color: "rgb(100,198,173)",
+    shape: [// うねうね2
+    [[1, 1, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
+  }];
+};
+
+;
+
+module.exports = new Tetris3dCONST();
+
+},{}],6:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _jquery = require("./../../bower_components/jquery/dist/jquery.js");
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _eventemitter = require("./../../bower_components/eventemitter2/lib/eventemitter2.js");
+
+var _eventemitter2 = _interopRequireDefault(_eventemitter);
+
+var _Tetris3dCONST = require('./Tetris3dCONST');
+
+var _Tetris3dCONST2 = _interopRequireDefault(_Tetris3dCONST);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var CONST = _Tetris3dCONST2.default;
+
+var Tetris3dModel = function (_EE2$EventEmitter) {
+  _inherits(Tetris3dModel, _EE2$EventEmitter);
+
+  function Tetris3dModel() {
+    _classCallCheck(this, Tetris3dModel);
+
+    return _possibleConstructorReturn(this, Object.getPrototypeOf(Tetris3dModel).call(this));
+  }
+
+  _createClass(Tetris3dModel, [{
+    key: 'newGame',
+    value: function newGame() {
+      this.initGame();
+      this.startGame();
+    }
+  }, {
+    key: 'initGame',
+    value: function initGame() {
+      clearTimeout(this.tickId);
+      clearInterval(this.renderId);
+      this.isPlayng = false;
+      this.lose = false;
+      this.tickInterval = CONST.TICK_INTERVAL;
+      this.sumOfClearLines = 0;
+      this.score = 0;
+      this.frameCount = 0;
+      this.initBoad();
+      this.initBlock();
+      this.createNextBlock();
+      // this.render();
+    }
+  }, {
+    key: 'startGame',
+    value: function startGame() {
+      this.isPlayng = true;
+      this.createCurrentBlock();
+      this.createNextBlock();
+      this.tick();
+      // this.renderId = setInterval(() => { this.render(); }, this.RENDER_INTERVAL);
+      this.emit('gamestart');
+    }
+  }, {
+    key: 'initBoad',
+    value: function initBoad() {
+      this.board = [];
+      for (var z = 0; z < CONST.LOGICAL_ROWS; ++z) {
+        this.board[z] = [];
+        for (var y = 0; y < CONST.COLS; ++y) {
+          this.board[z][y] = [];
+          for (var x = 0; x < CONST.COLS; ++x) {
+            this.board[z][y][x] = 0;
+          }
+        }
+      }
+    }
+  }, {
+    key: 'initBlock',
+    value: function initBlock() {
+      this.nextBlock = this.createBlock(0);
+      this.currentBlock = this.createBlock(0);
+      this.currentBlock.x = CONST.START_X;
+      this.currentBlock.y = CONST.START_Y;
+      this.currentBlock.z = CONST.START_Z;
+    }
+  }, {
+    key: 'createBlock',
+    value: function createBlock(id) {
+      // id = id || 0;
+      // const block = {};
+      // Object.assign(block, CONST.BLOCK_LIST[id]); // オブジェクトの複製（シャローコピー）
+      var blockCONST = CONST.BLOCK_LIST[id] || {};
+      var block = {
+        id: id,
+        color: blockCONST.color,
+        shape: [], // blockの形状
+        x: 0,
+        y: 0,
+        z: 0
+      };
+      var shape = blockCONST.shape;
+      block.shape = [];
+      for (var z = 0; z < CONST.VOXEL_LENGTH; ++z) {
+        block.shape[z] = [];
+        for (var y = 0; y < CONST.VOXEL_LENGTH; ++y) {
+          block.shape[z][y] = [];
+          for (var x = 0; x < CONST.VOXEL_LENGTH; ++x) {
+            block.shape[z][y][x] = shape[z][y][x] || 0;
+          }
+        }
+      }
+      this.emit('newblockcreated');
+      return block;
+    }
+  }, {
+    key: 'createCurrentBlock',
+    value: function createCurrentBlock() {
+      if (!this.nextBlock) this.createNextBlock();
+      this.currentBlock = this.nextBlock;
+      this.currentBlock.x = CONST.START_X;
+      this.currentBlock.y = CONST.START_Y;
+      this.currentBlock.z = CONST.START_Z;
+      this.emit('currentblockcreated');
+    }
+  }, {
+    key: 'createNextBlock',
+    value: function createNextBlock() {
+      var id = Math.floor(Math.random() * CONST.BLOCK_LIST.length);
+      this.nextBlock = this.createBlock(id);
+      this.emit('nextblockcreated');
+    }
+  }, {
+    key: 'tick',
+
+    // メインでループする関数
+    value: function tick() {
+      var _this3 = this;
+
+      clearTimeout(this.tickId);
+      if (!this.moveBlock('down')) {
+        this.freeze();
+        this.clearLines();
+        if (this.checkGameOver()) {
+          this.emit('gameover');
+          // this.quitGame().then(function(){});
+          return false;
+        }
+        this.frameCount++;
+        this.createCurrentBlock();
+        this.createNextBlock();
+      }
+      this.tickId = setTimeout(function () {
+        _this3.tick();
+      }, this.tickInterval);
+      this.emit('tick');
+    }
+  }, {
+    key: 'quitGame',
+    value: function quitGame() {
+      var dfd = _jquery2.default.Deferred();
+      // this.gameOverEffect().then(() => {
+      //   this.isPlayng = false;
+      //   this.emit('gamequit');
+      //   dfd.resolve();
+      // });
+      return dfd.promise();
+    }
+  }, {
+    key: 'stopGame',
+    value: function stopGame() {
+      this.quitGame();
+    }
+  }, {
+    key: 'pauseGame',
+    // alias
+
+    value: function pauseGame() {
+      clearTimeout(this.tickId);
+    }
+  }, {
+    key: 'resumeGame',
+    value: function resumeGame() {
+      var _this4 = this;
+
+      if (!this.isPlayng) return;
+      this.tickId = setTimeout(function () {
+        _this4.tick();
+      }, this.tickInterval);
+    }
+  }, {
+    key: 'freeze',
+    value: function freeze() {
+      for (var z = 0; z < CONST.VOXEL_LENGTH; ++z) {
+        for (var y = 0; y < CONST.VOXEL_LENGTH; ++y) {
+          for (var x = 0; x < CONST.VOXEL_LENGTH; ++x) {
+            var boardX = x + this.currentBlock.x;
+            var boardY = y + this.currentBlock.y;
+            var boardZ = z + this.currentBlock.z;
+            if (!this.currentBlock.shape[z][y][x] || boardZ < 0) continue;
+            this.board[boardZ][boardY][boardX] = this.currentBlock.shape[z][y][x];
+          }
+        }
+      }
+      this.emit('freeze');
+    }
+  }, {
+    key: 'clearLines',
+    value: function clearLines() {
+      var _this = this;
+      var clearLineLength = 0; // 同時消去ライン数
+      var filledRowList = [];
+      var blankRow = Array.apply(null, Array(CONST.COLS)).map(function () {
+        return 0;
+      }); // => [0,0,0,0,0,...]
+      var dfd = _jquery2.default.Deferred();
+      dfd.resolve();
+      for (var y = CONST.LOGICAL_ROWS - 1; y >= 0; --y) {
+        var isRowFilled = this.board[y].every(function (val) {
+          return val !== 0;
+        });
+        if (!isRowFilled) continue;
+        filledRowList.push(y);
+        clearLineLength++;
+        this.sumOfClearLines++;
+        this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
+      }
+      // clear line drop
+      // dfd.then(dropRow(x, y));
+
+      // calc score
+      this.score += clearLineLength <= 1 ? clearLineLength : Math.pow(2, clearLineLength);
+
+      if (clearLineLength > 0) this.emit('clearline', filledRowList);
+
+      function dropRow(x, y) {
+        return function () {
+          var dfd = _jquery2.default.Deferred();
+          if (!filledRowList.length) return;
+          filledRowList.reverse().forEach(function (row) {
+            _this.board.splice(row, 1);
+            _this.board.unshift(blankRow);
+          });
+          dfd.resolve();
+          return dfd.promise();
+        };
+      }
+    }
+  }, {
+    key: 'moveBlock',
+    value: function moveBlock(code) {
+      switch (code) {
+        case 'left':
+          if (this.valid(-1, 0)) {
+            --this.currentBlock.x;
+            return true;
+          }
+          return false;
+          break;
+        case 'right':
+          if (this.valid(1, 0)) {
+            ++this.currentBlock.x;
+            return true;
+          }
+          return false;
+          break;
+        case 'down':
+          if (this.valid(0, 1)) {
+            ++this.currentBlock.y;
+            return true;
+          }
+          return false;
+          break;
+        case 'rotate':
+          var rotatedBlockShape = this.rotate(this.currentBlock);
+          if (this.valid(0, 0, rotatedBlockShape)) {
+            this.currentBlock.shape = rotatedBlockShape;
+            return true;
+          }
+          return false;
+          break;
+      }
+    }
+  }, {
+    key: 'rotate',
+    value: function rotate(block) {
+      var newBlockShape = [];
+      for (var z = 0; z < CONST.VOXEL_LENGTH; ++z) {
+        newBlockShape[z] = [];
+        for (var y = 0; y < CONST.VOXEL_LENGTH; ++y) {
+          newBlockShape[z][y] = [];
+          for (var x = 0; x < CONST.VOXEL_LENGTH; ++x) {
+            newBlockShape[z][y][x] = block.shape[CONST.VOXEL_LENGTH - 1 - x][y];
+          }
+        }
+      }
+      return newBlockShape;
+    }
+  }, {
+    key: 'valid',
+    value: function valid(offsetX, offsetY, offsetZ, newBlockShape) {
+      offsetX = offsetX || 0;
+      offsetY = offsetY || 0;
+      offsetZ = offsetZ || 0;
+      var nextX = this.currentX + offsetX;
+      var nextY = this.currentY + offsetY;
+      var nextZ = this.currentZ + offsetZ;
+      var blockShape = newBlockShape || this.currentBlock.shape;
+
+      for (var z = 0; z < CONST.VOXEL_LENGTH; ++z) {
+        for (var y = 0; y < CONST.VOXEL_LENGTH; ++y) {
+          for (var x = 0; x < CONST.VOXEL_LENGTH; ++x) {
+            var boardX = x + nextX;
+            var boardY = y + nextY;
+            var boardZ = z + nextZ;
+            if (!blockShape[z][y][x]) continue;
+            if (typeof this.board[boardY] === 'undefined' // 次の位置が盤面外なら
+             || typeof this.board[boardY][boardX] === 'undefined' // 盤面外なら
+             || this.board[boardY][boardX] // 次の位置にブロックがあれば
+             || boardX < 0 // 左壁
+             || boardX >= CONST.COLS // 右壁
+             || boardY >= CONST.LOGICAL_ROWS) {
+              // 底面
+
+              return false;
+            }
+          }
+        }
+      }
+      return true;
+    }
+  }, {
+    key: 'checkGameOver',
+    value: function checkGameOver() {
+      // ブロックの全てが画面外ならゲームオーバー
+      var isGameOver = true;
+      for (var z = 0; z < CONST.VOXEL_LENGTH; ++z) {
+        for (var y = 0; y < CONST.VOXEL_LENGTH; ++y) {
+          for (var x = 0; x < CONST.VOXEL_LENGTH; ++x) {
+            var boardX = x + this.currentX;
+            var boardY = y + this.currentY;
+            var boardZ = z + this.currentZ;
+            if (boardZ >= CONST.HIDDEN_ROWS) {
+              isGameOver = false;
+              break;
+            }
+          }
+        }
+      }
+      return isGameOver;
+    }
+  }]);
+
+  return Tetris3dModel;
+}(_eventemitter2.default.EventEmitter2);
+
+module.exports = Tetris3dModel;
+
+},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./../../bower_components/jquery/dist/jquery.js":2,"./Tetris3dCONST":5}],7:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -4595,7 +5613,7 @@ var Tetris3dView = function () {
       // this.combinedcamera = new THREE.CombinedCamera( this.width, this.height, 45, 1, 10000, 1, 10000 );
       this.camera = this.perscamera;
       // this.camera.position.y = 800;
-      this.camera.position.set(100, 100, 100);
+      this.camera.position.set(500, 500, 500);
       this.camera.up.set(0, 1, 0);
       this.camera.lookAt({ x: 0, y: 0, z: 0 });
 
@@ -4783,7 +5801,7 @@ var Tetris3dView = function () {
 
 module.exports = Tetris3dView;
 
-},{"./../../bower_components/three.js/build/three.js":2}],5:[function(require,module,exports){
+},{"./../../bower_components/three.js/build/three.js":3}],8:[function(require,module,exports){
 "use strict";
 
 var _jquery = require("./../../bower_components/jquery/dist/jquery.js");
@@ -4901,7 +5919,7 @@ var Util = {
 
 module.exports = Util;
 
-},{"./../../bower_components/jquery/dist/jquery.js":1}],6:[function(require,module,exports){
+},{"./../../bower_components/jquery/dist/jquery.js":2}],9:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -4923,11 +5941,16 @@ var _Tetris3dView = require('./Tetris3dView');
 
 var _Tetris3dView2 = _interopRequireDefault(_Tetris3dView);
 
+var _Tetris3dModel = require('./Tetris3dModel');
+
+var _Tetris3dModel2 = _interopRequireDefault(_Tetris3dModel);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 // const tetris = new Tetris3d();
+var tetris3dModel = new _Tetris3dModel2.default();
 var tetrisView = new _Tetris3dView2.default();
 
 var Main = function () {
@@ -4939,6 +5962,7 @@ var Main = function () {
     key: 'exec',
     value: function exec() {
       // tetris.init();
+      tetris3dModel.newGame();
       tetrisView.init();
       tetrisView.start();
       tetrisView.drawBlock(0, 0, 0, 0);
@@ -4952,4 +5976,4 @@ var Main = function () {
 var main = new Main();
 main.exec();
 
-},{"./../../bower_components/jquery/dist/jquery.js":1,"./Tetris3d":3,"./Tetris3dView":4,"./Util":5}]},{},[6]);
+},{"./../../bower_components/jquery/dist/jquery.js":2,"./Tetris3d":4,"./Tetris3dModel":6,"./Tetris3dView":7,"./Util":8}]},{},[9]);
