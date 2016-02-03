@@ -5613,9 +5613,10 @@ var Tetris3dView = function () {
       // this.combinedcamera = new THREE.CombinedCamera( this.width, this.height, 45, 1, 10000, 1, 10000 );
       this.camera = this.perscamera;
       // this.camera.position.y = 800;
-      this.camera.position.set(500, 500, 500);
+      this.camera.position.set(700, 700, 700);
       this.camera.up.set(0, 1, 0);
-      this.camera.lookAt({ x: 0, y: 0, z: 0 });
+      var center = this.FIELD_SIZE * this.BLOCK_SIZE / 2;
+      this.camera.lookAt({ x: center, y: 0, z: center });
 
       // axis ------------------------------
       var axis = new _three2.default.AxisHelper(1000);
@@ -5623,21 +5624,12 @@ var Tetris3dView = function () {
       this.scene.add(axis);
 
       // grid ------------------------------
-      // const gridstep = this.BLOCK_SIZE, // gridの間隔
-      //  gridsize = 10, // gridのマスの数
-      var size = this.FIELD_SIZE * this.BLOCK_SIZE;
+      var size = this.FIELD_SIZE * this.BLOCK_SIZE / 2;
       var step = this.BLOCK_SIZE;
-      var geometry = new _three2.default.Geometry();
-      for (var i = 0; i <= size; i += step) {
-        geometry.vertices.push(new _three2.default.Vector3(0, 0, i));
-        geometry.vertices.push(new _three2.default.Vector3(size, 0, i));
-        geometry.vertices.push(new _three2.default.Vector3(i, 0, 0));
-        geometry.vertices.push(new _three2.default.Vector3(i, 0, size));
-      }
-      var material = new _three2.default.LineBasicMaterial({ color: 0x000000, opacity: 0.2, transparent: true });
-      var line = new _three2.default.Line(geometry, material);
-      line.type = _three2.default.LinePieces;
-      this.scene.add(line);
+      var grid = new _three2.default.GridHelper(size, step);
+      // grid.position.add( new THREE.Vector3( size, 0, size ) ); // 0,0が端になるように移動
+      grid.position.set(size, 0, size); // 0,0が端になるように移動
+      this.scene.add(grid);
 
       // plane ------------------------------
       // plane = new THREE.Mesh( new THREE.PlaneGeometry( 1000, 1000 ), new THREE.MeshBasicMaterial() );
