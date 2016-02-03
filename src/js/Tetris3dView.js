@@ -1,12 +1,10 @@
 import THREE from 'three.js';
+import Tetris3dCONST from './Tetris3dCONST';
+
+const CONST = Tetris3dCONST;
 
 class Tetris3dView {
   constructor() {
-    this.RENDER_INTERVAL = 30;
-    this.TICK_INTERVAL = 250;
-    this.BLOCK_SIZE = 50;
-    this.FIELD_SIZE = 10;
-    
     this.framecount = 0;
   }
   
@@ -34,7 +32,7 @@ class Tetris3dView {
     // this.camera.position.y = 800;
     this.camera.position.set(700, 700, 700);
     this.camera.up.set(0, 1, 0);
-    const center = this.FIELD_SIZE * this.BLOCK_SIZE / 2;
+    const center = CONST.FIELD_SIZE * CONST.VOXEL_SIZE / 2;
     this.camera.lookAt({ x:center, y:0, z:center });
     
     
@@ -45,8 +43,8 @@ class Tetris3dView {
     
     
     // grid ------------------------------
-    const size = this.FIELD_SIZE * this.BLOCK_SIZE / 2;
-    const step = this.BLOCK_SIZE;
+    const size = CONST.FIELD_SIZE * CONST.VOXEL_SIZE / 2;
+    const step = CONST.VOXEL_SIZE;
     const grid = new THREE.GridHelper(size, step);
     // grid.position.add( new THREE.Vector3( size, 0, size ) ); // 0,0が端になるように移動
     grid.position.set( size, 0, size ); // 0,0が端になるように移動
@@ -79,7 +77,7 @@ class Tetris3dView {
     
     
     // roll-over helpers ------------------------------
-    // rollOverGeo = new THREE.BoxGeometry( this.BLOCK_SIZE, this.BLOCK_SIZE, this.BLOCK_SIZE );
+    // rollOverGeo = new THREE.BoxGeometry( CONST.VOXEL_SIZE, CONST.VOXEL_SIZE, CONST.VOXEL_SIZE );
     // rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.5, transparent: true } );
     // rollOverMesh = new THREE.Mesh( rollOverGeo, rollOverMaterial );
     // this.scene.add( rollOverMesh );
@@ -93,7 +91,7 @@ class Tetris3dView {
     
     
     // cubes ------------------------------
-    this.cubeGeo = new THREE.BoxGeometry( this.BLOCK_SIZE, this.BLOCK_SIZE, this.BLOCK_SIZE );
+    this.cubeGeo = new THREE.BoxGeometry( CONST.VOXEL_SIZE, CONST.VOXEL_SIZE, CONST.VOXEL_SIZE );
     this.cubeMaterial = [];
     // this.cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, ambient: 0x00ff80, shading: THREE.FlatShading, map: THREE.ImageUtils.loadTexture( "textures/square-outline-textured.png" ) } );
     // this.cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, ambient: 0x00ff80, shading: THREE.FlatShading } );
@@ -165,13 +163,13 @@ class Tetris3dView {
   }
   
   drawBlock(x, y, z, id) {
-    const blockX = x * this.BLOCK_SIZE;
-    const blockY = y * this.BLOCK_SIZE;
-    const blockZ = z * this.BLOCK_SIZE;
+    const blockX = x * CONST.VOXEL_SIZE;
+    const blockY = y * CONST.VOXEL_SIZE;
+    const blockZ = z * CONST.VOXEL_SIZE;
     
     const voxel = new THREE.Mesh( this.cubeGeo, this.cubeMaterial[id] );
     voxel.position.set(blockX, blockY, blockZ);
-    voxel.position.addScalar( this.BLOCK_SIZE / 2 ); // グリッドに合わせる。
+    voxel.position.addScalar( CONST.VOXEL_SIZE / 2 ); // グリッドに合わせる。
     this.scene.add( voxel );
   }
   
@@ -190,11 +188,11 @@ class Tetris3dView {
       let deltaRenderTime = nowTime - previousRenderTime;
       let deltaTickTime = nowTime - previousTickTime;
       
-      if (deltaRenderTime > _this.RENDER_INTERVAL) {
+      if (deltaRenderTime > CONST.RENDER_INTERVAL) {
         previousRenderTime = nowTime;
         _this.render();
       }
-      if (deltaTickTime > _this.TICK_INTERVAL) {
+      if (deltaTickTime > CONST.TICK_INTERVAL) {
         previousTickTime = nowTime;
         _this.tick();
       }
