@@ -166,14 +166,12 @@ class Tetris3dView {
   
   drawBlock(x, y, z, id) {
     const blockX = x * this.BLOCK_SIZE;
-    const blockY = y * this.BLOCK_SIZE + this.BLOCK_SIZE / 2;
+    const blockY = y * this.BLOCK_SIZE;
     const blockZ = z * this.BLOCK_SIZE;
     
     const voxel = new THREE.Mesh( this.cubeGeo, this.cubeMaterial[id] );
     voxel.position.set(blockX, blockY, blockZ);
-    // voxel.position.addScalar( this.BLOCK_SIZE / 2 );   // グリッドに合わせる。
-    // this.blocks.push(voxel);
-    // this.scene.add( this.blocks[n][j] );
+    voxel.position.addScalar( this.BLOCK_SIZE / 2 ); // グリッドに合わせる。
     this.scene.add( voxel );
   }
   
