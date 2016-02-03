@@ -32,9 +32,10 @@ class Tetris3dView {
     // this.combinedcamera = new THREE.CombinedCamera( this.width, this.height, 45, 1, 10000, 1, 10000 );
     this.camera = this.perscamera;
     // this.camera.position.y = 800;
-    this.camera.position.set(500, 500, 500);
+    this.camera.position.set(700, 700, 700);
     this.camera.up.set(0, 1, 0);
-    this.camera.lookAt({ x:0, y:0, z:0 });
+    const center = this.FIELD_SIZE * this.BLOCK_SIZE / 2;
+    this.camera.lookAt({ x:center, y:0, z:center });
     
     
     // axis ------------------------------
@@ -47,6 +48,8 @@ class Tetris3dView {
     const size = this.FIELD_SIZE * this.BLOCK_SIZE / 2;
     const step = this.BLOCK_SIZE;
     const grid = new THREE.GridHelper(size, step);
+    // grid.position.add( new THREE.Vector3( size, 0, size ) ); // 0,0が端になるように移動
+    grid.position.set( size, 0, size ); // 0,0が端になるように移動
     this.scene.add( grid );
     
     
