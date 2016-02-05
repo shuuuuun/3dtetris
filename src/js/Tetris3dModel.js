@@ -105,7 +105,9 @@ class Tetris3dModel extends EE2.EventEmitter2 {
   // メインでループする関数
   tick() {
     clearTimeout(this.tickId);
-    if (!this.moveBlock('down')) {
+    console.log("tick", this.tickInterval, this.moveBlock('down'), this.checkGameOver());
+    // if (!this.moveBlock('down')) {
+    if (false) {
       this.freeze();
       this.clearLines();
       if (this.checkGameOver()) {
@@ -198,21 +200,21 @@ class Tetris3dModel extends EE2.EventEmitter2 {
   moveBlock(code) {
     switch (code) {
       case 'left':
-        if ( this.valid(-1, 0) ) {
+        if ( this.valid(-1, 0, 0) ) {
           --this.currentBlock.x;
           return true;
         }
         return false;
         break;
       case 'right':
-        if ( this.valid(1, 0) ) {
+        if ( this.valid(1, 0, 0) ) {
           ++this.currentBlock.x;
           return true;
         }
         return false;
         break;
       case 'down':
-        if ( this.valid(0, 1) ) {
+        if ( this.valid(0, 1, 0) ) {
           ++this.currentBlock.y;
           return true;
         }
@@ -220,7 +222,7 @@ class Tetris3dModel extends EE2.EventEmitter2 {
         break;
       case 'rotate':
         let rotatedBlockShape = this.rotate(this.currentBlock);
-        if ( this.valid(0, 0, rotatedBlockShape) ) {
+        if ( this.valid(0, 0, 0, rotatedBlockShape) ) {
           this.currentBlock.shape = rotatedBlockShape;
           return true;
         }
@@ -259,6 +261,7 @@ class Tetris3dModel extends EE2.EventEmitter2 {
           let boardY = y + nextY;
           let boardZ = z + nextZ;
           if (!blockShape[z][y][x]) continue;
+          console.log(blockShape);
           if ( typeof this.board[boardY] === 'undefined' // 次の位置が盤面外なら
             || typeof this.board[boardY][boardX] === 'undefined' // 盤面外なら
             || this.board[boardY][boardX] // 次の位置にブロックがあれば
@@ -280,9 +283,9 @@ class Tetris3dModel extends EE2.EventEmitter2 {
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
         for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
-          let boardX = x + this.currentX;
-          let boardY = y + this.currentY;
-          let boardZ = z + this.currentZ;
+          let boardX = x + this.currentBlock.x;
+          let boardY = y + this.currentBlock.y;
+          let boardZ = z + this.currentBlock.z;
           if (boardZ >= CONST.HIDDEN_ROWS) {
             isGameOver = false;
             break;

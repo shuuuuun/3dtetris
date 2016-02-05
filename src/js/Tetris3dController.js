@@ -28,7 +28,7 @@ class Tetris3dController extends EE2.EventEmitter2 {
     this.model.on('gameover', () => {});
     this.model.on('tick', () => {
       console.log(this.model.currentBlock);
-      // this.view.drawBlock(0, 0, 0, 0);
+      this.view.drawBlock(3, 0, 1, 0);
     });
     this.model.on('gamequit', () => {});
     this.model.on('freeze', () => {});

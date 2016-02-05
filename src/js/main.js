@@ -21,7 +21,8 @@ class Main {
     tetris3dView.start();
     tetris3dView.drawBlock(0, 0, 0, 0);
     tetris3dView.drawBlock(0, 0, 1, 1);
-    tetris3dController.newGame();
+    tetris3dView.drawBlock(0, 1, 0, 2);
+    // tetris3dController.newGame();
   }
 }
 

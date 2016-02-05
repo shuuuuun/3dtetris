@@ -34,9 +34,9 @@ class Tetris3dView {
     this.camera = this.perscamera;
     // this.camera.position.y = 800;
     this.camera.position.set(700, 700, 700);
-    this.camera.up.set(0, 1, 0);
+    this.camera.up.set(0, 1, 0); // y up
     const center = CONST.FIELD_SIZE * CONST.VOXEL_SIZE / 2;
-    this.camera.lookAt({ x:center, y:0, z:center });
+    this.camera.lookAt({ x: center, y: 0, z: center }); // y up
     
     
     // axis ------------------------------
