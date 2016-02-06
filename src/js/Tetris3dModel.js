@@ -110,7 +110,7 @@ class Tetris3dModel extends EventEmitter2 {
     if (!isMoveDown) {
     // if (false) {
       this.freeze();
-      this.clearLines();
+      // this.clearLines();
       if (this.checkGameOver()) {
         this.emit('gameover');
         // this.quitGame().then(function(){});
@@ -289,7 +289,7 @@ class Tetris3dModel extends EventEmitter2 {
           let boardX = x + this.currentBlock.x;
           let boardY = y + this.currentBlock.y;
           let boardZ = z + this.currentBlock.z;
-          if (boardZ >= CONST.HIDDEN_ROWS) {
+          if (boardY >= CONST.HIDDEN_ROWS) {
             isGameOver = false;
             break;
           }

@@ -1,7 +1,7 @@
 class Tetris3dCONST {
   constructor() {
     this.COLS = 10; // x, z field size
-    this.ROWS = 30; // y field size
+    this.ROWS = 20; // y field size
     this.FIELD_SIZE = 10; // this.COLS
     
     // NUMBER_OF_BLOCK = 4;
@@ -13,7 +13,7 @@ class Tetris3dCONST {
     
     this.START_X = Math.floor((this.COLS - this.VOXEL_LENGTH) / 2);
     this.START_Y = 0;
-    this.START_Z = 0;
+    this.START_Z = Math.floor((this.COLS - this.VOXEL_LENGTH) / 2);
     
     this.HIDDEN_ROWS = this.VOXEL_LENGTH;
     this.LOGICAL_ROWS = this.ROWS + this.HIDDEN_ROWS;

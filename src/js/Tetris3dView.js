@@ -243,6 +243,7 @@ class Tetris3dView {
     
     const voxel = this.currentBlock.voxels[index];
     voxel.position.set(blockX, blockY, blockZ);
+    voxel.position.addScalar( CONST.VOXEL_SIZE / 2 ); // グリッドに合わせる。
     this.scene.add( voxel );
   }
   
