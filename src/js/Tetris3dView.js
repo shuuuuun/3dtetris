@@ -9,10 +9,11 @@ const CONST = Tetris3dCONST;
 class Tetris3dView {
   constructor() {
     this.framecount = 0;
-    // this.CENTER_VECTOR = new THREE.Vector3(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
-    this.CENTER_VECTOR = { x: CONST.CENTER_X, y: CONST.CENTER_Y, z: CONST.CENTER_Z };
-    // this.CAMERA_POSITION = new THREE.Vector3(2000, CONST.CENTER_Y, 2000);
-    this.CAMERA_POSITION = { x: 2000, y: CONST.CENTER_Y, z: 2000 };
+    this.ZERO_VECTOR = new THREE.Vector3(0,0,0);
+    this.CENTER_VECTOR = new THREE.Vector3(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
+    // this.CENTER_VECTOR = { x: CONST.CENTER_X, y: CONST.CENTER_Y, z: CONST.CENTER_Z };
+    this.CAMERA_POSITION = new THREE.Vector3(2000, CONST.CENTER_Y, 2000);
+    // this.CAMERA_POSITION = { x: 2000, y: CONST.CENTER_Y, z: 2000 };
     this.CAMERA_NEAR = 1;
     this.CAMERA_FAR = 100000;
   }
@@ -40,10 +41,33 @@ class Tetris3dView {
     this.camera = this.perscamera;
     // this.camera.position.set(2000, CONST.CENTER_Y, 2000);
     // this.camera.position.set(this.CAMERA_POSITION);
-    this.camera.position.add(this.CAMERA_POSITION);
+    // this.camera.position.add(this.CAMERA_POSITION);
+    // this.camera.position.copy(this.CAMERA_POSITION);
+    this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
+    // this.camera.position = this.CAMERA_POSITION;
     this.camera.up.set(0, -1, 0); // y down
-    this.camera.lookAt(this.CENTER_VECTOR);
+    // this.camera.lookAt(this.CENTER_VECTOR);
     // this.camera.lookAt(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
+    // let lookatVector = new THREE.Vector3().subVectors(this.CENTER_VECTOR, this.camera.position);
+    let lookatVector = new THREE.Vector3().addVectors(this.CENTER_VECTOR, this.camera.position);
+    // this.camera.lookAt(lookatVector);
+    // this.camera.lookAt(0,1,0);
+    // this.camera.lookAt(new THREE.Vector3(0,1,0));
+    console.log(lookatVector, this.camera.getWorldDirection());
+    
+    
+    // controls ------------------------------
+    this.controls = new THREE.OrbitControls(this.camera);
+    // this.controls.center.set(CONST.CENTER_X, 0, CONST.CENTER_Z);
+    // this.controls.center = this.CENTER_VECTOR;
+    // this.controls.center.set(this.CENTER_VECTOR);
+    // this.controls.center.set(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
+    // this.controls.target.set(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
+    // this.controls.target = new THREE.Vector3(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
+    this.controls.target = this.CENTER_VECTOR;
+    // this.controls.target.set(this.CENTER_VECTOR);
+    // this.controls.noKeys = true;
+    this.controls.enableKeys = false;
     
     
     // axis ------------------------------
@@ -86,14 +110,6 @@ class Tetris3dView {
     
     // picking ------------------------------
     // projector = new THREE.Projector();
-    
-    
-    // controls ------------------------------
-    this.controls = new THREE.OrbitControls(this.camera);
-    // this.controls.center.set(CONST.CENTER_X, 0, CONST.CENTER_Z);
-    // this.controls.center = this.CENTER_VECTOR;
-    // this.controls.center.set(this.CENTER_VECTOR);
-    this.controls.center.set(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
     
     
     // mouse ------------------------------
