@@ -40,9 +40,9 @@ class Tetris3dModel extends EventEmitter2 {
   
   initBoad() {
     this.board = [];
-    for ( let z = 0; z < CONST.LOGICAL_ROWS; ++z ) {
+    for ( let z = 0; z < CONST.COLS; ++z ) {
       this.board[z] = [];
-      for ( let y = 0; y < CONST.COLS; ++y ) {
+      for ( let y = 0; y < CONST.LOGICAL_ROWS; ++y ) {
         this.board[z][y] = [];
         for ( let x = 0; x < CONST.COLS; ++x ) {
           this.board[z][y][x] = 0;
@@ -105,9 +105,10 @@ class Tetris3dModel extends EventEmitter2 {
   // メインでループする関数
   tick() {
     clearTimeout(this.tickId);
-    console.log("tick", this.tickInterval, this.moveBlock('down'), this.checkGameOver());
-    // if (!this.moveBlock('down')) {
-    if (false) {
+    let isMoveDown = this.moveBlock('down');
+    console.log("tick", isMoveDown, this.checkGameOver());
+    if (!isMoveDown) {
+    // if (false) {
       this.freeze();
       this.clearLines();
       if (this.checkGameOver()) {
@@ -120,7 +121,7 @@ class Tetris3dModel extends EventEmitter2 {
       this.createNextBlock();
     }
     this.tickId = setTimeout(() => { this.tick(); }, this.tickInterval);
-    this.emit('tick');
+    this.emit('tick', !isMoveDown);
   };
   
   quitGame() {
@@ -249,9 +250,9 @@ class Tetris3dModel extends EventEmitter2 {
     offsetX = offsetX || 0;
     offsetY = offsetY || 0;
     offsetZ = offsetZ || 0;
-    let nextX = this.currentX + offsetX;
-    let nextY = this.currentY + offsetY;
-    let nextZ = this.currentZ + offsetZ;
+    let nextX = this.currentBlock.x + offsetX;
+    let nextY = this.currentBlock.y + offsetY;
+    let nextZ = this.currentBlock.z + offsetZ;
     let blockShape = newBlockShape || this.currentBlock.shape;
     
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
@@ -261,12 +262,14 @@ class Tetris3dModel extends EventEmitter2 {
           let boardY = y + nextY;
           let boardZ = z + nextZ;
           if (!blockShape[z][y][x]) continue;
-          console.log(blockShape);
-          if ( typeof this.board[boardY] === 'undefined' // 次の位置が盤面外なら
-            || typeof this.board[boardY][boardX] === 'undefined' // 盤面外なら
-            || this.board[boardY][boardX] // 次の位置にブロックがあれば
-            || boardX < 0 // 左壁
-            || boardX >= CONST.COLS // 右壁
+          if ( typeof this.board[boardZ] === 'undefined' // 次の位置が盤面外なら
+            || typeof this.board[boardZ][boardY] === 'undefined' // 盤面外なら
+            || typeof this.board[boardZ][boardY][boardX] === 'undefined' // 盤面外なら
+            || !!this.board[boardZ][boardY][boardX] // 次の位置にブロックがあれば
+            || boardX < 0 // 壁
+            || boardX >= CONST.COLS // 壁
+            || boardZ < 0 // 壁
+            || boardZ >= CONST.COLS // 壁
             || boardY >= CONST.LOGICAL_ROWS ) { // 底面
             
             return false;

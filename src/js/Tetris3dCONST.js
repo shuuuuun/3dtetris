@@ -1,8 +1,8 @@
 class Tetris3dCONST {
   constructor() {
-    this.COLS = 10; // x, y field size
-    this.ROWS = 30; // z field size
-    this.FIELD_SIZE = 10;
+    this.COLS = 10; // x, z field size
+    this.ROWS = 30; // y field size
+    this.FIELD_SIZE = 10; // this.COLS
     
     // NUMBER_OF_BLOCK = 4;
     // NUMBER_OF_VOXEL = 4; // number of voxel in a block
@@ -18,8 +18,12 @@ class Tetris3dCONST {
     this.HIDDEN_ROWS = this.VOXEL_LENGTH;
     this.LOGICAL_ROWS = this.ROWS + this.HIDDEN_ROWS;
     
-    this.WIDTH = this.BLOCK_SIZE * this.COLS;
-    this.HEIGHT = this.BLOCK_SIZE * this.ROWS;
+    this.WIDTH = this.VOXEL_SIZE * this.COLS;
+    this.HEIGHT = this.VOXEL_SIZE * this.ROWS;
+    
+    this.CENTER_X = this.WIDTH / 2;
+    this.CENTER_Y = this.HEIGHT / 2;
+    this.CENTER_Z = this.WIDTH / 2;
     
     this.CLEARLINE_BLOCK_ID = 14;
     this.GAMEOVER_BLOCK_ID = 15;

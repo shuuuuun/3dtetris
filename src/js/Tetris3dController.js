@@ -19,22 +19,28 @@ class Tetris3dController extends EventEmitter2 {
     this.view.start();
     this.model.initGame();
     this.model.startGame();
-    
-    this.view.drawVoxel(0, 0, 0, 0);
-    this.view.drawVoxel(0, 0, 1, 1);
-    this.view.drawVoxel(0, 1, 0, 2);
   };
   
   eventify() {
     // console.log(this.model.currentBlock);
     this.model.on('gamestart', () => {});
     this.model.on('newblockcreated', () => {});
-    this.model.on('currentblockcreated', () => {});
+    this.model.on('currentblockcreated', () => {
+      this.view.drawBlock(this.model.currentBlock);
+    });
     this.model.on('nextblockcreated', () => {});
-    this.model.on('gameover', () => {});
-    this.model.on('tick', () => {
-      // console.log(this.model.currentBlock);
-      // this.view.drawBlock(3, 0, 1, 0);
+    this.model.on('gameover', () => {
+      alert('gameover!!');
+    });
+    this.model.on('tick', (isNewBlock) => {
+      // console.log(isNewBlock, this.model.currentBlock);
+      this.view.moveBlock(this.model.currentBlock);
+      // if (isNewBlock) {
+      //   this.view.drawBlock(this.model.currentBlock);
+      // }
+      // else {
+      //   this.view.moveBlock(this.model.currentBlock);
+      // }
     });
     this.model.on('gamequit', () => {});
     this.model.on('freeze', () => {});

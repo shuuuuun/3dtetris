@@ -9,6 +9,12 @@ const CONST = Tetris3dCONST;
 class Tetris3dView {
   constructor() {
     this.framecount = 0;
+    // this.CENTER_VECTOR = new THREE.Vector3(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
+    this.CENTER_VECTOR = { x: CONST.CENTER_X, y: CONST.CENTER_Y, z: CONST.CENTER_Z };
+    // this.CAMERA_POSITION = new THREE.Vector3(2000, CONST.CENTER_Y, 2000);
+    this.CAMERA_POSITION = { x: 2000, y: CONST.CENTER_Y, z: 2000 };
+    this.CAMERA_NEAR = 1;
+    this.CAMERA_FAR = 100000;
   }
   
   init() {
@@ -19,7 +25,7 @@ class Tetris3dView {
     // renderer ------------------------------
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setClearColor( 0xf0f0f0 ); // 背景色
-    this.renderer.setSize( this.width, this.height );
+    this.renderer.setSize( CONST.WIDTH, CONST.HEIGHT );
     this.container.appendChild( this.renderer.domElement );
     
     
@@ -28,30 +34,37 @@ class Tetris3dView {
     
     
     // camera ------------------------------
-    this.perscamera = new THREE.PerspectiveCamera( 45, this.width / this.height, 1, 10000 ); // fov(視野角),aspect,near,far
-    this.orthocamera = new THREE.OrthographicCamera( this.width / -2, this.width / 2, this.height / 2, this.height / -2, 1, 10000 );
-    // this.combinedcamera = new THREE.CombinedCamera( this.width, this.height, 45, 1, 10000, 1, 10000 );
+    this.perscamera = new THREE.PerspectiveCamera( 45, CONST.WIDTH / CONST.HEIGHT, this.CAMERA_NEAR, this.CAMERA_FAR ); // fov(視野角), aspect, near, far
+    this.orthocamera = new THREE.OrthographicCamera( -CONST.WIDTH / 2, CONST.WIDTH / 2, CONST.HEIGHT / 2, -CONST.HEIGHT / 2, this.CAMERA_NEAR, this.CAMERA_FAR ); // left, right, top, bottom, near, far
+    this.cubecamera = new THREE.CubeCamera( this.CAMERA_NEAR, this.CAMERA_FAR, 128 ); // near, far, cubeResolution
     this.camera = this.perscamera;
-    // this.camera.position.y = 800;
-    this.camera.position.set(700, 700, 700);
-    this.camera.up.set(0, 1, 0); // y up
-    const center = CONST.FIELD_SIZE * CONST.VOXEL_SIZE / 2;
-    this.camera.lookAt({ x: center, y: 0, z: center }); // y up
+    // this.camera.position.set(2000, CONST.CENTER_Y, 2000);
+    // this.camera.position.set(this.CAMERA_POSITION);
+    this.camera.position.add(this.CAMERA_POSITION);
+    this.camera.up.set(0, -1, 0); // y down
+    this.camera.lookAt(this.CENTER_VECTOR);
+    // this.camera.lookAt(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
     
     
     // axis ------------------------------
-    const axis = new THREE.AxisHelper(1000);
+    const axis = new THREE.AxisHelper(this.CAMERA_FAR);
     axis.position.set(0,0,0);
     this.scene.add(axis);
     
     
-    // grid ------------------------------
-    const size = CONST.FIELD_SIZE * CONST.VOXEL_SIZE / 2;
+    // grid top ------------------------------
+    const size = CONST.CENTER_X;
     const step = CONST.VOXEL_SIZE;
     const grid = new THREE.GridHelper(size, step);
     // grid.position.add( new THREE.Vector3( size, 0, size ) ); // 0,0が端になるように移動
     grid.position.set( size, 0, size ); // 0,0が端になるように移動
     this.scene.add( grid );
+    
+    
+    // grid bottom ------------------------------
+    const gridBtm = new THREE.GridHelper(size, step);
+    gridBtm.position.set( size, CONST.HEIGHT, size );
+    this.scene.add( gridBtm );
     
     
     // plane ------------------------------
@@ -77,6 +90,10 @@ class Tetris3dView {
     
     // controls ------------------------------
     this.controls = new THREE.OrbitControls(this.camera);
+    // this.controls.center.set(CONST.CENTER_X, 0, CONST.CENTER_Z);
+    // this.controls.center = this.CENTER_VECTOR;
+    // this.controls.center.set(this.CENTER_VECTOR);
+    this.controls.center.set(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
     
     
     // mouse ------------------------------
@@ -120,11 +137,11 @@ class Tetris3dView {
   }
   
   setSize() {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    this.camera.aspect = this.width / this.height;
+    CONST.WIDTH = window.innerWidth;
+    CONST.HEIGHT = window.innerHeight;
+    this.camera.aspect = CONST.WIDTH / CONST.HEIGHT;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize( this.width, this.height );
+    this.renderer.setSize( CONST.WIDTH, CONST.HEIGHT );
   }
   
   tick() {
@@ -157,8 +174,6 @@ class Tetris3dView {
   render() {
     this.renderer.render( this.scene, this.camera );
     
-    // this.ctx.clearRect(0, 0, this.WIDTH, this.HEIGHT);
-    
     this.renderBoard();
     this.renderCurrentBlock();
   }
@@ -170,7 +185,19 @@ class Tetris3dView {
   }
   
   drawBlock(block) {
-    
+    this.currentBlock = block;
+    this.currentBlock.voxels = [];
+    for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
+      for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
+        for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
+          if (!block || !block.shape[z][y][x]) continue;
+          let drawX = x + block.x;
+          let drawY = y + block.y - CONST.HIDDEN_ROWS;
+          let drawZ = z + block.z;
+          this.drawVoxel(drawX, drawY, drawZ, block.id);
+        }
+      }
+    }
   }
   
   drawVoxel(x, y, z, id) {
@@ -181,6 +208,41 @@ class Tetris3dView {
     const voxel = new THREE.Mesh( this.cubeGeo, this.cubeMaterial[id] );
     voxel.position.set(blockX, blockY, blockZ);
     voxel.position.addScalar( CONST.VOXEL_SIZE / 2 ); // グリッドに合わせる。
+    
+    // this.voxels = this.voxels || [];
+    // this.voxels.push(voxel);
+    this.currentBlock.voxels.push(voxel);
+    
+    if (y < 0) return; // 盤面外は描画しない
+    this.scene.add( voxel );
+  }
+  
+  moveBlock(block) {
+    if (!this.currentBlock) return;
+    let index = 0;
+    for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
+      for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
+        for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
+          if (!block || !block.shape[z][y][x]) continue;
+          let drawX = x + block.x;
+          let drawY = y + block.y - CONST.HIDDEN_ROWS;
+          let drawZ = z + block.z;
+          this.moveVoxel(drawX, drawY, drawZ, index);
+          index++;
+        }
+      }
+    }
+  }
+  
+  moveVoxel(x, y, z, index) {
+    if (y < 0) return; // 盤面外は描画しない
+    
+    const blockX = x * CONST.VOXEL_SIZE;
+    const blockY = y * CONST.VOXEL_SIZE;
+    const blockZ = z * CONST.VOXEL_SIZE;
+    
+    const voxel = this.currentBlock.voxels[index];
+    voxel.position.set(blockX, blockY, blockZ);
     this.scene.add( voxel );
   }
   
