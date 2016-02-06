@@ -15,8 +15,14 @@ class Tetris3dController extends EventEmitter2 {
   };
   
   newGame() {
+    this.view.init();
+    this.view.start();
     this.model.initGame();
     this.model.startGame();
+    
+    this.view.drawVoxel(0, 0, 0, 0);
+    this.view.drawVoxel(0, 0, 1, 1);
+    this.view.drawVoxel(0, 1, 0, 2);
   };
   
   eventify() {
@@ -27,8 +33,8 @@ class Tetris3dController extends EventEmitter2 {
     this.model.on('nextblockcreated', () => {});
     this.model.on('gameover', () => {});
     this.model.on('tick', () => {
-      console.log(this.model.currentBlock);
-      this.view.drawBlock(3, 0, 1, 0);
+      // console.log(this.model.currentBlock);
+      // this.view.drawBlock(3, 0, 1, 0);
     });
     this.model.on('gamequit', () => {});
     this.model.on('freeze', () => {});

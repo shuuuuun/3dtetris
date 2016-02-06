@@ -1,6 +1,5 @@
-import $ from 'jquery';
-// import THREE from 'three.js';
-import Util from './Util';
+// import $ from 'jquery';
+// import Util from './Util';
 import Tetris3d from './Tetris3d';
 import Tetris3dView from './Tetris3dView';
 import Tetris3dModel from './Tetris3dModel';
@@ -16,13 +15,7 @@ class Main {
   }
   exec() {
     // tetris.init();
-    // tetris3dModel.newGame();
-    tetris3dView.init();
-    tetris3dView.start();
-    tetris3dView.drawBlock(0, 0, 0, 0);
-    tetris3dView.drawBlock(0, 0, 1, 1);
-    tetris3dView.drawBlock(0, 1, 0, 2);
-    // tetris3dController.newGame();
+    tetris3dController.newGame();
   }
 }
 

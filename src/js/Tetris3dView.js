@@ -169,7 +169,11 @@ class Tetris3dView {
   renderCurrentBlock() {
   }
   
-  drawBlock(x, y, z, id) {
+  drawBlock(block) {
+    
+  }
+  
+  drawVoxel(x, y, z, id) {
     const blockX = x * CONST.VOXEL_SIZE;
     const blockY = y * CONST.VOXEL_SIZE;
     const blockZ = z * CONST.VOXEL_SIZE;
