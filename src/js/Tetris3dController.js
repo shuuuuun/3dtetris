@@ -11,7 +11,9 @@ class Tetris3dController extends EventEmitter2 {
     this.model = model;
     this.view = view;
     
-    this.eventify();
+    this.setModelEvent();
+    this.setBlurEvent();
+    this.setKeyEvent();
   };
   
   newGame() {
@@ -21,8 +23,7 @@ class Tetris3dController extends EventEmitter2 {
     this.model.startGame();
   };
   
-  eventify() {
-    // console.log(this.model.currentBlock);
+  setModelEvent() {
     this.model.on('gamestart', () => {});
     this.model.on('newblockcreated', () => {});
     this.model.on('currentblockcreated', () => {
@@ -33,14 +34,7 @@ class Tetris3dController extends EventEmitter2 {
       alert('gameover!!');
     });
     this.model.on('tick', (isNewBlock) => {
-      // console.log(isNewBlock, this.model.currentBlock);
       this.view.moveBlock(this.model.currentBlock);
-      // if (isNewBlock) {
-      //   this.view.drawBlock(this.model.currentBlock);
-      // }
-      // else {
-      //   this.view.moveBlock(this.model.currentBlock);
-      // }
     });
     this.model.on('gamequit', () => {});
     this.model.on('freeze', () => {});
@@ -49,17 +43,25 @@ class Tetris3dController extends EventEmitter2 {
   
   setBlurEvent() {
     $(window).on('blur', () => {
-        this.pauseGame();
+        this.view.stop();
+        this.model.pauseGame();
     }).on('focus', () => {
-        this.resumeGame();
+        this.view.start();
+        this.model.resumeGame();
     });
   };
   
   setKeyEvent() {
     $(document).on('keydown', (evt) => {
-      if (typeof this.KEYS[evt.keyCode] === 'undefined') return;
-      evt.preventDefault();
-      this.moveBlock(this.KEYS[evt.keyCode]);
+      // console.log(evt.keyCode, CONST.KEYS_MODEL[evt.keyCode], CONST.KEYS_VIEW[evt.keyCode]);
+      if (typeof CONST.KEYS_MODEL[evt.keyCode] !== 'undefined') {
+        evt.preventDefault();
+        this.model.moveBlock(CONST.KEYS_MODEL[evt.keyCode]);
+      }
+      if (typeof CONST.KEYS_VIEW[evt.keyCode] !== 'undefined') {
+        evt.preventDefault();
+        this.view.changeCamera(CONST.KEYS_VIEW[evt.keyCode]);
+      }
     });
   };
   

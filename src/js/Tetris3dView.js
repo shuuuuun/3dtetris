@@ -144,6 +144,31 @@ class Tetris3dView {
     this.renderer.setSize( CONST.WIDTH, CONST.HEIGHT );
   }
   
+  changeCamera(code) {
+    switch (code) {
+      case 'pers':
+        this.camera = this.perscamera;
+        this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
+        break;
+      case 'ortho1':
+        this.camera = this.orthocamera;
+        this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
+        break;
+      case 'ortho2':
+        this.camera = this.orthocamera;
+        this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
+        break;
+      case 'ortho3':
+        this.camera = this.orthocamera;
+        this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
+        break;
+      default:
+        this.camera = this.perscamera;
+        this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
+        break;
+    }
+  }
+  
   tick() {
     this.framecount++;
     
