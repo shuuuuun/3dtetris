@@ -6145,9 +6145,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var Tetris3dCONST = function Tetris3dCONST() {
   _classCallCheck(this, Tetris3dCONST);
 
-  this.COLS = 10; // x, y field size
-  this.ROWS = 30; // z field size
-  this.FIELD_SIZE = 10;
+  this.COLS = 10; // x, z field size
+  this.ROWS = 30; // y field size
+  this.FIELD_SIZE = 10; // this.COLS
 
   // NUMBER_OF_BLOCK = 4;
   // NUMBER_OF_VOXEL = 4; // number of voxel in a block
@@ -6163,8 +6163,12 @@ var Tetris3dCONST = function Tetris3dCONST() {
   this.HIDDEN_ROWS = this.VOXEL_LENGTH;
   this.LOGICAL_ROWS = this.ROWS + this.HIDDEN_ROWS;
 
-  this.WIDTH = this.BLOCK_SIZE * this.COLS;
-  this.HEIGHT = this.BLOCK_SIZE * this.ROWS;
+  this.WIDTH = this.VOXEL_SIZE * this.COLS;
+  this.HEIGHT = this.VOXEL_SIZE * this.ROWS;
+
+  this.CENTER_X = this.WIDTH / 2;
+  this.CENTER_Y = this.HEIGHT / 2;
+  this.CENTER_Z = this.WIDTH / 2;
 
   this.CLEARLINE_BLOCK_ID = 14;
   this.GAMEOVER_BLOCK_ID = 15;
@@ -6239,8 +6243,6 @@ var _jquery2 = _interopRequireDefault(_jquery);
 
 var _eventemitter = require("./../../bower_components/eventemitter2/lib/eventemitter2.js");
 
-var _eventemitter2 = _interopRequireDefault(_eventemitter);
-
 var _Tetris3dCONST = require('./Tetris3dCONST');
 
 var _Tetris3dCONST2 = _interopRequireDefault(_Tetris3dCONST);
@@ -6255,8 +6257,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var CONST = _Tetris3dCONST2.default;
 
-var Tetris3dController = function (_EE2$EventEmitter) {
-  _inherits(Tetris3dController, _EE2$EventEmitter);
+var Tetris3dController = function (_EventEmitter) {
+  _inherits(Tetris3dController, _EventEmitter);
 
   function Tetris3dController(model, view) {
     _classCallCheck(this, Tetris3dController);
@@ -6273,6 +6275,8 @@ var Tetris3dController = function (_EE2$EventEmitter) {
   _createClass(Tetris3dController, [{
     key: 'newGame',
     value: function newGame() {
+      this.view.init();
+      this.view.start();
       this.model.initGame();
       this.model.startGame();
     }
@@ -6284,12 +6288,22 @@ var Tetris3dController = function (_EE2$EventEmitter) {
       // console.log(this.model.currentBlock);
       this.model.on('gamestart', function () {});
       this.model.on('newblockcreated', function () {});
-      this.model.on('currentblockcreated', function () {});
+      this.model.on('currentblockcreated', function () {
+        _this2.view.drawBlock(_this2.model.currentBlock);
+      });
       this.model.on('nextblockcreated', function () {});
-      this.model.on('gameover', function () {});
-      this.model.on('tick', function () {
-        console.log(_this2.model.currentBlock);
-        _this2.view.drawBlock(3, 0, 1, 0);
+      this.model.on('gameover', function () {
+        alert('gameover!!');
+      });
+      this.model.on('tick', function (isNewBlock) {
+        // console.log(isNewBlock, this.model.currentBlock);
+        _this2.view.moveBlock(_this2.model.currentBlock);
+        // if (isNewBlock) {
+        //   this.view.drawBlock(this.model.currentBlock);
+        // }
+        // else {
+        //   this.view.moveBlock(this.model.currentBlock);
+        // }
       });
       this.model.on('gamequit', function () {});
       this.model.on('freeze', function () {});
@@ -6369,7 +6383,7 @@ var Tetris3dController = function (_EE2$EventEmitter) {
   }]);
 
   return Tetris3dController;
-}(_eventemitter2.default.EventEmitter2);
+}(_eventemitter.EventEmitter2);
 
 module.exports = Tetris3dController;
 
@@ -6383,8 +6397,6 @@ var _jquery = require("./../../bower_components/jquery/dist/jquery.js");
 var _jquery2 = _interopRequireDefault(_jquery);
 
 var _eventemitter = require("./../../bower_components/eventemitter2/lib/eventemitter2.js");
-
-var _eventemitter2 = _interopRequireDefault(_eventemitter);
 
 var _Tetris3dCONST = require('./Tetris3dCONST');
 
@@ -6400,8 +6412,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var CONST = _Tetris3dCONST2.default;
 
-var Tetris3dModel = function (_EE2$EventEmitter) {
-  _inherits(Tetris3dModel, _EE2$EventEmitter);
+var Tetris3dModel = function (_EventEmitter) {
+  _inherits(Tetris3dModel, _EventEmitter);
 
   function Tetris3dModel() {
     _classCallCheck(this, Tetris3dModel);
@@ -6445,9 +6457,9 @@ var Tetris3dModel = function (_EE2$EventEmitter) {
     key: 'initBoad',
     value: function initBoad() {
       this.board = [];
-      for (var z = 0; z < CONST.LOGICAL_ROWS; ++z) {
+      for (var z = 0; z < CONST.COLS; ++z) {
         this.board[z] = [];
-        for (var y = 0; y < CONST.COLS; ++y) {
+        for (var y = 0; y < CONST.LOGICAL_ROWS; ++y) {
           this.board[z][y] = [];
           for (var x = 0; x < CONST.COLS; ++x) {
             this.board[z][y][x] = 0;
@@ -6518,9 +6530,10 @@ var Tetris3dModel = function (_EE2$EventEmitter) {
       var _this3 = this;
 
       clearTimeout(this.tickId);
-      console.log("tick", this.tickInterval, this.moveBlock('down'), this.checkGameOver());
-      // if (!this.moveBlock('down')) {
-      if (false) {
+      var isMoveDown = this.moveBlock('down');
+      console.log("tick", isMoveDown, this.checkGameOver());
+      if (!isMoveDown) {
+        // if (false) {
         this.freeze();
         this.clearLines();
         if (this.checkGameOver()) {
@@ -6535,7 +6548,7 @@ var Tetris3dModel = function (_EE2$EventEmitter) {
       this.tickId = setTimeout(function () {
         _this3.tick();
       }, this.tickInterval);
-      this.emit('tick');
+      this.emit('tick', !isMoveDown);
     }
   }, {
     key: 'quitGame',
@@ -6684,9 +6697,9 @@ var Tetris3dModel = function (_EE2$EventEmitter) {
       offsetX = offsetX || 0;
       offsetY = offsetY || 0;
       offsetZ = offsetZ || 0;
-      var nextX = this.currentX + offsetX;
-      var nextY = this.currentY + offsetY;
-      var nextZ = this.currentZ + offsetZ;
+      var nextX = this.currentBlock.x + offsetX;
+      var nextY = this.currentBlock.y + offsetY;
+      var nextZ = this.currentBlock.z + offsetZ;
       var blockShape = newBlockShape || this.currentBlock.shape;
 
       for (var z = 0; z < CONST.VOXEL_LENGTH; ++z) {
@@ -6696,12 +6709,14 @@ var Tetris3dModel = function (_EE2$EventEmitter) {
             var boardY = y + nextY;
             var boardZ = z + nextZ;
             if (!blockShape[z][y][x]) continue;
-            console.log(blockShape);
-            if (typeof this.board[boardY] === 'undefined' // 次の位置が盤面外なら
-             || typeof this.board[boardY][boardX] === 'undefined' // 盤面外なら
-             || this.board[boardY][boardX] // 次の位置にブロックがあれば
-             || boardX < 0 // 左壁
-             || boardX >= CONST.COLS // 右壁
+            if (typeof this.board[boardZ] === 'undefined' // 次の位置が盤面外なら
+             || typeof this.board[boardZ][boardY] === 'undefined' // 盤面外なら
+             || typeof this.board[boardZ][boardY][boardX] === 'undefined' // 盤面外なら
+             || !!this.board[boardZ][boardY][boardX] // 次の位置にブロックがあれば
+             || boardX < 0 // 壁
+             || boardX >= CONST.COLS // 壁
+             || boardZ < 0 // 壁
+             || boardZ >= CONST.COLS // 壁
              || boardY >= CONST.LOGICAL_ROWS) {
               // 底面
 
@@ -6735,7 +6750,7 @@ var Tetris3dModel = function (_EE2$EventEmitter) {
   }]);
 
   return Tetris3dModel;
-}(_eventemitter2.default.EventEmitter2);
+}(_eventemitter.EventEmitter2);
 
 module.exports = Tetris3dModel;
 
@@ -6765,6 +6780,12 @@ var Tetris3dView = function () {
     _classCallCheck(this, Tetris3dView);
 
     this.framecount = 0;
+    // this.CENTER_VECTOR = new THREE.Vector3(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
+    this.CENTER_VECTOR = { x: CONST.CENTER_X, y: CONST.CENTER_Y, z: CONST.CENTER_Z };
+    // this.CAMERA_POSITION = new THREE.Vector3(2000, CONST.CENTER_Y, 2000);
+    this.CAMERA_POSITION = { x: 2000, y: CONST.CENTER_Y, z: 2000 };
+    this.CAMERA_NEAR = 1;
+    this.CAMERA_FAR = 100000;
   }
 
   _createClass(Tetris3dView, [{
@@ -6776,35 +6797,41 @@ var Tetris3dView = function () {
       // renderer ------------------------------
       this.renderer = new THREE.WebGLRenderer({ antialias: true });
       this.renderer.setClearColor(0xf0f0f0); // 背景色
-      this.renderer.setSize(this.width, this.height);
+      this.renderer.setSize(CONST.WIDTH, CONST.HEIGHT);
       this.container.appendChild(this.renderer.domElement);
 
       // scene ------------------------------
       this.scene = new THREE.Scene();
 
       // camera ------------------------------
-      this.perscamera = new THREE.PerspectiveCamera(45, this.width / this.height, 1, 10000); // fov(視野角),aspect,near,far
-      this.orthocamera = new THREE.OrthographicCamera(this.width / -2, this.width / 2, this.height / 2, this.height / -2, 1, 10000);
-      // this.combinedcamera = new THREE.CombinedCamera( this.width, this.height, 45, 1, 10000, 1, 10000 );
+      this.perscamera = new THREE.PerspectiveCamera(45, CONST.WIDTH / CONST.HEIGHT, this.CAMERA_NEAR, this.CAMERA_FAR); // fov(視野角), aspect, near, far
+      this.orthocamera = new THREE.OrthographicCamera(-CONST.WIDTH / 2, CONST.WIDTH / 2, CONST.HEIGHT / 2, -CONST.HEIGHT / 2, this.CAMERA_NEAR, this.CAMERA_FAR); // left, right, top, bottom, near, far
+      this.cubecamera = new THREE.CubeCamera(this.CAMERA_NEAR, this.CAMERA_FAR, 128); // near, far, cubeResolution
       this.camera = this.perscamera;
-      // this.camera.position.y = 800;
-      this.camera.position.set(700, 700, 700);
-      this.camera.up.set(0, 1, 0); // y up
-      var center = CONST.FIELD_SIZE * CONST.VOXEL_SIZE / 2;
-      this.camera.lookAt({ x: center, y: 0, z: center }); // y up
+      // this.camera.position.set(2000, CONST.CENTER_Y, 2000);
+      // this.camera.position.set(this.CAMERA_POSITION);
+      this.camera.position.add(this.CAMERA_POSITION);
+      this.camera.up.set(0, -1, 0); // y down
+      this.camera.lookAt(this.CENTER_VECTOR);
+      // this.camera.lookAt(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
 
       // axis ------------------------------
-      var axis = new THREE.AxisHelper(1000);
+      var axis = new THREE.AxisHelper(this.CAMERA_FAR);
       axis.position.set(0, 0, 0);
       this.scene.add(axis);
 
-      // grid ------------------------------
-      var size = CONST.FIELD_SIZE * CONST.VOXEL_SIZE / 2;
+      // grid top ------------------------------
+      var size = CONST.CENTER_X;
       var step = CONST.VOXEL_SIZE;
       var grid = new THREE.GridHelper(size, step);
       // grid.position.add( new THREE.Vector3( size, 0, size ) ); // 0,0が端になるように移動
       grid.position.set(size, 0, size); // 0,0が端になるように移動
       this.scene.add(grid);
+
+      // grid bottom ------------------------------
+      var gridBtm = new THREE.GridHelper(size, step);
+      gridBtm.position.set(size, CONST.HEIGHT, size);
+      this.scene.add(gridBtm);
 
       // plane ------------------------------
       // plane = new THREE.Mesh( new THREE.PlaneGeometry( 1000, 1000 ), new THREE.MeshBasicMaterial() );
@@ -6826,6 +6853,10 @@ var Tetris3dView = function () {
 
       // controls ------------------------------
       this.controls = new THREE.OrbitControls(this.camera);
+      // this.controls.center.set(CONST.CENTER_X, 0, CONST.CENTER_Z);
+      // this.controls.center = this.CENTER_VECTOR;
+      // this.controls.center.set(this.CENTER_VECTOR);
+      this.controls.center.set(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
 
       // mouse ------------------------------
       this.mouse2D = new THREE.Vector3(0, 10000, 0.5);
@@ -6865,11 +6896,11 @@ var Tetris3dView = function () {
   }, {
     key: 'setSize',
     value: function setSize() {
-      this.width = window.innerWidth;
-      this.height = window.innerHeight;
-      this.camera.aspect = this.width / this.height;
+      CONST.WIDTH = window.innerWidth;
+      CONST.HEIGHT = window.innerHeight;
+      this.camera.aspect = CONST.WIDTH / CONST.HEIGHT;
       this.camera.updateProjectionMatrix();
-      this.renderer.setSize(this.width, this.height);
+      this.renderer.setSize(CONST.WIDTH, CONST.HEIGHT);
     }
   }, {
     key: 'tick',
@@ -6904,8 +6935,6 @@ var Tetris3dView = function () {
     value: function render() {
       this.renderer.render(this.scene, this.camera);
 
-      // this.ctx.clearRect(0, 0, this.WIDTH, this.HEIGHT);
-
       this.renderBoard();
       this.renderCurrentBlock();
     }
@@ -6917,7 +6946,24 @@ var Tetris3dView = function () {
     value: function renderCurrentBlock() {}
   }, {
     key: 'drawBlock',
-    value: function drawBlock(x, y, z, id) {
+    value: function drawBlock(block) {
+      this.currentBlock = block;
+      this.currentBlock.voxels = [];
+      for (var z = 0; z < CONST.VOXEL_LENGTH; ++z) {
+        for (var y = 0; y < CONST.VOXEL_LENGTH; ++y) {
+          for (var x = 0; x < CONST.VOXEL_LENGTH; ++x) {
+            if (!block || !block.shape[z][y][x]) continue;
+            var drawX = x + block.x;
+            var drawY = y + block.y - CONST.HIDDEN_ROWS;
+            var drawZ = z + block.z;
+            this.drawVoxel(drawX, drawY, drawZ, block.id);
+          }
+        }
+      }
+    }
+  }, {
+    key: 'drawVoxel',
+    value: function drawVoxel(x, y, z, id) {
       var blockX = x * CONST.VOXEL_SIZE;
       var blockY = y * CONST.VOXEL_SIZE;
       var blockZ = z * CONST.VOXEL_SIZE;
@@ -6925,6 +6971,43 @@ var Tetris3dView = function () {
       var voxel = new THREE.Mesh(this.cubeGeo, this.cubeMaterial[id]);
       voxel.position.set(blockX, blockY, blockZ);
       voxel.position.addScalar(CONST.VOXEL_SIZE / 2); // グリッドに合わせる。
+
+      // this.voxels = this.voxels || [];
+      // this.voxels.push(voxel);
+      this.currentBlock.voxels.push(voxel);
+
+      if (y < 0) return; // 盤面外は描画しない
+      this.scene.add(voxel);
+    }
+  }, {
+    key: 'moveBlock',
+    value: function moveBlock(block) {
+      if (!this.currentBlock) return;
+      var index = 0;
+      for (var z = 0; z < CONST.VOXEL_LENGTH; ++z) {
+        for (var y = 0; y < CONST.VOXEL_LENGTH; ++y) {
+          for (var x = 0; x < CONST.VOXEL_LENGTH; ++x) {
+            if (!block || !block.shape[z][y][x]) continue;
+            var drawX = x + block.x;
+            var drawY = y + block.y - CONST.HIDDEN_ROWS;
+            var drawZ = z + block.z;
+            this.moveVoxel(drawX, drawY, drawZ, index);
+            index++;
+          }
+        }
+      }
+    }
+  }, {
+    key: 'moveVoxel',
+    value: function moveVoxel(x, y, z, index) {
+      if (y < 0) return; // 盤面外は描画しない
+
+      var blockX = x * CONST.VOXEL_SIZE;
+      var blockY = y * CONST.VOXEL_SIZE;
+      var blockZ = z * CONST.VOXEL_SIZE;
+
+      var voxel = this.currentBlock.voxels[index];
+      voxel.position.set(blockX, blockY, blockZ);
       this.scene.add(voxel);
     }
   }, {
@@ -6971,136 +7054,10 @@ module.exports = Tetris3dView;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./../../bower_components/three.js/build/three.js":3,"./../../bower_components/three.js/examples/js/controls/OrbitControls.js":4,"./Tetris3dCONST":6}],10:[function(require,module,exports){
-"use strict";
-
-var _jquery = require("./../../bower_components/jquery/dist/jquery.js");
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var $win = (0, _jquery2.default)(window);
-
-// prefix:
-window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
-  var id = window.setTimeout(callback, 1000 / 60);return id;
-};
-window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || function (id) {
-  window.clearTimeout(id);
-};
-
-var Util = {
-  TRANSITIONEND: "transitionend webkitTransitionEnd mozTransitionEnd msTransitionEnd oTransitionEnd",
-  ANIMATIONEND: "animationend webkitAnimationEnd mozAnimationEnd msAnimationEnd oAnimationEnd",
-  getWinSize: function getWinSize() {
-    window.winW = Math.max($win.width(), window.innerWidth || 0);
-    window.winH = Math.max($win.height(), window.innerHeight || 0);
-  },
-  getRandomInt: function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  },
-  throttle: function throttle(fn, interval) {
-    var isWaiting = false;
-    var exec = function exec(event) {
-      if (isWaiting) return;
-      isWaiting = true;
-      setTimeout(function () {
-        isWaiting = false;
-        fn(event);
-      }, interval);
-    };
-    return exec;
-  },
-  debounce: function debounce(fn, interval) {
-    var timer;
-    var exec = function exec(event) {
-      clearTimeout(timer);
-      timer = setTimeout(function () {
-        fn(event);
-      }, interval);
-    };
-    return exec;
-  },
-  async: function async(fnList) {
-    // fnList ... 第一引数にcallbackを取る関数の配列
-    (function exec(index) {
-      if (!fnList[index]) return;
-      fnList[index](function () {
-        exec(index + 1);
-      });
-    })(0);
-  },
-  delay: function delay(time) {
-    // asyncで使う用
-    return function (callback) {
-      setTimeout(callback, time);
-    };
-  },
-  sleep: function sleep(time) {
-    // Deferred
-    return function () {
-      var dfd = _jquery2.default.Deferred();
-      setTimeout(function () {
-        dfd.resolve();
-      }, time);
-      return dfd.promise();
-    };
-  },
-  zeroPadding: function zeroPadding(num, len) {
-    return (new Array(len).join("0") + num).slice(-len);
-  },
-  getQueryString: function getQueryString() {
-    var result = {};
-    var search = win.location.search;
-    if (search.length > 1) {
-      var query = search.substring(1);
-      var parameters = query.split("&");
-      for (var i = 0; i < parameters.length; i++) {
-        var element = parameters[i].split("=");
-        var paramName = decodeURIComponent(element[0]);
-        var paramValue = decodeURIComponent(element[1]);
-        result[paramName] = paramValue;
-      }
-    }
-    return result;
-  },
-  getUserAgent: function getUserAgent() {
-    Util.ua = {};
-    Util.ua.name = window.navigator.userAgent.toLowerCase();
-    Util.ua.isSP = /ipod|iphone|ipad|android/i.test(Util.ua.name);
-    Util.ua.isPC = !Util.ua.isSP;
-    Util.ua.isIOS = /ipod|iphone|ipad/i.test(Util.ua.name);
-    Util.ua.isAndroid = /android/.test(Util.ua.name);
-    Util.ua.isIE8 = /msie 8/.test(Util.ua.name);
-    Util.ua.isIE9 = /msie 9/.test(Util.ua.name);
-    if (Util.ua.isSP) document.body.className += " isSP";
-    if (Util.ua.isPC) document.body.className += " isPC";
-    return Util.ua;
-  },
-  removeOtherDeviceElement: function removeOtherDeviceElement() {
-    if (Util.ua.isSP) {
-      (0, _jquery2.default)('.onlypc').remove();
-    } else {
-      (0, _jquery2.default)('.onlysp').remove();
-    }
-  }
-};
-
-module.exports = Util;
-
-},{"./../../bower_components/jquery/dist/jquery.js":2}],11:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-// import THREE from 'three.js';
-
-var _jquery = require("./../../bower_components/jquery/dist/jquery.js");
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-var _Util = require('./Util');
-
-var _Util2 = _interopRequireDefault(_Util);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // import $ from 'jquery';
+// import Util from './Util';
 
 var _Tetris3d = require('./Tetris3d');
 
@@ -7136,13 +7093,7 @@ var Main = function () {
     key: 'exec',
     value: function exec() {
       // tetris.init();
-      // tetris3dModel.newGame();
-      tetris3dView.init();
-      tetris3dView.start();
-      tetris3dView.drawBlock(0, 0, 0, 0);
-      tetris3dView.drawBlock(0, 0, 1, 1);
-      tetris3dView.drawBlock(0, 1, 0, 2);
-      // tetris3dController.newGame();
+      tetris3dController.newGame();
     }
   }]);
 
@@ -7152,4 +7103,4 @@ var Main = function () {
 var main = new Main();
 main.exec();
 
-},{"./../../bower_components/jquery/dist/jquery.js":2,"./Tetris3d":5,"./Tetris3dController":7,"./Tetris3dModel":8,"./Tetris3dView":9,"./Util":10}]},{},[11]);
+},{"./Tetris3d":5,"./Tetris3dController":7,"./Tetris3dModel":8,"./Tetris3dView":9}]},{},[10]);
