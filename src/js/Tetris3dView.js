@@ -38,22 +38,27 @@ class Tetris3dView {
     this.perscamera = new THREE.PerspectiveCamera( 45, CONST.WIDTH / CONST.HEIGHT, this.CAMERA_NEAR, this.CAMERA_FAR ); // fov(視野角), aspect, near, far
     this.orthocamera = new THREE.OrthographicCamera( -CONST.WIDTH / 2, CONST.WIDTH / 2, CONST.HEIGHT / 2, -CONST.HEIGHT / 2, this.CAMERA_NEAR, this.CAMERA_FAR ); // left, right, top, bottom, near, far
     this.cubecamera = new THREE.CubeCamera( this.CAMERA_NEAR, this.CAMERA_FAR, 128 ); // near, far, cubeResolution
+    this.setCamera();
+    /*
     this.camera = this.perscamera;
-    // this.camera.position.set(2000, CONST.CENTER_Y, 2000);
+    // this.camera = this.orthocamera;
+    // this.camera = new THREE.Camera();
+    // this.camera.clone(this.perscamera);
+    this.camera.position.set(2000, CONST.CENTER_Y, 2000);
     // this.camera.position.set(this.CAMERA_POSITION);
     // this.camera.position.add(this.CAMERA_POSITION);
     // this.camera.position.copy(this.CAMERA_POSITION);
-    this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
+    // this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
     // this.camera.position = this.CAMERA_POSITION;
     this.camera.up.set(0, -1, 0); // y down
     // this.camera.lookAt(this.CENTER_VECTOR);
     // this.camera.lookAt(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
     // let lookatVector = new THREE.Vector3().subVectors(this.CENTER_VECTOR, this.camera.position);
-    let lookatVector = new THREE.Vector3().addVectors(this.CENTER_VECTOR, this.camera.position);
+    // let lookatVector = new THREE.Vector3().addVectors(this.CENTER_VECTOR, this.camera.position);
     // this.camera.lookAt(lookatVector);
     // this.camera.lookAt(0,1,0);
     // this.camera.lookAt(new THREE.Vector3(0,1,0));
-    console.log(lookatVector, this.camera.getWorldDirection());
+    // console.log(lookatVector, this.camera.getWorldDirection());
     
     
     // controls ------------------------------
@@ -68,7 +73,8 @@ class Tetris3dView {
     // this.controls.target.set(this.CENTER_VECTOR);
     // this.controls.noKeys = true;
     this.controls.enableKeys = false;
-    
+    this.controls.update();
+    */
     
     // axis ------------------------------
     const axis = new THREE.AxisHelper(this.CAMERA_FAR);
@@ -103,8 +109,7 @@ class Tetris3dView {
     const ambientLight = new THREE.AmbientLight( 0x606060 );
     this.scene.add( ambientLight );
     const directionalLight = new THREE.DirectionalLight( 0xffffff );
-    // directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
-    directionalLight.position.set( 0.5, 0.75, 1 ).normalize();
+    directionalLight.position.set( 0.5, -0.75, 1 ).normalize();
     this.scene.add( directionalLight );
     
     
@@ -160,29 +165,39 @@ class Tetris3dView {
     this.renderer.setSize( CONST.WIDTH, CONST.HEIGHT );
   }
   
-  changeCamera(code) {
+  setCamera(code) {
     switch (code) {
-      case 'pers':
-        this.camera = this.perscamera;
-        this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
-        break;
       case 'ortho1':
         this.camera = this.orthocamera;
-        this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
+        // this.camera.clone(this.orthocamera);
+        this.camera.position.set(CONST.CENTER_X, CONST.CENTER_Y, 2000);
         break;
       case 'ortho2':
         this.camera = this.orthocamera;
-        this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
+        // this.camera.clone(this.orthocamera);
+        this.camera.position.set(2000, CONST.CENTER_Y, CONST.CENTER_Z);
         break;
       case 'ortho3':
         this.camera = this.orthocamera;
-        this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
+        // this.camera.clone(this.orthocamera);
+        this.camera.position.set(CONST.CENTER_X, -1000, CONST.CENTER_Z);
         break;
-      default:
+      default: // 'pers'
         this.camera = this.perscamera;
-        this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
+        // this.camera.clone(this.perscamera);
+        // this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
+        this.camera.position.set(2000, CONST.CENTER_Y, 2000);
         break;
     }
+    this.camera.up.set(0, -1, 0); // y down
+    this.camera.zoom = 1;
+    
+    if (this.controls) this.controls.dispose();
+    this.controls = new THREE.OrbitControls(this.camera);
+    this.controls.target = this.CENTER_VECTOR;
+    this.controls.enableKeys = false;
+    // this.controls.reset();
+    this.controls.update();
   }
   
   tick() {

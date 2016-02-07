@@ -60,7 +60,7 @@ class Tetris3dController extends EventEmitter2 {
       }
       if (typeof CONST.KEYS_VIEW[evt.keyCode] !== 'undefined') {
         evt.preventDefault();
-        this.view.changeCamera(CONST.KEYS_VIEW[evt.keyCode]);
+        this.view.setCamera(CONST.KEYS_VIEW[evt.keyCode]);
       }
     });
   };
