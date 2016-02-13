@@ -6146,7 +6146,7 @@ var Tetris3dCONST = function Tetris3dCONST() {
   _classCallCheck(this, Tetris3dCONST);
 
   this.COLS = 10; // x, z field size
-  this.ROWS = 30; // y field size
+  this.ROWS = 20; // y field size
   this.FIELD_SIZE = 10; // this.COLS
 
   // NUMBER_OF_BLOCK = 4;
@@ -6158,7 +6158,7 @@ var Tetris3dCONST = function Tetris3dCONST() {
 
   this.START_X = Math.floor((this.COLS - this.VOXEL_LENGTH) / 2);
   this.START_Y = 0;
-  this.START_Z = 0;
+  this.START_Z = Math.floor((this.COLS - this.VOXEL_LENGTH) / 2);
 
   this.HIDDEN_ROWS = this.VOXEL_LENGTH;
   this.LOGICAL_ROWS = this.ROWS + this.HIDDEN_ROWS;
@@ -6177,14 +6177,22 @@ var Tetris3dCONST = function Tetris3dCONST() {
   this.TICK_INTERVAL = 250; // default tick interval
   this.SPEEDUP_RATE = 10;
 
-  this.KEYS = {
+  this.KEYS_MODEL = {
     37: 'left', // ←
     39: 'right', // →
     40: 'down', // ↓
     38: 'rotate', // ↑
     32: 'rotate' // space
   };
+
+  this.KEYS_VIEW = {
+    48: 'pers', // 0
+    49: 'ortho1', // 1
+    50: 'ortho2', // 2
+    51: 'ortho3' };
+
   // shape: 4 x 4 x 4
+  // 3
   this.BLOCK_LIST = [{
     id: 0,
     color: "rgb(254,183,76)",
@@ -6268,7 +6276,9 @@ var Tetris3dController = function (_EventEmitter) {
     _this.model = model;
     _this.view = view;
 
-    _this.eventify();
+    _this.setModelEvent();
+    _this.setBlurEvent();
+    _this.setKeyEvent();
     return _this;
   }
 
@@ -6281,11 +6291,10 @@ var Tetris3dController = function (_EventEmitter) {
       this.model.startGame();
     }
   }, {
-    key: 'eventify',
-    value: function eventify() {
+    key: 'setModelEvent',
+    value: function setModelEvent() {
       var _this2 = this;
 
-      // console.log(this.model.currentBlock);
       this.model.on('gamestart', function () {});
       this.model.on('newblockcreated', function () {});
       this.model.on('currentblockcreated', function () {
@@ -6296,14 +6305,7 @@ var Tetris3dController = function (_EventEmitter) {
         alert('gameover!!');
       });
       this.model.on('tick', function (isNewBlock) {
-        // console.log(isNewBlock, this.model.currentBlock);
         _this2.view.moveBlock(_this2.model.currentBlock);
-        // if (isNewBlock) {
-        //   this.view.drawBlock(this.model.currentBlock);
-        // }
-        // else {
-        //   this.view.moveBlock(this.model.currentBlock);
-        // }
       });
       this.model.on('gamequit', function () {});
       this.model.on('freeze', function () {});
@@ -6315,9 +6317,11 @@ var Tetris3dController = function (_EventEmitter) {
       var _this3 = this;
 
       (0, _jquery2.default)(window).on('blur', function () {
-        _this3.pauseGame();
+        _this3.view.stop();
+        _this3.model.pauseGame();
       }).on('focus', function () {
-        _this3.resumeGame();
+        _this3.view.start();
+        _this3.model.resumeGame();
       });
     }
   }, {
@@ -6326,9 +6330,15 @@ var Tetris3dController = function (_EventEmitter) {
       var _this4 = this;
 
       (0, _jquery2.default)(document).on('keydown', function (evt) {
-        if (typeof _this4.KEYS[evt.keyCode] === 'undefined') return;
-        evt.preventDefault();
-        _this4.moveBlock(_this4.KEYS[evt.keyCode]);
+        // console.log(evt.keyCode, CONST.KEYS_MODEL[evt.keyCode], CONST.KEYS_VIEW[evt.keyCode]);
+        if (typeof CONST.KEYS_MODEL[evt.keyCode] !== 'undefined') {
+          evt.preventDefault();
+          _this4.model.moveBlock(CONST.KEYS_MODEL[evt.keyCode]);
+        }
+        if (typeof CONST.KEYS_VIEW[evt.keyCode] !== 'undefined') {
+          evt.preventDefault();
+          _this4.view.setCamera(CONST.KEYS_VIEW[evt.keyCode]);
+        }
       });
     }
   }, {
@@ -6535,7 +6545,7 @@ var Tetris3dModel = function (_EventEmitter) {
       if (!isMoveDown) {
         // if (false) {
         this.freeze();
-        this.clearLines();
+        // this.clearLines();
         if (this.checkGameOver()) {
           this.emit('gameover');
           // this.quitGame().then(function(){});
@@ -6738,7 +6748,7 @@ var Tetris3dModel = function (_EventEmitter) {
             var boardX = x + this.currentBlock.x;
             var boardY = y + this.currentBlock.y;
             var boardZ = z + this.currentBlock.z;
-            if (boardZ >= CONST.HIDDEN_ROWS) {
+            if (boardY >= CONST.HIDDEN_ROWS) {
               isGameOver = false;
               break;
             }
@@ -6780,10 +6790,11 @@ var Tetris3dView = function () {
     _classCallCheck(this, Tetris3dView);
 
     this.framecount = 0;
-    // this.CENTER_VECTOR = new THREE.Vector3(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
-    this.CENTER_VECTOR = { x: CONST.CENTER_X, y: CONST.CENTER_Y, z: CONST.CENTER_Z };
-    // this.CAMERA_POSITION = new THREE.Vector3(2000, CONST.CENTER_Y, 2000);
-    this.CAMERA_POSITION = { x: 2000, y: CONST.CENTER_Y, z: 2000 };
+    this.ZERO_VECTOR = new THREE.Vector3(0, 0, 0);
+    this.CENTER_VECTOR = new THREE.Vector3(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
+    // this.CENTER_VECTOR = { x: CONST.CENTER_X, y: CONST.CENTER_Y, z: CONST.CENTER_Z };
+    this.CAMERA_POSITION = new THREE.Vector3(2000, CONST.CENTER_Y, 2000);
+    // this.CAMERA_POSITION = { x: 2000, y: CONST.CENTER_Y, z: 2000 };
     this.CAMERA_NEAR = 1;
     this.CAMERA_FAR = 100000;
   }
@@ -6805,15 +6816,46 @@ var Tetris3dView = function () {
 
       // camera ------------------------------
       this.perscamera = new THREE.PerspectiveCamera(45, CONST.WIDTH / CONST.HEIGHT, this.CAMERA_NEAR, this.CAMERA_FAR); // fov(視野角), aspect, near, far
-      this.orthocamera = new THREE.OrthographicCamera(-CONST.WIDTH / 2, CONST.WIDTH / 2, CONST.HEIGHT / 2, -CONST.HEIGHT / 2, this.CAMERA_NEAR, this.CAMERA_FAR); // left, right, top, bottom, near, far
+      // this.orthocamera = new THREE.OrthographicCamera( -CONST.WIDTH / 2, CONST.WIDTH / 2, CONST.HEIGHT / 2, -CONST.HEIGHT / 2, this.CAMERA_NEAR, this.CAMERA_FAR ); // left, right, top, bottom, near, far
+      this.orthocamera = new THREE.OrthographicCamera(-window.innerWidth / 2, window.innerWidth / 2, window.innerHeight / 2, -window.innerHeight / 2, this.CAMERA_NEAR, this.CAMERA_FAR); // left, right, top, bottom, near, far
       this.cubecamera = new THREE.CubeCamera(this.CAMERA_NEAR, this.CAMERA_FAR, 128); // near, far, cubeResolution
+      this.setCamera();
+      /*
       this.camera = this.perscamera;
-      // this.camera.position.set(2000, CONST.CENTER_Y, 2000);
+      // this.camera = this.orthocamera;
+      // this.camera = new THREE.Camera();
+      // this.camera.clone(this.perscamera);
+      this.camera.position.set(2000, CONST.CENTER_Y, 2000);
       // this.camera.position.set(this.CAMERA_POSITION);
-      this.camera.position.add(this.CAMERA_POSITION);
+      // this.camera.position.add(this.CAMERA_POSITION);
+      // this.camera.position.copy(this.CAMERA_POSITION);
+      // this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
+      // this.camera.position = this.CAMERA_POSITION;
       this.camera.up.set(0, -1, 0); // y down
-      this.camera.lookAt(this.CENTER_VECTOR);
+      // this.camera.lookAt(this.CENTER_VECTOR);
       // this.camera.lookAt(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
+      // let lookatVector = new THREE.Vector3().subVectors(this.CENTER_VECTOR, this.camera.position);
+      // let lookatVector = new THREE.Vector3().addVectors(this.CENTER_VECTOR, this.camera.position);
+      // this.camera.lookAt(lookatVector);
+      // this.camera.lookAt(0,1,0);
+      // this.camera.lookAt(new THREE.Vector3(0,1,0));
+      // console.log(lookatVector, this.camera.getWorldDirection());
+      
+      
+      // controls ------------------------------
+      this.controls = new THREE.OrbitControls(this.camera);
+      // this.controls.center.set(CONST.CENTER_X, 0, CONST.CENTER_Z);
+      // this.controls.center = this.CENTER_VECTOR;
+      // this.controls.center.set(this.CENTER_VECTOR);
+      // this.controls.center.set(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
+      // this.controls.target.set(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
+      // this.controls.target = new THREE.Vector3(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
+      this.controls.target = this.CENTER_VECTOR;
+      // this.controls.target.set(this.CENTER_VECTOR);
+      // this.controls.noKeys = true;
+      this.controls.enableKeys = false;
+      this.controls.update();
+      */
 
       // axis ------------------------------
       var axis = new THREE.AxisHelper(this.CAMERA_FAR);
@@ -6844,19 +6886,11 @@ var Tetris3dView = function () {
       var ambientLight = new THREE.AmbientLight(0x606060);
       this.scene.add(ambientLight);
       var directionalLight = new THREE.DirectionalLight(0xffffff);
-      // directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
-      directionalLight.position.set(0.5, 0.75, 1).normalize();
+      directionalLight.position.set(0.5, -0.75, 1).normalize();
       this.scene.add(directionalLight);
 
       // picking ------------------------------
       // projector = new THREE.Projector();
-
-      // controls ------------------------------
-      this.controls = new THREE.OrbitControls(this.camera);
-      // this.controls.center.set(CONST.CENTER_X, 0, CONST.CENTER_Z);
-      // this.controls.center = this.CENTER_VECTOR;
-      // this.controls.center.set(this.CENTER_VECTOR);
-      this.controls.center.set(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
 
       // mouse ------------------------------
       this.mouse2D = new THREE.Vector3(0, 10000, 0.5);
@@ -6901,6 +6935,43 @@ var Tetris3dView = function () {
       this.camera.aspect = CONST.WIDTH / CONST.HEIGHT;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(CONST.WIDTH, CONST.HEIGHT);
+    }
+  }, {
+    key: 'setCamera',
+    value: function setCamera(code) {
+      switch (code) {
+        case 'ortho1':
+          this.camera = this.orthocamera;
+          // this.camera.clone(this.orthocamera);
+          this.camera.position.set(CONST.CENTER_X, CONST.CENTER_Y, 2000);
+          break;
+        case 'ortho2':
+          this.camera = this.orthocamera;
+          // this.camera.clone(this.orthocamera);
+          this.camera.position.set(2000, CONST.CENTER_Y, CONST.CENTER_Z);
+          break;
+        case 'ortho3':
+          this.camera = this.orthocamera;
+          // this.camera.clone(this.orthocamera);
+          this.camera.position.set(CONST.CENTER_X, -1000, CONST.CENTER_Z);
+          break;
+        default:
+          // 'pers'
+          this.camera = this.perscamera;
+          // this.camera.clone(this.perscamera);
+          // this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
+          this.camera.position.set(2000, CONST.CENTER_Y, 2000);
+          break;
+      }
+      this.camera.up.set(0, -1, 0); // y down
+      this.camera.zoom = 1;
+
+      if (this.controls) this.controls.dispose();
+      this.controls = new THREE.OrbitControls(this.camera);
+      this.controls.target = this.CENTER_VECTOR;
+      this.controls.enableKeys = false;
+      // this.controls.reset();
+      this.controls.update();
     }
   }, {
     key: 'tick',
@@ -7008,6 +7079,7 @@ var Tetris3dView = function () {
 
       var voxel = this.currentBlock.voxels[index];
       voxel.position.set(blockX, blockY, blockZ);
+      voxel.position.addScalar(CONST.VOXEL_SIZE / 2); // グリッドに合わせる。
       this.scene.add(voxel);
     }
   }, {
