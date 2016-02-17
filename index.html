@@ -11,7 +11,12 @@
   <body>
     <div class="wrapper">
       <h1></h1>
-      <div id="canvas-container"></div>
+      <div id="canvas-container" class="game-container">
+        <div class="game__controller">
+          <button type="button" class="js-switch-camera">camera</button>
+          <button type="button" class="js-switch-block">block</button>
+        </div>
+      </div>
       <p class="inspired">inspired by <a href="http://threejs.org/examples/#webgl_interactive_voxelpainter" target="_blank">threejs - voxel painter</a></p>
     </div>
     <script src="./js/script.js"></script>
