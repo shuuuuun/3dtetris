@@ -21246,55 +21246,6 @@ var Tetris3dController = function (_EventEmitter) {
         }
       });
     }
-  }, {
-    key: 'setTouchEvent',
-    value: function setTouchEvent() {
-      var _this5 = this;
-
-      var touch = new TouchController(this.$cnvs);
-      var touchStartX;
-      var touchStartY;
-      var isTap = false;
-      var isFreeze = false;
-
-      touch.on('touchstart', function (evt, info) {
-        touchStartX = info.touchStartX;
-        touchStartY = info.touchStartY;
-        isTap = true;
-        isFreeze = false;
-      });
-      touch.on('touchmove', function (evt, info) {
-        // var blockMoveX = (info.moveX / this.BLOCK_SIZE) | 0;
-        var moveX = info.touchX - touchStartX;
-        var moveY = info.touchY - touchStartY;
-        var blockMoveX = moveX / _this5.BLOCK_SIZE | 0;
-        var blockMoveY = moveY / _this5.BLOCK_SIZE | 0;
-
-        if (isFreeze) return;
-
-        // 1マスずつバリデーション（すり抜け対策）
-        while (!!blockMoveX) {
-          var sign = blockMoveX / Math.abs(blockMoveX); // 1 or -1
-          if (!_this5.valid(sign, 0)) break;
-          _this5.currentX += sign;
-          blockMoveX -= sign;
-          touchStartX = info.touchX;
-        }
-        while (blockMoveY > 0) {
-          if (!_this5.valid(0, 1)) break;
-          _this5.currentY++;
-          blockMoveY--;
-          touchStartY = info.touchY;
-        }
-        isTap = false;
-      });
-      touch.on('touchend', function (evt, info) {
-        if (!!isTap) _this5.moveBlock('rotate');
-      });
-      this.on('freeze', function () {
-        isFreeze = true;
-      });
-    }
   }]);
 
   return Tetris3dController;
