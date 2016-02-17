@@ -21984,8 +21984,12 @@ module.exports = Tetris3dView;
 },{"./../../bower_components/three.js/build/three.js":3,"./../../bower_components/three.js/examples/js/controls/OrbitControls.js":4,"./Tetris3dCONST":7}],11:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // import $ from 'jquery';
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 // import Util from './Util';
+
+var _jquery = require("./../../bower_components/jquery/dist/jquery.js");
+
+var _jquery2 = _interopRequireDefault(_jquery);
 
 var _Tetris3d = require('./Tetris3d');
 
@@ -22012,6 +22016,19 @@ var tetris3dModel = new _Tetris3dModel2.default();
 var tetris3dView = new _Tetris3dView2.default();
 var tetris3dController = new _Tetris3dController2.default(tetris3dModel, tetris3dView);
 
+var $switchCamera = (0, _jquery2.default)('.js-switch-camera');
+var $switchBlock = (0, _jquery2.default)('.js-switch-block');
+var $btns = $switchCamera.add($switchBlock);
+
+$switchCamera.on('click', function () {
+  $btns.removeClass('is-active');
+  (0, _jquery2.default)(this).addClass('is-active');
+});
+$switchBlock.on('click', function () {
+  $btns.removeClass('is-active');
+  (0, _jquery2.default)(this).addClass('is-active');
+});
+
 var Main = function () {
   function Main() {
     _classCallCheck(this, Main);
@@ -22031,4 +22048,4 @@ var Main = function () {
 var main = new Main();
 main.exec();
 
-},{"./Tetris3d":6,"./Tetris3dController":8,"./Tetris3dModel":9,"./Tetris3dView":10}]},{},[11]);
+},{"./../../bower_components/jquery/dist/jquery.js":2,"./Tetris3d":6,"./Tetris3dController":8,"./Tetris3dModel":9,"./Tetris3dView":10}]},{},[11]);
