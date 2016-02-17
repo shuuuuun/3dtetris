@@ -9,7 +9,11 @@ html(lang="ja")
     div.wrapper
       h1=share_title
       
-      div#canvas-container
+      div.game-container#canvas-container
+        div.game__controller
+          button.js-switch-camera(type="button") camera
+          button.js-switch-block(type="button") block
+        
       p.inspired
         | inspired by 
         a(href="http://threejs.org/examples/#webgl_interactive_voxelpainter" target="_blank")
