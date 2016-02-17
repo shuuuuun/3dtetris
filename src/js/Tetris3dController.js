@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import _ from 'lodash';
 import { EventEmitter2 } from 'eventemitter2';
 import Tetris3dCONST from './Tetris3dCONST';
 
@@ -34,6 +35,7 @@ class Tetris3dController extends EventEmitter2 {
       alert('gameover!!');
     });
     this.model.on('tick', (isNewBlock) => {
+      // console.log(_.flattenDeep(this.model.currentBlock.shape).length);
       this.view.moveBlock(this.model.currentBlock);
     });
     this.model.on('gamequit', () => {});
