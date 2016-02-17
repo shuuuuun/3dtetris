@@ -97,17 +97,29 @@
     }
 }
 
+@mixin img-size($url) {
+    width: image-width($url);
+    height: image-height($url);
+}
+
+@mixin img-size-retina($url) {
+    $width: image-width($url) / 2;
+    $height: image-height($url) / 2;
+    width: $width;
+    height: $height;
+}
+
 
 // background --------------------
-@mixin bg-size($url,$option) {
+@mixin bg-size($url) {
     $width: image-width($url);
     $height: image-height($url);
 
-    background: image-url($url) #{$option};
+    background-image: image-url($url);
     background-size: $width $height;
 }
 
-@mixin bg-block($url,$textIndent: false,$center: true) {
+@mixin bg-block($url, $textIndent: false, $center: true) {
     $width: image-width($url);
     $height: image-height($url);
 
@@ -119,12 +131,12 @@
         overflow: hidden;
     }
     display: block;
-    background: image-url($url);
+    background-image: image-url($url);
     background-repeat: no-repeat;
     background-position: 0 0;
     background-size: $width $height;
-    width : $width;
-    height : $height;
+    width: $width;
+    height: $height;
 }
 
 @mixin bg-button($url,$sprite) {
@@ -140,7 +152,7 @@
         display: block;
         text-indent: -9999px;
         overflow: hidden;
-        background: image-url($url);
+        background-image: image-url($url);
         background-repeat: no-repeat;
         background-position: center top;
         background-size: $width $height;
@@ -160,17 +172,17 @@
 }
 
 // background retina --------------------
-@mixin bg-size-retina($url,$option) {
+@mixin bg-size-retina($url) {
     $width: image-width($url) / 2;
-    $height: ceil(image-height($url) / 2);
+    $height: image-height($url) / 2;
 
-    background: image-url($url) #{$option};
+    background-image: image-url($url);
     background-size: $width $height;
 }
 
-@mixin bg-block-retina($url,$textIndent: false,$center: true) {
-    $width: ceil(image-width($url) / 2);
-    $height: ceil(image-height($url) / 2);
+@mixin bg-block-retina($url, $textIndent: false, $center: true) {
+    $width: image-width($url) / 2;
+    $height: image-height($url) / 2;
 
     @if $center {
         margin: 0 auto;
@@ -180,7 +192,7 @@
         overflow: hidden;
     }
     display: block;
-    background: image-url($url);
+    background-image: image-url($url);
     background-repeat: no-repeat;
     background-position: 0 0;
     background-size: $width $height;
@@ -220,18 +232,6 @@
     }
 }
 
-// retina --------------------
-@mixin image-retina($url, $center: true) {
-    @if $center {
-        margin: 0 auto;
-    }
-
-    $width: image-width($url) / 2;
-    $height: ceil(image-height($url) / 2);
-    width: $width;
-    height: $height;
-    display: block;
-}
 
 // prefix --------------------------------------------------
 @mixin prefix($prop, $value) {
