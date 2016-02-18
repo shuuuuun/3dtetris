@@ -201,47 +201,35 @@ class Tetris3dModel extends EventEmitter2 {
   moveBlock(code) {
     switch (code) {
       case 'left':
-        if ( this.valid(1, 0, 0) ) {
-          ++this.currentBlock.x;
-          return true;
-        }
-        return false;
+        var isValid = this.valid(1, 0, 0);
+        if (isValid) ++this.currentBlock.x;
+        return isValid;
         break;
       case 'right':
-        if ( this.valid(-1, 0, 0) ) {
-          --this.currentBlock.x;
-          return true;
-        }
-        return false;
+        var isValid = this.valid(-1, 0, 0);
+        if (isValid) --this.currentBlock.x;
+        return isValid;
         break;
       case 'down':
-        if ( this.valid(0, 1, 0) ) {
-          ++this.currentBlock.y;
-          return true;
-        }
-        return false;
+        var isValid = this.valid(0, 1, 0);
+        if (isValid) ++this.currentBlock.y;
+        return isValid;
         break;
       case 'forward':
-        if ( this.valid(0, 0, 1) ) {
-          ++this.currentBlock.z;
-          return true;
-        }
-        return false;
+        var isValid = this.valid(0, 0, 1);
+        if (isValid) ++this.currentBlock.z;
+        return isValid;
         break;
       case 'backward':
-        if ( this.valid(0, 0, -1) ) {
-          --this.currentBlock.z;
-          return true;
-        }
-        return false;
+        var isValid = this.valid(0, 0, -1);
+        if (isValid) --this.currentBlock.z;
+        return isValid;
         break;
       case 'rotate':
         let rotatedBlockShape = this.rotate(this.currentBlock);
-        if ( this.valid(0, 0, 0, rotatedBlockShape) ) {
-          this.currentBlock.shape = rotatedBlockShape;
-          return true;
-        }
-        return false;
+        var isValid = this.valid(0, 0, 0, rotatedBlockShape);
+        if (isValid) this.currentBlock.shape = rotatedBlockShape;
+        return isValid;
         break;
     }
   };
