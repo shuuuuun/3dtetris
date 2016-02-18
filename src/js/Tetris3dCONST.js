@@ -35,8 +35,8 @@ class Tetris3dCONST {
     this.KEYS_MODEL = {
       37: 'left',  // ←
       39: 'right',  // →
-      40: 'down',  // ↓
-      38: 'rotate',  // ↑
+      40: 'forward',  // ↓
+      38: 'backward',  // ↑
       32: 'rotate'  // space
     };
     

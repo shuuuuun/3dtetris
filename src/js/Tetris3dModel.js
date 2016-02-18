@@ -201,15 +201,15 @@ class Tetris3dModel extends EventEmitter2 {
   moveBlock(code) {
     switch (code) {
       case 'left':
-        if ( this.valid(-1, 0, 0) ) {
-          --this.currentBlock.x;
+        if ( this.valid(1, 0, 0) ) {
+          ++this.currentBlock.x;
           return true;
         }
         return false;
         break;
       case 'right':
-        if ( this.valid(1, 0, 0) ) {
-          ++this.currentBlock.x;
+        if ( this.valid(-1, 0, 0) ) {
+          --this.currentBlock.x;
           return true;
         }
         return false;
@@ -217,6 +217,20 @@ class Tetris3dModel extends EventEmitter2 {
       case 'down':
         if ( this.valid(0, 1, 0) ) {
           ++this.currentBlock.y;
+          return true;
+        }
+        return false;
+        break;
+      case 'forward':
+        if ( this.valid(0, 0, 1) ) {
+          ++this.currentBlock.z;
+          return true;
+        }
+        return false;
+        break;
+      case 'backward':
+        if ( this.valid(0, 0, -1) ) {
+          --this.currentBlock.z;
           return true;
         }
         return false;
