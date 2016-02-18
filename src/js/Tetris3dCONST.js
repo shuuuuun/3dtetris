@@ -33,18 +33,18 @@ class Tetris3dCONST {
     this.SPEEDUP_RATE = 10;
     
     this.KEYS_MODEL = {
-      37: 'left',  // ←
-      39: 'right',  // →
-      40: 'forward',  // ↓
-      38: 'backward',  // ↑
-      32: 'rotate'  // space
+      37: 'left', // ←
+      39: 'right', // →
+      40: 'forward', // ↓
+      38: 'backward', // ↑
+      32: 'rotate', // space
     };
     
     this.KEYS_VIEW = {
-      48: 'pers',// 0
-      49: 'ortho1',// 1
-      50: 'ortho2',// 2
-      51: 'ortho3',// 3
+      48: 'pers', // 0
+      49: 'ortho1', // 1
+      50: 'ortho2', // 2
+      51: 'ortho3', // 3
     };
     
     // shape: 4 x 4 x 4
