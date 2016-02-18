@@ -194,7 +194,15 @@ class Tetris3dView {
     this.camera.up.set(0, -1, 0); // y down
     this.camera.zoom = 1;
     
+    this.stopControls();
+    this.startControls();
+  }
+  
+  stopControls() {
     if (this.controls) this.controls.dispose();
+  }
+  
+  startControls() {
     this.controls = new THREE.OrbitControls(this.camera);
     this.controls.target = this.CENTER_VECTOR;
     this.controls.enableKeys = false;

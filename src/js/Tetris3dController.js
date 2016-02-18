@@ -67,6 +67,14 @@ class Tetris3dController extends EventEmitter2 {
     });
   };
   
+  swithModeCamera() {
+    this.view.startControls();
+  };
+  
+  swithModeBlock() {
+    this.view.stopControls();
+  };
+  
 }
 
 module.exports = Tetris3dController;
