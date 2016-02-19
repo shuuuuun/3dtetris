@@ -51,7 +51,7 @@ class Tetris3dCONST {
     this.BLOCK_LIST = [
       {
         id: 0,
-        color: "rgb(254,183,76)",
+        color: 'rgb(254,183,76)',
         shape: [ // 横棒
           [
             [1, 1, 1, 1],
@@ -81,7 +81,7 @@ class Tetris3dCONST {
       },
       {
         id: 1,
-        color: "rgb(251,122,111)",
+        color: 'rgb(251,122,111)',
         shape: [ // 四角
           [
             [1, 1, 0, 0],
@@ -111,7 +111,7 @@ class Tetris3dCONST {
       },
       {
         id: 2,
-        color: "rgb(247,181,90)",
+        color: 'rgb(247,181,90)',
         shape: [ // L字
           [
             [1, 1, 1, 0],
@@ -141,7 +141,7 @@ class Tetris3dCONST {
       },
       {
         id: 3,
-        color: "rgb(241,221,96)",
+        color: 'rgb(241,221,96)',
         shape: [ // Z字(S字)
           [
             [1, 1, 0, 0],
@@ -171,7 +171,7 @@ class Tetris3dCONST {
       },
       {
         id: 4,
-        color: "rgb(191,216,94)",
+        color: 'rgb(191,216,94)',
         shape: [ // T字
           [
             [1, 1, 1, 0],
@@ -201,7 +201,7 @@ class Tetris3dCONST {
       },
       {
         id: 5,
-        color: "rgb(107,180,252)",
+        color: 'rgb(107,180,252)',
         shape: [ // 3方向
           [
             [1, 1, 0, 0],
@@ -231,7 +231,7 @@ class Tetris3dCONST {
       },
       {
         id: 6,
-        color: "rgb(202,162,221)",
+        color: 'rgb(202,162,221)',
         shape: [ // うねうね1
           [
             [1, 1, 0, 0],
@@ -261,7 +261,7 @@ class Tetris3dCONST {
       },
       {
         id: 7,
-        color: "rgb(100,198,173)",
+        color: 'rgb(100,198,173)',
         shape: [ // うねうね2
           [
             [1, 1, 0, 0],

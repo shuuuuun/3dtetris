@@ -4,10 +4,10 @@ class TouchController extends EventEmitter2 {
   constructor() {
     super();
 
-    this.touchsupport = ("ontouchstart" in window);
-    this.touchstart = (this.touchsupport) ? "touchstart" : "mousedown";
-    this.touchmove  = (this.touchsupport) ? "touchmove"  : "mousemove";
-    this.touchend   = (this.touchsupport) ? "touchend"   : "mouseup";
+    this.touchsupport = ('ontouchstart' in window);
+    this.touchstart = (this.touchsupport) ? 'touchstart' : 'mousedown';
+    this.touchmove  = (this.touchsupport) ? 'touchmove'  : 'mousemove';
+    this.touchend   = (this.touchsupport) ? 'touchend'   : 'mouseup';
     
   }
   
@@ -47,11 +47,11 @@ class TouchController extends EventEmitter2 {
       touchStartX = (_this.touchsupport) ? evt.originalEvent.touches[0].pageX : evt.pageX;
       touchStartY = (_this.touchsupport) ? evt.originalEvent.touches[0].pageY : evt.pageY;
       
-      // console.log("touchstart");
-      _this.emit("touchstart", {
-        "touchStartTime": touchStartTime,
-        "touchStartX"   : touchStartX,
-        "touchStartY"   : touchStartY,
+      // console.log('touchstart');
+      _this.emit('touchstart', {
+        'touchStartTime': touchStartTime,
+        'touchStartX'   : touchStartX,
+        'touchStartY'   : touchStartY,
       });
       
       //return false; // enableReturnFalse
@@ -68,16 +68,16 @@ class TouchController extends EventEmitter2 {
       moveX  = touchX - touchStartX;
       moveY  = touchY - touchStartY;
       
-      // console.log("touchmove", touchX, touchY, deltaX, deltaY, moveX, moveY);
-      _this.emit("touchmove", {
-        "lasttouchX": lasttouchX,
-        "lasttouchY": lasttouchY,
-        "touchX"    : touchX,
-        "touchY"    : touchY,
-        "deltaX"    : deltaX,
-        "deltaY"    : deltaY,
-        "moveX"     : moveX,
-        "moveY"     : moveY,
+      // console.log('touchmove', touchX, touchY, deltaX, deltaY, moveX, moveY);
+      _this.emit('touchmove', {
+        'lasttouchX': lasttouchX,
+        'lasttouchY': lasttouchY,
+        'touchX'    : touchX,
+        'touchY'    : touchY,
+        'deltaX'    : deltaX,
+        'deltaY'    : deltaY,
+        'moveX'     : moveX,
+        'moveY'     : moveY,
       });
       
       // clearTimeout(movingtimer);
@@ -90,13 +90,13 @@ class TouchController extends EventEmitter2 {
       touchEndX = touchX;
       touchEndY = touchY;
       
-      // console.log("touchend");
-      _this.emit("touchend", {
-        "elapsedTime": elapsedTime,
-        "touchEndX"  : touchEndX,
-        "touchEndY"  : touchEndY,
-        "moveX"      : moveX,
-        "moveY"      : moveY,
+      // console.log('touchend');
+      _this.emit('touchend', {
+        'elapsedTime': elapsedTime,
+        'touchEndX'  : touchEndX,
+        'touchEndY'  : touchEndY,
+        'moveX'      : moveX,
+        'moveY'      : moveY,
       });
       
       touchX = touchY = null;
