@@ -21080,11 +21080,11 @@ var Tetris3dCONST = function Tetris3dCONST() {
   this.KEYS_MODEL = {
     37: 'left', // ←
     39: 'right', // →
-    40: 'down', // ↓
-    38: 'rotate', // ↑
-    32: 'rotate' // space
-  };
+    40: 'forward', // ↓
+    38: 'backward', // ↑
+    32: 'rotate' };
 
+  // space
   this.KEYS_VIEW = {
     48: 'pers', // 0
     49: 'ortho1', // 1
@@ -21155,6 +21155,10 @@ var _lodash2 = _interopRequireDefault(_lodash);
 
 var _eventemitter = require("./../../bower_components/eventemitter2/lib/eventemitter2.js");
 
+var _TouchController = require('./TouchController');
+
+var _TouchController2 = _interopRequireDefault(_TouchController);
+
 var _Tetris3dCONST = require('./Tetris3dCONST');
 
 var _Tetris3dCONST2 = _interopRequireDefault(_Tetris3dCONST);
@@ -21179,6 +21183,8 @@ var Tetris3dController = function (_EventEmitter) {
 
     _this.model = model;
     _this.view = view;
+
+    // this.touch = new TouchController();
 
     _this.setModelEvent();
     _this.setBlurEvent();
@@ -21246,6 +21252,68 @@ var Tetris3dController = function (_EventEmitter) {
         }
       });
     }
+  }, {
+    key: 'setTouchEvent',
+    value: function setTouchEvent() {
+      var _this5 = this;
+
+      // var touch = new TouchController(this.$cnvs);
+      this.touch.setElement();
+      var touchStartX;
+      var touchStartY;
+      var isTap = false;
+      var isFreeze = false;
+
+      this.touch.on('touchstart', function (evt, info) {
+        touchStartX = info.touchStartX;
+        touchStartY = info.touchStartY;
+        isTap = true;
+        isFreeze = false;
+      });
+      this.touch.on('touchmove', function (evt, info) {
+        // var blockMoveX = (info.moveX / this.BLOCK_SIZE) | 0;
+        var moveX = info.touchX - touchStartX;
+        var moveY = info.touchY - touchStartY;
+        var blockMoveX = moveX / _this5.BLOCK_SIZE | 0;
+        var blockMoveY = moveY / _this5.BLOCK_SIZE | 0;
+
+        if (isFreeze) return;
+
+        // 1マスずつバリデーション（すり抜け対策）
+        while (!!blockMoveX) {
+          var sign = blockMoveX / Math.abs(blockMoveX); // 1 or -1
+          if (!_this5.valid(sign, 0)) break;
+          _this5.currentX += sign;
+          blockMoveX -= sign;
+          touchStartX = info.touchX;
+        }
+        while (blockMoveY > 0) {
+          if (!_this5.valid(0, 1)) break;
+          _this5.currentY++;
+          blockMoveY--;
+          touchStartY = info.touchY;
+        }
+        isTap = false;
+      });
+      this.touch.on('touchend', function (evt, info) {
+        if (!!isTap) _this5.moveBlock('rotate');
+      });
+      this.on('freeze', function () {
+        isFreeze = true;
+      });
+    }
+  }, {
+    key: 'swithModeCamera',
+    value: function swithModeCamera() {
+      console.log('swithModeCamera');
+      this.view.startControls();
+    }
+  }, {
+    key: 'swithModeBlock',
+    value: function swithModeBlock() {
+      console.log('swithModeBlock');
+      this.view.stopControls();
+    }
   }]);
 
   return Tetris3dController;
@@ -21253,7 +21321,7 @@ var Tetris3dController = function (_EventEmitter) {
 
 module.exports = Tetris3dController;
 
-},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./../../bower_components/jquery/dist/jquery.js":2,"./Tetris3dCONST":7,"lodash":5}],9:[function(require,module,exports){
+},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./../../bower_components/jquery/dist/jquery.js":2,"./Tetris3dCONST":7,"./TouchController":11,"lodash":5}],9:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -21512,33 +21580,35 @@ var Tetris3dModel = function (_EventEmitter) {
     value: function moveBlock(code) {
       switch (code) {
         case 'left':
-          if (this.valid(-1, 0, 0)) {
-            --this.currentBlock.x;
-            return true;
-          }
-          return false;
+          var isValid = this.valid(1, 0, 0);
+          if (isValid) ++this.currentBlock.x;
+          return isValid;
           break;
         case 'right':
-          if (this.valid(1, 0, 0)) {
-            ++this.currentBlock.x;
-            return true;
-          }
-          return false;
+          var isValid = this.valid(-1, 0, 0);
+          if (isValid) --this.currentBlock.x;
+          return isValid;
           break;
         case 'down':
-          if (this.valid(0, 1, 0)) {
-            ++this.currentBlock.y;
-            return true;
-          }
-          return false;
+          var isValid = this.valid(0, 1, 0);
+          if (isValid) ++this.currentBlock.y;
+          return isValid;
+          break;
+        case 'forward':
+          var isValid = this.valid(0, 0, 1);
+          if (isValid) ++this.currentBlock.z;
+          return isValid;
+          break;
+        case 'backward':
+          var isValid = this.valid(0, 0, -1);
+          if (isValid) --this.currentBlock.z;
+          return isValid;
           break;
         case 'rotate':
           var rotatedBlockShape = this.rotate(this.currentBlock);
-          if (this.valid(0, 0, 0, rotatedBlockShape)) {
-            this.currentBlock.shape = rotatedBlockShape;
-            return true;
-          }
-          return false;
+          var isValid = this.valid(0, 0, 0, rotatedBlockShape);
+          if (isValid) this.currentBlock.shape = rotatedBlockShape;
+          return isValid;
           break;
       }
     }
@@ -21647,10 +21717,11 @@ var Tetris3dView = function () {
 
     this.framecount = 0;
     this.ZERO_VECTOR = new THREE.Vector3(0, 0, 0);
+    this.CAMERA_DISTANCE_DEFAULT = 1700;
     this.CENTER_VECTOR = new THREE.Vector3(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
     // this.CENTER_VECTOR = { x: CONST.CENTER_X, y: CONST.CENTER_Y, z: CONST.CENTER_Z };
-    this.CAMERA_POSITION = new THREE.Vector3(2000, CONST.CENTER_Y, 2000);
-    // this.CAMERA_POSITION = { x: 2000, y: CONST.CENTER_Y, z: 2000 };
+    this.CAMERA_POSITION = new THREE.Vector3(this.CAMERA_DISTANCE_DEFAULT, CONST.HEIGHT, this.CAMERA_DISTANCE_DEFAULT);
+    // this.CAMERA_POSITION = { x: this.CAMERA_DISTANCE_DEFAULT, y: CONST.CENTER_Y, z: this.CAMERA_DISTANCE_DEFAULT };
     this.CAMERA_NEAR = 1;
     this.CAMERA_FAR = 100000;
   }
@@ -21799,12 +21870,12 @@ var Tetris3dView = function () {
         case 'ortho1':
           this.camera = this.orthocamera;
           // this.camera.clone(this.orthocamera);
-          this.camera.position.set(CONST.CENTER_X, CONST.CENTER_Y, 2000);
+          this.camera.position.set(CONST.CENTER_X, CONST.CENTER_Y, this.CAMERA_DISTANCE_DEFAULT);
           break;
         case 'ortho2':
           this.camera = this.orthocamera;
           // this.camera.clone(this.orthocamera);
-          this.camera.position.set(2000, CONST.CENTER_Y, CONST.CENTER_Z);
+          this.camera.position.set(this.CAMERA_DISTANCE_DEFAULT, CONST.CENTER_Y, CONST.CENTER_Z);
           break;
         case 'ortho3':
           this.camera = this.orthocamera;
@@ -21816,13 +21887,28 @@ var Tetris3dView = function () {
           this.camera = this.perscamera;
           // this.camera.clone(this.perscamera);
           // this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
-          this.camera.position.set(2000, CONST.CENTER_Y, 2000);
+          this.camera.position.set(this.CAMERA_DISTANCE_DEFAULT, 0, this.CAMERA_DISTANCE_DEFAULT);
           break;
       }
       this.camera.up.set(0, -1, 0); // y down
       this.camera.zoom = 1;
 
+      this.stopControls();
+      this.startControls();
+    }
+  }, {
+    key: 'stopControls',
+    value: function stopControls() {
+      console.log('stopControls', !!this.controls);
       if (this.controls) this.controls.dispose();
+      if (this.controls) {
+        this.controls.enabled = false;
+        this.controls = null;
+      }
+    }
+  }, {
+    key: 'startControls',
+    value: function startControls() {
       this.controls = new THREE.OrbitControls(this.camera);
       this.controls.target = this.CENTER_VECTOR;
       this.controls.enableKeys = false;
@@ -21982,6 +22068,136 @@ module.exports = Tetris3dView;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./../../bower_components/three.js/build/three.js":3,"./../../bower_components/three.js/examples/js/controls/OrbitControls.js":4,"./Tetris3dCONST":7}],11:[function(require,module,exports){
+"use strict";
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _eventemitter = require("./../../bower_components/eventemitter2/lib/eventemitter2.js");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var TouchController = function (_EventEmitter) {
+  _inherits(TouchController, _EventEmitter);
+
+  function TouchController() {
+    _classCallCheck(this, TouchController);
+
+    var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(TouchController).call(this));
+
+    _this2.touchsupport = "ontouchstart" in window;
+    _this2.touchstart = _this2.touchsupport ? "touchstart" : "mousedown";
+    _this2.touchmove = _this2.touchsupport ? "touchmove" : "mousemove";
+    _this2.touchend = _this2.touchsupport ? "touchend" : "mouseup";
+
+    return _this2;
+  }
+
+  _createClass(TouchController, [{
+    key: "setElement",
+    value: function setElement(element) {
+      element.addEventListener(this.touchstart, onTouchStart, false);
+      element.addEventListener(this.touchmove, ontouchMove, false);
+      element.addEventListener(this.touchend, onTouchEnd, false);
+
+      // document.addEventListener(touchstart, function(){ return false; }, false); // disableDocumentTouch
+      // document.addEventListener(touchmove, ontouchMove, false);
+      // document.addEventListener(touchend, onTouchEnd, false);
+
+      var _this = this;
+
+      var isDragging = false,
+          movingtimer = undefined,
+          touchStartX = undefined,
+          touchStartY = undefined,
+          lasttouchX = undefined,
+          lasttouchY = undefined,
+          touchX = undefined,
+          touchY = undefined,
+          deltaX = 0,
+          deltaY = 0,
+          moveX = 0,
+          moveY = 0,
+          touchEndX = undefined,
+          touchEndY = undefined,
+          touchStartTime = undefined,
+          elapsedTime = undefined;
+
+      function onTouchStart(evt) {
+        evt.preventDefault(); // enablePreventDefault
+        isDragging = true;
+        touchStartTime = Date.now();
+
+        touchStartX = _this.touchsupport ? evt.originalEvent.touches[0].pageX : evt.pageX;
+        touchStartY = _this.touchsupport ? evt.originalEvent.touches[0].pageY : evt.pageY;
+
+        // console.log("touchstart");
+        _this.emit("touchstart", {
+          "touchStartTime": touchStartTime,
+          "touchStartX": touchStartX,
+          "touchStartY": touchStartY
+        });
+
+        //return false; // enableReturnFalse
+      }
+      function ontouchMove(evt) {
+        if (!isDragging) return;
+        lasttouchX = touchX || touchStartX;
+        lasttouchY = touchY || touchStartY;
+
+        touchX = _this.touchsupport ? evt.originalEvent.touches[0].pageX : evt.pageX;
+        touchY = _this.touchsupport ? evt.originalEvent.touches[0].pageY : evt.pageY;
+        deltaX = touchX - lasttouchX;
+        deltaY = touchY - lasttouchY;
+        moveX = touchX - touchStartX;
+        moveY = touchY - touchStartY;
+
+        // console.log("touchmove", touchX, touchY, deltaX, deltaY, moveX, moveY);
+        _this.emit("touchmove", {
+          "lasttouchX": lasttouchX,
+          "lasttouchY": lasttouchY,
+          "touchX": touchX,
+          "touchY": touchY,
+          "deltaX": deltaX,
+          "deltaY": deltaY,
+          "moveX": moveX,
+          "moveY": moveY
+        });
+
+        // clearTimeout(movingtimer);
+        // movingtimer = setTimeout(function(){ isDragging = false; },1000);
+      }
+      function onTouchEnd(evt) {
+        isDragging = false;
+
+        elapsedTime = Date.now() - touchStartTime;
+        touchEndX = touchX;
+        touchEndY = touchY;
+
+        // console.log("touchend");
+        _this.emit("touchend", {
+          "elapsedTime": elapsedTime,
+          "touchEndX": touchEndX,
+          "touchEndY": touchEndY,
+          "moveX": moveX,
+          "moveY": moveY
+        });
+
+        touchX = touchY = null;
+        moveX = moveY = 0;
+      }
+    }
+  }]);
+
+  return TouchController;
+}(_eventemitter.EventEmitter2);
+
+module.exports = TouchController;
+
+},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1}],12:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -22023,10 +22239,12 @@ var $btns = $switchCamera.add($switchBlock);
 $switchCamera.on('click', function () {
   $btns.removeClass('is-active');
   (0, _jquery2.default)(this).addClass('is-active');
+  tetris3dController.swithModeCamera();
 });
 $switchBlock.on('click', function () {
   $btns.removeClass('is-active');
   (0, _jquery2.default)(this).addClass('is-active');
+  tetris3dController.swithModeBlock();
 });
 
 var Main = function () {
@@ -22039,6 +22257,9 @@ var Main = function () {
     value: function exec() {
       // tetris.init();
       tetris3dController.newGame();
+
+      // default mode
+      $switchCamera.trigger('click');
     }
   }]);
 
@@ -22048,4 +22269,4 @@ var Main = function () {
 var main = new Main();
 main.exec();
 
-},{"./../../bower_components/jquery/dist/jquery.js":2,"./Tetris3d":6,"./Tetris3dController":8,"./Tetris3dModel":9,"./Tetris3dView":10}]},{},[11]);
+},{"./../../bower_components/jquery/dist/jquery.js":2,"./Tetris3d":6,"./Tetris3dController":8,"./Tetris3dModel":9,"./Tetris3dView":10}]},{},[12]);
