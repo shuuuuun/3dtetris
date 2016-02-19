@@ -1,8 +1,7 @@
-import $ from 'jquery';
 import { EventEmitter2 } from 'eventemitter2';
 
 class TouchController extends EventEmitter2 {
-  constructor($element) {
+  constructor() {
     super();
 
     this.touchsupport = ("ontouchstart" in window);
@@ -12,16 +11,14 @@ class TouchController extends EventEmitter2 {
     
   }
   
-  setElement($element) {
-    $element
-      .on(this.touchstart, onTouchStart)
-      .on(this.touchmove, ontouchMove)
-      .on(this.touchend, onTouchEnd);
+  setElement(element) {
+    element.addEventListener(this.touchstart, onTouchStart, false);
+    element.addEventListener(this.touchmove, ontouchMove, false);
+    element.addEventListener(this.touchend, onTouchEnd, false);
     
-    // $(document)
-    //   .on(touchstart, function(){ return false; }) // disableDocumentTouch
-    //   .on(touchmove, ontouchMove)
-    //   .on(touchend, onTouchEnd);
+    // document.addEventListener(touchstart, function(){ return false; }, false); // disableDocumentTouch
+    // document.addEventListener(touchmove, ontouchMove, false);
+    // document.addEventListener(touchend, onTouchEnd, false);
     
     let _this = this;
     
