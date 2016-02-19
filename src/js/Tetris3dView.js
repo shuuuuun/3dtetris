@@ -199,7 +199,12 @@ class Tetris3dView {
   }
   
   stopControls() {
+    console.log('stopControls', !!this.controls);
     if (this.controls) this.controls.dispose();
+    if (this.controls) {
+      this.controls.enabled = false;
+      this.controls = null;
+    }
   }
   
   startControls() {
