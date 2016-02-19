@@ -21095,42 +21095,42 @@ var Tetris3dCONST = function Tetris3dCONST() {
   // 3
   this.BLOCK_LIST = [{
     id: 0,
-    color: "rgb(254,183,76)",
+    color: 'rgb(254,183,76)',
     shape: [// 横棒
     [[1, 1, 1, 1], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
   }, {
     id: 1,
-    color: "rgb(251,122,111)",
+    color: 'rgb(251,122,111)',
     shape: [// 四角
     [[1, 1, 0, 0], [1, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
   }, {
     id: 2,
-    color: "rgb(247,181,90)",
+    color: 'rgb(247,181,90)',
     shape: [// L字
     [[1, 1, 1, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
   }, {
     id: 3,
-    color: "rgb(241,221,96)",
+    color: 'rgb(241,221,96)',
     shape: [// Z字(S字)
     [[1, 1, 0, 0], [0, 1, 1, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
   }, {
     id: 4,
-    color: "rgb(191,216,94)",
+    color: 'rgb(191,216,94)',
     shape: [// T字
     [[1, 1, 1, 0], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
   }, {
     id: 5,
-    color: "rgb(107,180,252)",
+    color: 'rgb(107,180,252)',
     shape: [// 3方向
     [[1, 1, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
   }, {
     id: 6,
-    color: "rgb(202,162,221)",
+    color: 'rgb(202,162,221)',
     shape: [// うねうね1
     [[1, 1, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
   }, {
     id: 7,
-    color: "rgb(100,198,173)",
+    color: 'rgb(100,198,173)',
     shape: [// うねうね2
     [[1, 1, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]]
   }];
@@ -22068,7 +22068,7 @@ module.exports = Tetris3dView;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./../../bower_components/three.js/build/three.js":3,"./../../bower_components/three.js/examples/js/controls/OrbitControls.js":4,"./Tetris3dCONST":7}],11:[function(require,module,exports){
-"use strict";
+'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -22088,16 +22088,16 @@ var TouchController = function (_EventEmitter) {
 
     var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(TouchController).call(this));
 
-    _this2.touchsupport = "ontouchstart" in window;
-    _this2.touchstart = _this2.touchsupport ? "touchstart" : "mousedown";
-    _this2.touchmove = _this2.touchsupport ? "touchmove" : "mousemove";
-    _this2.touchend = _this2.touchsupport ? "touchend" : "mouseup";
+    _this2.touchsupport = 'ontouchstart' in window;
+    _this2.touchstart = _this2.touchsupport ? 'touchstart' : 'mousedown';
+    _this2.touchmove = _this2.touchsupport ? 'touchmove' : 'mousemove';
+    _this2.touchend = _this2.touchsupport ? 'touchend' : 'mouseup';
 
     return _this2;
   }
 
   _createClass(TouchController, [{
-    key: "setElement",
+    key: 'setElement',
     value: function setElement(element) {
       element.addEventListener(this.touchstart, onTouchStart, false);
       element.addEventListener(this.touchmove, ontouchMove, false);
@@ -22134,11 +22134,11 @@ var TouchController = function (_EventEmitter) {
         touchStartX = _this.touchsupport ? evt.originalEvent.touches[0].pageX : evt.pageX;
         touchStartY = _this.touchsupport ? evt.originalEvent.touches[0].pageY : evt.pageY;
 
-        // console.log("touchstart");
-        _this.emit("touchstart", {
-          "touchStartTime": touchStartTime,
-          "touchStartX": touchStartX,
-          "touchStartY": touchStartY
+        // console.log('touchstart');
+        _this.emit('touchstart', {
+          'touchStartTime': touchStartTime,
+          'touchStartX': touchStartX,
+          'touchStartY': touchStartY
         });
 
         //return false; // enableReturnFalse
@@ -22155,16 +22155,16 @@ var TouchController = function (_EventEmitter) {
         moveX = touchX - touchStartX;
         moveY = touchY - touchStartY;
 
-        // console.log("touchmove", touchX, touchY, deltaX, deltaY, moveX, moveY);
-        _this.emit("touchmove", {
-          "lasttouchX": lasttouchX,
-          "lasttouchY": lasttouchY,
-          "touchX": touchX,
-          "touchY": touchY,
-          "deltaX": deltaX,
-          "deltaY": deltaY,
-          "moveX": moveX,
-          "moveY": moveY
+        // console.log('touchmove', touchX, touchY, deltaX, deltaY, moveX, moveY);
+        _this.emit('touchmove', {
+          'lasttouchX': lasttouchX,
+          'lasttouchY': lasttouchY,
+          'touchX': touchX,
+          'touchY': touchY,
+          'deltaX': deltaX,
+          'deltaY': deltaY,
+          'moveX': moveX,
+          'moveY': moveY
         });
 
         // clearTimeout(movingtimer);
@@ -22177,13 +22177,13 @@ var TouchController = function (_EventEmitter) {
         touchEndX = touchX;
         touchEndY = touchY;
 
-        // console.log("touchend");
-        _this.emit("touchend", {
-          "elapsedTime": elapsedTime,
-          "touchEndX": touchEndX,
-          "touchEndY": touchEndY,
-          "moveX": moveX,
-          "moveY": moveY
+        // console.log('touchend');
+        _this.emit('touchend', {
+          'elapsedTime': elapsedTime,
+          'touchEndX': touchEndX,
+          'touchEndY': touchEndY,
+          'moveX': moveX,
+          'moveY': moveY
         });
 
         touchX = touchY = null;
