@@ -211,6 +211,25 @@ class Tetris3dView {
     this.controls.update();
   }
   
+  // checkCameraPosition() {
+  checkCameraDirection() {
+  // checkForward() {
+    // const pos = this.camera.position.clone().normalize();
+    // const cameraVector = new THREE.Vector3().subVectors(this.camera.position, this.CENTER_VECTOR);
+    // const cameraVector = this.camera.position.clone().sub(this.CENTER_VECTOR).normalize();
+    const cameraVector = this.camera.position.clone().sub(this.CENTER_VECTOR).round();
+    // angleTo
+    // fromArray
+    let direction = {
+      x: Math.sign(Math.abs(cameraVector.x) > Math.abs(cameraVector.z) ? cameraVector.x : 0),
+      y: Math.sign(-cameraVector.y),
+      z: Math.sign(Math.abs(cameraVector.z) > Math.abs(cameraVector.x) ? cameraVector.z : 0),
+    };
+    // console.log(cameraVector.toArray(), direction);
+    // return { x: 1, y: 0, z: 0 };
+    return direction;
+  };
+  
   tick() {
     this.framecount++;
     

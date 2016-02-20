@@ -69,14 +69,30 @@ class Tetris3dController extends EventEmitter2 {
         evt.preventDefault();
         this.view.setCamera(CONST.KEYS_VIEW[evt.keyCode]);
       }
+      // switch (code) {
+      //   case 'left':
+      //     break;
+      //   case 'right':
+      //     break;
+      //   case 'down':
+      //     break;
+      //   case 'forward':
+      //     break;
+      //   case 'backward':
+      //     break;
+      //   case 'rotate':
+      //     break;
+      //   default:
+      //     break;
+      // }
     });
   };
   
   setTouchEvent($element) {
     this.touch.setElement($element.get(0));
-    var touchStartX;
-    var touchStartY;
-    var isFreeze = false;
+    let touchStartX;
+    let touchStartY;
+    let isFreeze = false;
 
     this.model.on('freeze', () => {
       isFreeze = true;
@@ -87,28 +103,29 @@ class Tetris3dController extends EventEmitter2 {
       isFreeze = false;
     });
     this.touch.on('touchmove', (evt) => {
-      var moveX = evt.touchX - touchStartX;
-      var moveY = evt.touchY - touchStartY;
-      var blockMoveX = (moveX / CONST.VOXEL_SIZE) | 0;
-      var blockMoveY = (moveY / CONST.VOXEL_SIZE) | 0;
-      console.log('touchmove', blockMoveX);
-
+      let moveX = evt.touchX - touchStartX;
+      let moveY = evt.touchY - touchStartY;
+      let blockMoveX = (moveX / CONST.VOXEL_SIZE) | 0;
+      let blockMoveY = (moveY / CONST.VOXEL_SIZE) | 0;
+      // console.log('touchmove', blockMoveX, blockMoveY, isFreeze);
+      
       if (isFreeze) return;
-
+      
       // 1マスずつバリデーション（すり抜け対策）
-      // while (!!blockMoveX) {
-      //   var sign = blockMoveX / Math.abs(blockMoveX); // 1 or -1
-      //   if (!this.valid(sign, 0)) break;
-      //   this.currentX += sign;
-      //   blockMoveX -= sign;
-      //   touchStartX = evt.touchX;
-      // }
-      // while (blockMoveY > 0) {
-      //   if (!this.valid(0, 1)) break;
-      //   this.currentY++;
-      //   blockMoveY--;
-      //   touchStartY = evt.touchY;
-      // }
+      while (blockMoveX) {
+        let sign = blockMoveX / Math.abs(blockMoveX); // 1 or -1
+        // this.moveBlock('left');
+        this.moveBlockRightAndLeft(sign);
+        blockMoveX -= sign;
+        touchStartX = evt.touchX;
+      }
+      while (blockMoveY) {
+        let sign = blockMoveY / Math.abs(blockMoveY); // 1 or -1
+        // this.moveBlock('forward');
+        this.moveBlockBackAndForward(sign);
+        blockMoveY -= sign;
+        touchStartY = evt.touchY;
+      }
     });
     this.touch.on('touchend', (evt) => {
       // if (!!evt.isTap) this.moveBlock('rotate');
@@ -127,10 +144,52 @@ class Tetris3dController extends EventEmitter2 {
     this.view.stopControls();
   };
   
+  moveBlockRightAndLeft(distance) {
+    let direction = this.view.checkCameraDirection();
+    if (direction.x !== 0) {
+      this.model.moveBlockZ(distance * direction.x);
+    }
+    if (direction.z !== 0) {
+      this.model.moveBlockX(distance * -direction.z);
+    }
+  }
+  moveBlockBackAndForward(distance) {
+    let direction = this.view.checkCameraDirection();
+    if (direction.x !== 0) {
+      this.model.moveBlockX(distance * direction.x);
+    }
+    if (direction.z !== 0) {
+      this.model.moveBlockZ(distance * direction.z);
+    }
+  }
   moveBlock(code) {
+    // let forward = this.checkForward();
+    // let direction = this.checkDirection();
+    let direction = this.view.checkCameraDirection();
     switch (code) {
       case 'left':
-        this.model.moveBlockX(1);
+        // this.model.moveBlockX(1);
+        let signX = Math.sign(direction.x);
+        let signZ = Math.sign(direction.z);
+        // console.log(signX, signZ, direction.x, direction.z, signX !== 0, signZ !== 0);
+        if (signX !== 0) {
+          this.model.moveBlockZ(signX);
+        }
+        if (signZ !== 0) {
+          this.model.moveBlockX(signZ);
+        }
+        // if (direction.x > 0) {
+        //   this.model.moveBlockZ(-1);
+        // }
+        // else if (direction.x < 0) {
+        //   this.model.moveBlockZ(1);
+        // }
+        // if (direction.z > 0) {
+        //   this.model.moveBlockX(1);
+        // }
+        // else if (direction.z < 0) {
+        //   this.model.moveBlockX(-1);
+        // }
         break;
       case 'right':
         break;
@@ -141,6 +200,9 @@ class Tetris3dController extends EventEmitter2 {
       case 'backward':
         break;
       case 'rotate':
+        break;
+      default:
+        this.model.moveBlockX(1);
         break;
     }
   };
