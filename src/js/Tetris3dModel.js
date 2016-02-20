@@ -198,6 +198,25 @@ class Tetris3dModel extends EventEmitter2 {
     }
   };
   
+  moveBlockX(distance) { // sign: boolean
+    // var sign = sign; // 1 or -1
+    var isValid = this.valid(distance, 0, 0);
+    if (isValid) this.currentBlock.x += distance;
+    return isValid;
+  };
+  
+  moveBlockY(distance) {
+    var isValid = this.valid(0, distance, 0);
+    if (isValid) this.currentBlock.y += distance;
+    return isValid;
+  };
+  
+  moveBlockZ(distance) {
+    var isValid = this.valid(0, 0, distance);
+    if (isValid) this.currentBlock.z += distance;
+    return isValid;
+  };
+  
   moveBlock(code) {
     switch (code) {
       case 'left':

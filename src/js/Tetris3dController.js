@@ -126,6 +126,24 @@ class Tetris3dController extends EventEmitter2 {
     this.view.stopControls();
   };
   
+  moveBlock(code) {
+    switch (code) {
+      case 'left':
+        this.model.moveBlockX(1);
+        break;
+      case 'right':
+        break;
+      case 'down':
+        break;
+      case 'forward':
+        break;
+      case 'backward':
+        break;
+      case 'rotate':
+        break;
+    }
+  };
+  
 }
 
 module.exports = Tetris3dController;
