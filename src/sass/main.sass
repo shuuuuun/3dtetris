@@ -35,7 +35,7 @@ h1
     width: 100px
     height: 100px
     margin: 10px
-    box-shadow: 5px 5px 0px 0px #777
+    box-shadow: 5px 5px 0px 5px #ccc
     background-color: #ddd
     color: #555
     +transition(all 0.3s)
@@ -45,33 +45,30 @@ h1
       content: ""
       display: block
       position: absolute
-      width: 10px
-      height: 10px
-      background-color: #777
+      width: 20px
+      height: 20px
+      background-color: #f0f0f0
     
     &:before
-      transform: rotateZ(45deg)
-      transform-origin: left bottom
+      +transform(rotateZ(135deg))
+      +transform-origin(left bottom)
       left: 0
       bottom: 0
     
     &:after
-      transform: rotateZ(-45deg)
-      transform-origin: right top
+      +transform(rotateZ(-135deg))
+      +transform-origin(right top)
       top: 0
       right: 0
     
     &:hover
-      background-color: #ccc
+      // background-color: #ccc
     
     &:active, &.is-active
-      background-color: #999
+      background-color: #ccc
       color: #eee
-      box-shadow: 0px 0px 0px 0px #777
-      +transform(translate(5px, 5px))
-      
-      &:before, &:after
-        display: none
+      box-shadow: 0px 0px 0px 0px #ccc
+      +transform(translate(10px, 10px))
     
 
 .inspired
