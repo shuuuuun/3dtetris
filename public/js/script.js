@@ -21184,11 +21184,13 @@ var Tetris3dController = function (_EventEmitter) {
     _this.model = model;
     _this.view = view;
 
-    // this.touch = new TouchController();
+    _this.$root = (0, _jquery2.default)("#canvas-container");
+    _this.touch = new _TouchController2.default();
 
     _this.setModelEvent();
     _this.setBlurEvent();
     _this.setKeyEvent();
+    _this.setTouchEvent(_this.$root);
     return _this;
   }
 
@@ -21254,65 +21256,80 @@ var Tetris3dController = function (_EventEmitter) {
     }
   }, {
     key: 'setTouchEvent',
-    value: function setTouchEvent() {
-      var _this5 = this;
-
-      // var touch = new TouchController(this.$cnvs);
-      this.touch.setElement();
+    value: function setTouchEvent($element) {
+      this.touch.setElement($element.get(0));
       var touchStartX;
       var touchStartY;
-      var isTap = false;
       var isFreeze = false;
 
-      this.touch.on('touchstart', function (evt, info) {
-        touchStartX = info.touchStartX;
-        touchStartY = info.touchStartY;
-        isTap = true;
+      this.model.on('freeze', function () {
+        isFreeze = true;
+      });
+      this.touch.on('touchstart', function (evt) {
+        touchStartX = evt.touchStartX;
+        touchStartY = evt.touchStartY;
         isFreeze = false;
       });
-      this.touch.on('touchmove', function (evt, info) {
-        // var blockMoveX = (info.moveX / this.BLOCK_SIZE) | 0;
-        var moveX = info.touchX - touchStartX;
-        var moveY = info.touchY - touchStartY;
-        var blockMoveX = moveX / _this5.BLOCK_SIZE | 0;
-        var blockMoveY = moveY / _this5.BLOCK_SIZE | 0;
+      this.touch.on('touchmove', function (evt) {
+        var moveX = evt.touchX - touchStartX;
+        var moveY = evt.touchY - touchStartY;
+        var blockMoveX = moveX / CONST.VOXEL_SIZE | 0;
+        var blockMoveY = moveY / CONST.VOXEL_SIZE | 0;
+        console.log('touchmove', blockMoveX);
 
         if (isFreeze) return;
 
         // 1マスずつバリデーション（すり抜け対策）
-        while (!!blockMoveX) {
-          var sign = blockMoveX / Math.abs(blockMoveX); // 1 or -1
-          if (!_this5.valid(sign, 0)) break;
-          _this5.currentX += sign;
-          blockMoveX -= sign;
-          touchStartX = info.touchX;
-        }
-        while (blockMoveY > 0) {
-          if (!_this5.valid(0, 1)) break;
-          _this5.currentY++;
-          blockMoveY--;
-          touchStartY = info.touchY;
-        }
-        isTap = false;
+        // while (!!blockMoveX) {
+        //   var sign = blockMoveX / Math.abs(blockMoveX); // 1 or -1
+        //   if (!this.valid(sign, 0)) break;
+        //   this.currentX += sign;
+        //   blockMoveX -= sign;
+        //   touchStartX = evt.touchX;
+        // }
+        // while (blockMoveY > 0) {
+        //   if (!this.valid(0, 1)) break;
+        //   this.currentY++;
+        //   blockMoveY--;
+        //   touchStartY = evt.touchY;
+        // }
       });
-      this.touch.on('touchend', function (evt, info) {
-        if (!!isTap) _this5.moveBlock('rotate');
-      });
-      this.on('freeze', function () {
-        isFreeze = true;
+      this.touch.on('touchend', function (evt) {
+        // if (!!evt.isTap) this.moveBlock('rotate');
       });
     }
   }, {
     key: 'swithModeCamera',
     value: function swithModeCamera() {
       console.log('swithModeCamera');
+      this.touch.dispose();
       this.view.startControls();
     }
   }, {
     key: 'swithModeBlock',
     value: function swithModeBlock() {
       console.log('swithModeBlock');
+      this.touch.setEvent();
       this.view.stopControls();
+    }
+  }, {
+    key: 'moveBlock',
+    value: function moveBlock(code) {
+      switch (code) {
+        case 'left':
+          this.model.moveBlockX(1);
+          break;
+        case 'right':
+          break;
+        case 'down':
+          break;
+        case 'forward':
+          break;
+        case 'backward':
+          break;
+        case 'rotate':
+          break;
+      }
     }
   }]);
 
@@ -21574,6 +21591,29 @@ var Tetris3dModel = function (_EventEmitter) {
           return dfd.promise();
         };
       }
+    }
+  }, {
+    key: 'moveBlockX',
+    value: function moveBlockX(distance) {
+      // sign: boolean
+      // var sign = sign; // 1 or -1
+      var isValid = this.valid(distance, 0, 0);
+      if (isValid) this.currentBlock.x += distance;
+      return isValid;
+    }
+  }, {
+    key: 'moveBlockY',
+    value: function moveBlockY(distance) {
+      var isValid = this.valid(0, distance, 0);
+      if (isValid) this.currentBlock.y += distance;
+      return isValid;
+    }
+  }, {
+    key: 'moveBlockZ',
+    value: function moveBlockZ(distance) {
+      var isValid = this.valid(0, 0, distance);
+      if (isValid) this.currentBlock.z += distance;
+      return isValid;
     }
   }, {
     key: 'moveBlock',
@@ -21899,16 +21939,12 @@ var Tetris3dView = function () {
   }, {
     key: 'stopControls',
     value: function stopControls() {
-      console.log('stopControls', !!this.controls);
       if (this.controls) this.controls.dispose();
-      if (this.controls) {
-        this.controls.enabled = false;
-        this.controls = null;
-      }
     }
   }, {
     key: 'startControls',
     value: function startControls() {
+      if (this.controls) this.stopControls();
       this.controls = new THREE.OrbitControls(this.camera);
       this.controls.target = this.CENTER_VECTOR;
       this.controls.enableKeys = false;
@@ -22086,109 +22122,119 @@ var TouchController = function (_EventEmitter) {
   function TouchController() {
     _classCallCheck(this, TouchController);
 
-    var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(TouchController).call(this));
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TouchController).call(this));
 
-    _this2.touchsupport = 'ontouchstart' in window;
-    _this2.touchstart = _this2.touchsupport ? 'touchstart' : 'mousedown';
-    _this2.touchmove = _this2.touchsupport ? 'touchmove' : 'mousemove';
-    _this2.touchend = _this2.touchsupport ? 'touchend' : 'mouseup';
+    _this.touchsupport = 'ontouchstart' in window;
+    _this.touchstart = _this.touchsupport ? 'touchstart' : 'mousedown';
+    _this.touchmove = _this.touchsupport ? 'touchmove' : 'mousemove';
+    _this.touchend = _this.touchsupport ? 'touchend' : 'mouseup';
 
-    return _this2;
+    _this.deltaX = 0;
+    _this.deltaY = 0;
+    _this.moveX = 0;
+    _this.moveY = 0;
+
+    _this.defineEventListener();
+    return _this;
   }
 
   _createClass(TouchController, [{
     key: 'setElement',
     value: function setElement(element) {
-      element.addEventListener(this.touchstart, onTouchStart, false);
-      element.addEventListener(this.touchmove, ontouchMove, false);
-      element.addEventListener(this.touchend, onTouchEnd, false);
+      this.element = element;
+
+      this.setEvent();
+    }
+  }, {
+    key: 'setEvent',
+    value: function setEvent() {
+      this.element.addEventListener(this.touchstart, this.onTouchStart, false);
+      this.element.addEventListener(this.touchmove, this.ontouchMove, false);
+      this.element.addEventListener(this.touchend, this.onTouchEnd, false);
 
       // document.addEventListener(touchstart, function(){ return false; }, false); // disableDocumentTouch
       // document.addEventListener(touchmove, ontouchMove, false);
       // document.addEventListener(touchend, onTouchEnd, false);
+    }
+  }, {
+    key: 'dispose',
+    value: function dispose() {
+      this.element.removeEventListener(this.touchstart, this.onTouchStart, false);
+      this.element.removeEventListener(this.touchmove, this.ontouchMove, false);
+      this.element.removeEventListener(this.touchend, this.onTouchEnd, false);
+    }
+  }, {
+    key: 'defineEventListener',
+    value: function defineEventListener() {
+      var _this2 = this;
 
-      var _this = this;
-
-      var isDragging = false,
-          movingtimer = undefined,
-          touchStartX = undefined,
-          touchStartY = undefined,
-          lasttouchX = undefined,
-          lasttouchY = undefined,
-          touchX = undefined,
-          touchY = undefined,
-          deltaX = 0,
-          deltaY = 0,
-          moveX = 0,
-          moveY = 0,
-          touchEndX = undefined,
-          touchEndY = undefined,
-          touchStartTime = undefined,
-          elapsedTime = undefined;
-
-      function onTouchStart(evt) {
+      this.onTouchStart = function (evt) {
         evt.preventDefault(); // enablePreventDefault
-        isDragging = true;
-        touchStartTime = Date.now();
 
-        touchStartX = _this.touchsupport ? evt.originalEvent.touches[0].pageX : evt.pageX;
-        touchStartY = _this.touchsupport ? evt.originalEvent.touches[0].pageY : evt.pageY;
+        _this2.isDragging = true;
+        _this2.isTap = true;
+        _this2.touchStartTime = Date.now();
 
-        // console.log('touchstart');
-        _this.emit('touchstart', {
-          'touchStartTime': touchStartTime,
-          'touchStartX': touchStartX,
-          'touchStartY': touchStartY
+        _this2.touchStartX = _this2.touchsupport ? evt.originalEvent.touches[0].pageX : evt.pageX;
+        _this2.touchStartY = _this2.touchsupport ? evt.originalEvent.touches[0].pageY : evt.pageY;
+
+        _this2.emit('touchstart', {
+          'touchStartTime': _this2.touchStartTime,
+          'touchStartX': _this2.touchStartX,
+          'touchStartY': _this2.touchStartY
         });
 
         //return false; // enableReturnFalse
-      }
-      function ontouchMove(evt) {
-        if (!isDragging) return;
-        lasttouchX = touchX || touchStartX;
-        lasttouchY = touchY || touchStartY;
+      };
 
-        touchX = _this.touchsupport ? evt.originalEvent.touches[0].pageX : evt.pageX;
-        touchY = _this.touchsupport ? evt.originalEvent.touches[0].pageY : evt.pageY;
-        deltaX = touchX - lasttouchX;
-        deltaY = touchY - lasttouchY;
-        moveX = touchX - touchStartX;
-        moveY = touchY - touchStartY;
+      this.ontouchMove = function (evt) {
+        if (!_this2.isDragging) return;
+        _this2.lasttouchX = _this2.touchX || _this2.touchStartX;
+        _this2.lasttouchY = _this2.touchY || _this2.touchStartY;
 
-        // console.log('touchmove', touchX, touchY, deltaX, deltaY, moveX, moveY);
-        _this.emit('touchmove', {
-          'lasttouchX': lasttouchX,
-          'lasttouchY': lasttouchY,
-          'touchX': touchX,
-          'touchY': touchY,
-          'deltaX': deltaX,
-          'deltaY': deltaY,
-          'moveX': moveX,
-          'moveY': moveY
+        _this2.touchX = _this2.touchsupport ? evt.originalEvent.touches[0].pageX : evt.pageX;
+        _this2.touchY = _this2.touchsupport ? evt.originalEvent.touches[0].pageY : evt.pageY;
+        _this2.deltaX = _this2.touchX - _this2.lasttouchX;
+        _this2.deltaY = _this2.touchY - _this2.lasttouchY;
+        _this2.moveX = _this2.touchX - _this2.touchStartX;
+        _this2.moveY = _this2.touchY - _this2.touchStartY;
+
+        _this2.isTap = false;
+
+        _this2.emit('touchmove', {
+          'lasttouchX': _this2.lasttouchX,
+          'lasttouchY': _this2.lasttouchY,
+          'touchX': _this2.touchX,
+          'touchY': _this2.touchY,
+          'deltaX': _this2.deltaX,
+          'deltaY': _this2.deltaY,
+          'moveX': _this2.moveX,
+          'moveY': _this2.moveY
         });
 
         // clearTimeout(movingtimer);
-        // movingtimer = setTimeout(function(){ isDragging = false; },1000);
-      }
-      function onTouchEnd(evt) {
-        isDragging = false;
+        // movingtimer = setTimeout(function(){ this.isDragging = false; },1000);
+      };
 
-        elapsedTime = Date.now() - touchStartTime;
-        touchEndX = touchX;
-        touchEndY = touchY;
+      this.onTouchEnd = function (evt) {
+        _this2.isDragging = false;
 
-        // console.log('touchend');
-        _this.emit('touchend', {
-          'elapsedTime': elapsedTime,
-          'touchEndX': touchEndX,
-          'touchEndY': touchEndY,
-          'moveX': moveX,
-          'moveY': moveY
+        _this2.elapsedTime = Date.now() - _this2.touchStartTime;
+        _this2.touchEndX = _this2.touchX;
+        _this2.touchEndY = _this2.touchY;
+
+        _this2.emit('touchend', {
+          'elapsedTime': _this2.elapsedTime,
+          'touchEndX': _this2.touchEndX,
+          'touchEndY': _this2.touchEndY,
+          'moveX': _this2.moveX,
+          'moveY': _this2.moveY,
+          'isTap': _this2.isTap
         });
 
-        touchX = touchY = null;
-        moveX = moveY = 0;
-      }
+        _this2.touchX = _this2.touchY = null;
+        _this2.moveX = _this2.moveY = 0;
+      };
     }
   }]);
 
