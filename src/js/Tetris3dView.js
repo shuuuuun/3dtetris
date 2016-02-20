@@ -199,15 +199,11 @@ class Tetris3dView {
   }
   
   stopControls() {
-    console.log('stopControls', !!this.controls);
     if (this.controls) this.controls.dispose();
-    if (this.controls) {
-      this.controls.enabled = false;
-      this.controls = null;
-    }
   }
   
   startControls() {
+    if (this.controls) this.stopControls();
     this.controls = new THREE.OrbitControls(this.camera);
     this.controls.target = this.CENTER_VECTOR;
     this.controls.enableKeys = false;
