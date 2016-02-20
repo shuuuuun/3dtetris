@@ -13,11 +13,13 @@ class Tetris3dController extends EventEmitter2 {
     this.model = model;
     this.view = view;
     
-    // this.touch = new TouchController();
+    this.$root = $("#canvas-container");
+    this.touch = new TouchController();
     
     this.setModelEvent();
     this.setBlurEvent();
     this.setKeyEvent();
+    this.setTouchEvent(this.$root);
   };
   
   newGame() {
@@ -70,50 +72,47 @@ class Tetris3dController extends EventEmitter2 {
     });
   };
   
-  setTouchEvent() {
-    // var touch = new TouchController(this.$cnvs);
-    this.touch.setElement();
+  setTouchEvent($element) {
+    this.touch.setElement($element.get(0));
     var touchStartX;
     var touchStartY;
-    var isTap = false;
     var isFreeze = false;
 
-    this.touch.on('touchstart', (evt, info) => {
-      touchStartX = info.touchStartX;
-      touchStartY = info.touchStartY;
-      isTap = true;
+    this.model.on('freeze', () => {
+      isFreeze = true;
+    });
+    this.touch.on('touchstart', (evt) => {
+      console.log('touchstart', evt);
+      touchStartX = evt.touchStartX;
+      touchStartY = evt.touchStartY;
       isFreeze = false;
     });
-    this.touch.on('touchmove', (evt, info) => {
-      // var blockMoveX = (info.moveX / this.BLOCK_SIZE) | 0;
-      var moveX  = info.touchX - touchStartX;
-      var moveY  = info.touchY - touchStartY;
-      var blockMoveX = (moveX / this.BLOCK_SIZE) | 0;
-      var blockMoveY = (moveY / this.BLOCK_SIZE) | 0;
+    this.touch.on('touchmove', (evt) => {
+      var moveX = evt.touchX - touchStartX;
+      var moveY = evt.touchY - touchStartY;
+      var blockMoveX = (moveX / CONST.VOXEL_SIZE) | 0;
+      var blockMoveY = (moveY / CONST.VOXEL_SIZE) | 0;
+      console.log('touchmove', evt, blockMoveX);
 
       if (isFreeze) return;
 
       // 1マスずつバリデーション（すり抜け対策）
-      while (!!blockMoveX) {
-        var sign = blockMoveX / Math.abs(blockMoveX); // 1 or -1
-        if (!this.valid(sign, 0)) break;
-        this.currentX += sign;
-        blockMoveX -= sign;
-        touchStartX = info.touchX;
-      }
-      while (blockMoveY > 0) {
-        if (!this.valid(0, 1)) break;
-        this.currentY++;
-        blockMoveY--;
-        touchStartY = info.touchY;
-      }
-      isTap = false;
+      // while (!!blockMoveX) {
+      //   var sign = blockMoveX / Math.abs(blockMoveX); // 1 or -1
+      //   if (!this.valid(sign, 0)) break;
+      //   this.currentX += sign;
+      //   blockMoveX -= sign;
+      //   touchStartX = evt.touchX;
+      // }
+      // while (blockMoveY > 0) {
+      //   if (!this.valid(0, 1)) break;
+      //   this.currentY++;
+      //   blockMoveY--;
+      //   touchStartY = evt.touchY;
+      // }
     });
-    this.touch.on('touchend', (evt, info) => {
-      if (!!isTap) this.moveBlock('rotate');
-    });
-    this.on('freeze', () => {
-      isFreeze = true;
+    this.touch.on('touchend', (evt) => {
+      // if (!!evt.isTap) this.moveBlock('rotate');
     });
   };
     

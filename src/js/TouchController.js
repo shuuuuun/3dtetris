@@ -36,12 +36,14 @@ class TouchController extends EventEmitter2 {
       moveY = 0,
       touchEndX,
       touchEndY,
+      isTap,
       touchStartTime,
       elapsedTime;
     
     function onTouchStart(evt){
       evt.preventDefault(); // enablePreventDefault
       isDragging = true;
+      isTap = true;
       touchStartTime = Date.now();
       
       touchStartX = (_this.touchsupport) ? evt.originalEvent.touches[0].pageX : evt.pageX;
@@ -67,6 +69,8 @@ class TouchController extends EventEmitter2 {
       deltaY = touchY - lasttouchY;
       moveX  = touchX - touchStartX;
       moveY  = touchY - touchStartY;
+      
+      isTap = false;
       
       // console.log('touchmove', touchX, touchY, deltaX, deltaY, moveX, moveY);
       _this.emit('touchmove', {
@@ -97,6 +101,7 @@ class TouchController extends EventEmitter2 {
         'touchEndY'  : touchEndY,
         'moveX'      : moveX,
         'moveY'      : moveY,
+        'isTap'      : isTap,
       });
       
       touchX = touchY = null;
