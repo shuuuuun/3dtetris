@@ -106,7 +106,7 @@ class Tetris3dModel extends EventEmitter2 {
   tick() {
     clearTimeout(this.tickId);
     let isMoveDown = this.moveBlock('down');
-    console.log("tick", isMoveDown, this.checkGameOver());
+    // console.log("tick", isMoveDown, this.checkGameOver());
     if (!isMoveDown) {
     // if (false) {
       this.freeze();

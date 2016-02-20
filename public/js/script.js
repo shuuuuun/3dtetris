@@ -21502,7 +21502,7 @@ var Tetris3dModel = function (_EventEmitter) {
 
       clearTimeout(this.tickId);
       var isMoveDown = this.moveBlock('down');
-      console.log("tick", isMoveDown, this.checkGameOver());
+      // console.log("tick", isMoveDown, this.checkGameOver());
       if (!isMoveDown) {
         // if (false) {
         this.freeze();
@@ -22211,8 +22211,8 @@ var TouchController = function (_EventEmitter) {
         _this2.isTap = true;
         _this2.touchStartTime = Date.now();
 
-        _this2.touchStartX = _this2.touchsupport ? evt.originalEvent.touches[0].pageX : evt.pageX;
-        _this2.touchStartY = _this2.touchsupport ? evt.originalEvent.touches[0].pageY : evt.pageY;
+        _this2.touchStartX = _this2.touchsupport ? evt.touches[0].pageX : evt.pageX;
+        _this2.touchStartY = _this2.touchsupport ? evt.touches[0].pageY : evt.pageY;
 
         _this2.emit('touchstart', {
           'touchStartTime': _this2.touchStartTime,
@@ -22228,8 +22228,8 @@ var TouchController = function (_EventEmitter) {
         _this2.lasttouchX = _this2.touchX || _this2.touchStartX;
         _this2.lasttouchY = _this2.touchY || _this2.touchStartY;
 
-        _this2.touchX = _this2.touchsupport ? evt.originalEvent.touches[0].pageX : evt.pageX;
-        _this2.touchY = _this2.touchsupport ? evt.originalEvent.touches[0].pageY : evt.pageY;
+        _this2.touchX = _this2.touchsupport ? evt.touches[0].pageX : evt.pageX;
+        _this2.touchY = _this2.touchsupport ? evt.touches[0].pageY : evt.pageY;
         _this2.deltaX = _this2.touchX - _this2.lasttouchX;
         _this2.deltaY = _this2.touchY - _this2.lasttouchY;
         _this2.moveX = _this2.touchX - _this2.touchStartX;

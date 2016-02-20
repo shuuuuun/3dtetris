@@ -47,8 +47,8 @@ class TouchController extends EventEmitter2 {
       this.isTap = true;
       this.touchStartTime = Date.now();
       
-      this.touchStartX = (this.touchsupport) ? evt.originalEvent.touches[0].pageX : evt.pageX;
-      this.touchStartY = (this.touchsupport) ? evt.originalEvent.touches[0].pageY : evt.pageY;
+      this.touchStartX = (this.touchsupport) ? evt.touches[0].pageX : evt.pageX;
+      this.touchStartY = (this.touchsupport) ? evt.touches[0].pageY : evt.pageY;
       
       this.emit('touchstart', {
         'touchStartTime': this.touchStartTime,
@@ -64,8 +64,8 @@ class TouchController extends EventEmitter2 {
       this.lasttouchX = this.touchX || this.touchStartX;
       this.lasttouchY = this.touchY || this.touchStartY;
       
-      this.touchX = (this.touchsupport) ? evt.originalEvent.touches[0].pageX : evt.pageX;
-      this.touchY = (this.touchsupport) ? evt.originalEvent.touches[0].pageY : evt.pageY;
+      this.touchX = (this.touchsupport) ? evt.touches[0].pageX : evt.pageX;
+      this.touchY = (this.touchsupport) ? evt.touches[0].pageY : evt.pageY;
       this.deltaX = this.touchX - this.lasttouchX;
       this.deltaY = this.touchY - this.lasttouchY;
       this.moveX  = this.touchX - this.touchStartX;
