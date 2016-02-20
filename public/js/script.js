@@ -21252,14 +21252,32 @@ var Tetris3dController = function (_EventEmitter) {
           evt.preventDefault();
           _this4.view.setCamera(CONST.KEYS_VIEW[evt.keyCode]);
         }
+        // switch (code) {
+        //   case 'left':
+        //     break;
+        //   case 'right':
+        //     break;
+        //   case 'down':
+        //     break;
+        //   case 'forward':
+        //     break;
+        //   case 'backward':
+        //     break;
+        //   case 'rotate':
+        //     break;
+        //   default:
+        //     break;
+        // }
       });
     }
   }, {
     key: 'setTouchEvent',
     value: function setTouchEvent($element) {
+      var _this5 = this;
+
       this.touch.setElement($element.get(0));
-      var touchStartX;
-      var touchStartY;
+      var touchStartX = undefined;
+      var touchStartY = undefined;
       var isFreeze = false;
 
       this.model.on('freeze', function () {
@@ -21275,24 +21293,23 @@ var Tetris3dController = function (_EventEmitter) {
         var moveY = evt.touchY - touchStartY;
         var blockMoveX = moveX / CONST.VOXEL_SIZE | 0;
         var blockMoveY = moveY / CONST.VOXEL_SIZE | 0;
-        console.log('touchmove', blockMoveX);
+        // console.log('touchmove', blockMoveX, blockMoveY, isFreeze);
 
         if (isFreeze) return;
 
         // 1マスずつバリデーション（すり抜け対策）
-        // while (!!blockMoveX) {
-        //   var sign = blockMoveX / Math.abs(blockMoveX); // 1 or -1
-        //   if (!this.valid(sign, 0)) break;
-        //   this.currentX += sign;
-        //   blockMoveX -= sign;
-        //   touchStartX = evt.touchX;
-        // }
-        // while (blockMoveY > 0) {
-        //   if (!this.valid(0, 1)) break;
-        //   this.currentY++;
-        //   blockMoveY--;
-        //   touchStartY = evt.touchY;
-        // }
+        while (blockMoveX) {
+          var sign = blockMoveX / Math.abs(blockMoveX); // 1 or -1
+          _this5.moveBlockRightAndLeft(sign);
+          blockMoveX -= sign;
+          touchStartX = evt.touchX;
+        }
+        while (blockMoveY) {
+          var sign = blockMoveY / Math.abs(blockMoveY); // 1 or -1
+          _this5.moveBlockBackAndForward(sign);
+          blockMoveY -= sign;
+          touchStartY = evt.touchY;
+        }
       });
       this.touch.on('touchend', function (evt) {
         // if (!!evt.isTap) this.moveBlock('rotate');
@@ -21313,22 +21330,25 @@ var Tetris3dController = function (_EventEmitter) {
       this.view.stopControls();
     }
   }, {
-    key: 'moveBlock',
-    value: function moveBlock(code) {
-      switch (code) {
-        case 'left':
-          this.model.moveBlockX(1);
-          break;
-        case 'right':
-          break;
-        case 'down':
-          break;
-        case 'forward':
-          break;
-        case 'backward':
-          break;
-        case 'rotate':
-          break;
+    key: 'moveBlockRightAndLeft',
+    value: function moveBlockRightAndLeft(distance) {
+      var direction = this.view.checkCameraDirection();
+      if (direction.x !== 0) {
+        this.model.moveBlockZ(distance * direction.x);
+      }
+      if (direction.z !== 0) {
+        this.model.moveBlockX(distance * -direction.z);
+      }
+    }
+  }, {
+    key: 'moveBlockBackAndForward',
+    value: function moveBlockBackAndForward(distance) {
+      var direction = this.view.checkCameraDirection();
+      if (direction.x !== 0) {
+        this.model.moveBlockX(distance * direction.x);
+      }
+      if (direction.z !== 0) {
+        this.model.moveBlockZ(distance * direction.z);
       }
     }
   }]);
@@ -21950,6 +21970,22 @@ var Tetris3dView = function () {
       this.controls.enableKeys = false;
       // this.controls.reset();
       this.controls.update();
+    }
+  }, {
+    key: 'checkCameraDirection',
+    value: function checkCameraDirection() {
+      // checkForward() {
+      // const pos = this.camera.position.clone().normalize();
+      // const cameraVector = new THREE.Vector3().subVectors(this.camera.position, this.CENTER_VECTOR);
+      // const cameraVector = this.camera.position.clone().sub(this.CENTER_VECTOR).normalize();
+      var cameraVector = this.camera.position.clone().sub(this.CENTER_VECTOR);
+      var direction = {
+        x: Math.sign(Math.abs(cameraVector.x) > Math.abs(cameraVector.z) ? cameraVector.x : 0),
+        y: Math.sign(-cameraVector.y),
+        z: Math.sign(Math.abs(cameraVector.z) > Math.abs(cameraVector.x) ? cameraVector.z : 0)
+      };
+      // console.log(cameraVector.toArray(), direction);
+      return direction;
     }
   }, {
     key: 'tick',
