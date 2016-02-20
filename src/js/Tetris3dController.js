@@ -82,7 +82,6 @@ class Tetris3dController extends EventEmitter2 {
       isFreeze = true;
     });
     this.touch.on('touchstart', (evt) => {
-      console.log('touchstart', evt);
       touchStartX = evt.touchStartX;
       touchStartY = evt.touchStartY;
       isFreeze = false;
@@ -92,7 +91,7 @@ class Tetris3dController extends EventEmitter2 {
       var moveY = evt.touchY - touchStartY;
       var blockMoveX = (moveX / CONST.VOXEL_SIZE) | 0;
       var blockMoveY = (moveY / CONST.VOXEL_SIZE) | 0;
-      console.log('touchmove', evt, blockMoveX);
+      console.log('touchmove', blockMoveX);
 
       if (isFreeze) return;
 
@@ -118,11 +117,13 @@ class Tetris3dController extends EventEmitter2 {
     
   swithModeCamera() {
     console.log('swithModeCamera');
+    this.touch.dispose();
     this.view.startControls();
   };
   
   swithModeBlock() {
     console.log('swithModeBlock');
+    this.touch.setEvent();
     this.view.stopControls();
   };
   
