@@ -114,14 +114,12 @@ class Tetris3dController extends EventEmitter2 {
       // 1マスずつバリデーション（すり抜け対策）
       while (blockMoveX) {
         let sign = blockMoveX / Math.abs(blockMoveX); // 1 or -1
-        // this.moveBlock('left');
         this.moveBlockRightAndLeft(sign);
         blockMoveX -= sign;
         touchStartX = evt.touchX;
       }
       while (blockMoveY) {
         let sign = blockMoveY / Math.abs(blockMoveY); // 1 or -1
-        // this.moveBlock('forward');
         this.moveBlockBackAndForward(sign);
         blockMoveY -= sign;
         touchStartY = evt.touchY;
@@ -152,7 +150,8 @@ class Tetris3dController extends EventEmitter2 {
     if (direction.z !== 0) {
       this.model.moveBlockX(distance * -direction.z);
     }
-  }
+  };
+  
   moveBlockBackAndForward(distance) {
     let direction = this.view.checkCameraDirection();
     if (direction.x !== 0) {
@@ -160,50 +159,6 @@ class Tetris3dController extends EventEmitter2 {
     }
     if (direction.z !== 0) {
       this.model.moveBlockZ(distance * direction.z);
-    }
-  }
-  moveBlock(code) {
-    // let forward = this.checkForward();
-    // let direction = this.checkDirection();
-    let direction = this.view.checkCameraDirection();
-    switch (code) {
-      case 'left':
-        // this.model.moveBlockX(1);
-        let signX = Math.sign(direction.x);
-        let signZ = Math.sign(direction.z);
-        // console.log(signX, signZ, direction.x, direction.z, signX !== 0, signZ !== 0);
-        if (signX !== 0) {
-          this.model.moveBlockZ(signX);
-        }
-        if (signZ !== 0) {
-          this.model.moveBlockX(signZ);
-        }
-        // if (direction.x > 0) {
-        //   this.model.moveBlockZ(-1);
-        // }
-        // else if (direction.x < 0) {
-        //   this.model.moveBlockZ(1);
-        // }
-        // if (direction.z > 0) {
-        //   this.model.moveBlockX(1);
-        // }
-        // else if (direction.z < 0) {
-        //   this.model.moveBlockX(-1);
-        // }
-        break;
-      case 'right':
-        break;
-      case 'down':
-        break;
-      case 'forward':
-        break;
-      case 'backward':
-        break;
-      case 'rotate':
-        break;
-      default:
-        this.model.moveBlockX(1);
-        break;
     }
   };
   
