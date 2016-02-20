@@ -9,104 +9,104 @@ class TouchController extends EventEmitter2 {
     this.touchmove  = (this.touchsupport) ? 'touchmove'  : 'mousemove';
     this.touchend   = (this.touchsupport) ? 'touchend'   : 'mouseup';
     
+    this.deltaX = 0;
+    this.deltaY = 0;
+    this.moveX = 0;
+    this.moveY = 0;
+    
+    this.defineEventListener();
   }
   
   setElement(element) {
-    element.addEventListener(this.touchstart, onTouchStart, false);
-    element.addEventListener(this.touchmove, ontouchMove, false);
-    element.addEventListener(this.touchend, onTouchEnd, false);
+    this.element = element;
+    
+    this.setEvent();
+  }
+  
+  setEvent() {
+    this.element.addEventListener(this.touchstart, this.onTouchStart, false);
+    this.element.addEventListener(this.touchmove, this.ontouchMove, false);
+    this.element.addEventListener(this.touchend, this.onTouchEnd, false);
     
     // document.addEventListener(touchstart, function(){ return false; }, false); // disableDocumentTouch
     // document.addEventListener(touchmove, ontouchMove, false);
     // document.addEventListener(touchend, onTouchEnd, false);
-    
-    let _this = this;
-    
-    let isDragging = false,
-      movingtimer,
-      touchStartX,
-      touchStartY,
-      lasttouchX,
-      lasttouchY,
-      touchX,
-      touchY,
-      deltaX = 0,
-      deltaY = 0,
-      moveX = 0,
-      moveY = 0,
-      touchEndX,
-      touchEndY,
-      isTap,
-      touchStartTime,
-      elapsedTime;
-    
-    function onTouchStart(evt){
+  }
+  
+  dispose() {
+    this.element.removeEventListener(this.touchstart, this.onTouchStart, false);
+    this.element.removeEventListener(this.touchmove, this.ontouchMove, false);
+    this.element.removeEventListener(this.touchend, this.onTouchEnd, false);
+  }
+  
+  defineEventListener() {
+    this.onTouchStart = (evt) => {
       evt.preventDefault(); // enablePreventDefault
-      isDragging = true;
-      isTap = true;
-      touchStartTime = Date.now();
       
-      touchStartX = (_this.touchsupport) ? evt.originalEvent.touches[0].pageX : evt.pageX;
-      touchStartY = (_this.touchsupport) ? evt.originalEvent.touches[0].pageY : evt.pageY;
+      this.isDragging = true;
+      this.isTap = true;
+      this.touchStartTime = Date.now();
       
-      // console.log('touchstart');
-      _this.emit('touchstart', {
-        'touchStartTime': touchStartTime,
-        'touchStartX'   : touchStartX,
-        'touchStartY'   : touchStartY,
+      this.touchStartX = (this.touchsupport) ? evt.originalEvent.touches[0].pageX : evt.pageX;
+      this.touchStartY = (this.touchsupport) ? evt.originalEvent.touches[0].pageY : evt.pageY;
+      
+      this.emit('touchstart', {
+        'touchStartTime': this.touchStartTime,
+        'touchStartX'   : this.touchStartX,
+        'touchStartY'   : this.touchStartY,
       });
       
       //return false; // enableReturnFalse
-    }
-    function ontouchMove(evt){
-      if (!isDragging) return;
-      lasttouchX = touchX || touchStartX;
-      lasttouchY = touchY || touchStartY;
+    };
+    
+    this.ontouchMove = (evt) => {
+      if (!this.isDragging) return;
+      this.lasttouchX = this.touchX || this.touchStartX;
+      this.lasttouchY = this.touchY || this.touchStartY;
       
-      touchX = (_this.touchsupport) ? evt.originalEvent.touches[0].pageX : evt.pageX;
-      touchY = (_this.touchsupport) ? evt.originalEvent.touches[0].pageY : evt.pageY;
-      deltaX = touchX - lasttouchX;
-      deltaY = touchY - lasttouchY;
-      moveX  = touchX - touchStartX;
-      moveY  = touchY - touchStartY;
+      this.touchX = (this.touchsupport) ? evt.originalEvent.touches[0].pageX : evt.pageX;
+      this.touchY = (this.touchsupport) ? evt.originalEvent.touches[0].pageY : evt.pageY;
+      this.deltaX = this.touchX - this.lasttouchX;
+      this.deltaY = this.touchY - this.lasttouchY;
+      this.moveX  = this.touchX - this.touchStartX;
+      this.moveY  = this.touchY - this.touchStartY;
       
-      isTap = false;
+      this.isTap = false;
       
-      // console.log('touchmove', touchX, touchY, deltaX, deltaY, moveX, moveY);
-      _this.emit('touchmove', {
-        'lasttouchX': lasttouchX,
-        'lasttouchY': lasttouchY,
-        'touchX'    : touchX,
-        'touchY'    : touchY,
-        'deltaX'    : deltaX,
-        'deltaY'    : deltaY,
-        'moveX'     : moveX,
-        'moveY'     : moveY,
+      this.emit('touchmove', {
+        'lasttouchX': this.lasttouchX,
+        'lasttouchY': this.lasttouchY,
+        'touchX'    : this.touchX,
+        'touchY'    : this.touchY,
+        'deltaX'    : this.deltaX,
+        'deltaY'    : this.deltaY,
+        'moveX'     : this.moveX,
+        'moveY'     : this.moveY,
       });
       
       // clearTimeout(movingtimer);
-      // movingtimer = setTimeout(function(){ isDragging = false; },1000);
-    }
-    function onTouchEnd(evt){
-      isDragging = false;
+      // movingtimer = setTimeout(function(){ this.isDragging = false; },1000);
+    };
+    
+    this.onTouchEnd = (evt) => {
+      this.isDragging = false;
       
-      elapsedTime = Date.now() - touchStartTime;
-      touchEndX = touchX;
-      touchEndY = touchY;
+      this.elapsedTime = Date.now() - this.touchStartTime;
+      this.touchEndX = this.touchX;
+      this.touchEndY = this.touchY;
       
-      // console.log('touchend');
-      _this.emit('touchend', {
-        'elapsedTime': elapsedTime,
-        'touchEndX'  : touchEndX,
-        'touchEndY'  : touchEndY,
-        'moveX'      : moveX,
-        'moveY'      : moveY,
-        'isTap'      : isTap,
+      this.emit('touchend', {
+        'elapsedTime': this.elapsedTime,
+        'touchEndX'  : this.touchEndX,
+        'touchEndY'  : this.touchEndY,
+        'moveX'      : this.moveX,
+        'moveY'      : this.moveY,
+        'isTap'      : this.isTap,
       });
       
-      touchX = touchY = null;
-      moveX = moveY = 0;
-    }
+      this.touchX = this.touchY = null;
+      this.moveX = this.moveY = 0;
+    };
   }
 }
 
