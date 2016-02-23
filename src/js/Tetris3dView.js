@@ -81,7 +81,7 @@ class Tetris3dView {
     // axis ------------------------------
     const axis = new THREE.AxisHelper(this.CAMERA_FAR);
     axis.position.set(0,0,0);
-    this.scene.add(axis);
+    // this.scene.add(axis);
     
     
     // grid bottom ------------------------------
