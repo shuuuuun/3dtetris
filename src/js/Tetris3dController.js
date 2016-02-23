@@ -149,12 +149,14 @@ class Tetris3dController extends EventEmitter2 {
     console.log('switchModeCamera');
     this.touch.dispose();
     this.view.startControls();
+    this.emit('switchModeCamera');
   };
   
   switchModeBlock() {
     console.log('switchModeBlock');
     this.touch.setEvent();
     this.view.stopControls();
+    this.emit('switchModeBlock');
   };
   
   moveBlockRightAndLeft(distance) {
