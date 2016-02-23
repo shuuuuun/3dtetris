@@ -47,6 +47,11 @@ class Tetris3dCONST {
       51: 'ortho3', // 3
     };
     
+    this.KEYS_CONTROLLER = {
+      67: 'camera', // c
+      66: 'block', // b
+    };
+    
     // shape: 4 x 4 x 4
     this.BLOCK_LIST = [
       {

@@ -60,7 +60,7 @@ class Tetris3dController extends EventEmitter2 {
   
   setKeyEvent() {
     $(document).on('keydown', (evt) => {
-      // console.log(evt.keyCode, CONST.KEYS_MODEL[evt.keyCode], CONST.KEYS_VIEW[evt.keyCode]);
+      // console.log(evt.keyCode, CONST.KEYS_MODEL[evt.keyCode], CONST.KEYS_VIEW[evt.keyCode], CONST.KEYS_CONTROLLER[evt.keyCode]);
       if (typeof CONST.KEYS_MODEL[evt.keyCode] !== 'undefined') {
         evt.preventDefault();
         this.model.moveBlock(CONST.KEYS_MODEL[evt.keyCode]);
@@ -68,6 +68,10 @@ class Tetris3dController extends EventEmitter2 {
       if (typeof CONST.KEYS_VIEW[evt.keyCode] !== 'undefined') {
         evt.preventDefault();
         this.view.setCamera(CONST.KEYS_VIEW[evt.keyCode]);
+      }
+      if (typeof CONST.KEYS_CONTROLLER[evt.keyCode] !== 'undefined') {
+        evt.preventDefault();
+        this.swithMode(CONST.KEYS_CONTROLLER[evt.keyCode]);
       }
       // switch (code) {
       //   case 'left':
@@ -130,14 +134,25 @@ class Tetris3dController extends EventEmitter2 {
     });
   };
     
-  swithModeCamera() {
-    console.log('swithModeCamera');
+  swithMode(code) {
+    switch (code) {
+      case 'camera':
+        this.switchModeCamera();
+        break;
+      case 'block':
+        this.switchModeBlock();
+        break;
+    }
+  };
+  
+  switchModeCamera() {
+    console.log('switchModeCamera');
     this.touch.dispose();
     this.view.startControls();
   };
   
-  swithModeBlock() {
-    console.log('swithModeBlock');
+  switchModeBlock() {
+    console.log('switchModeBlock');
     this.touch.setEvent();
     this.view.stopControls();
   };
