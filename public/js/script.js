@@ -16540,8 +16540,13 @@ var Tetris3dCONST = function Tetris3dCONST() {
     50: 'ortho2', // 2
     51: 'ortho3' };
 
-  // shape: 4 x 4 x 4
   // 3
+  this.KEYS_CONTROLLER = {
+    67: 'camera', // c
+    66: 'block' };
+
+  // shape: 4 x 4 x 4
+  // b
   this.BLOCK_LIST = [{
     id: 0,
     color: 'rgb(254,183,76)',
@@ -16688,7 +16693,7 @@ var Tetris3dController = function (_EventEmitter) {
       var _this4 = this;
 
       $(document).on('keydown', function (evt) {
-        // console.log(evt.keyCode, CONST.KEYS_MODEL[evt.keyCode], CONST.KEYS_VIEW[evt.keyCode]);
+        // console.log(evt.keyCode, CONST.KEYS_MODEL[evt.keyCode], CONST.KEYS_VIEW[evt.keyCode], CONST.KEYS_CONTROLLER[evt.keyCode]);
         if (typeof CONST.KEYS_MODEL[evt.keyCode] !== 'undefined') {
           evt.preventDefault();
           _this4.model.moveBlock(CONST.KEYS_MODEL[evt.keyCode]);
@@ -16696,6 +16701,10 @@ var Tetris3dController = function (_EventEmitter) {
         if (typeof CONST.KEYS_VIEW[evt.keyCode] !== 'undefined') {
           evt.preventDefault();
           _this4.view.setCamera(CONST.KEYS_VIEW[evt.keyCode]);
+        }
+        if (typeof CONST.KEYS_CONTROLLER[evt.keyCode] !== 'undefined') {
+          evt.preventDefault();
+          _this4.swithMode(CONST.KEYS_CONTROLLER[evt.keyCode]);
         }
         // switch (code) {
         //   case 'left':
@@ -16761,18 +16770,32 @@ var Tetris3dController = function (_EventEmitter) {
       });
     }
   }, {
-    key: 'swithModeCamera',
-    value: function swithModeCamera() {
-      console.log('swithModeCamera');
-      this.touch.dispose();
-      this.view.startControls();
+    key: 'swithMode',
+    value: function swithMode(code) {
+      switch (code) {
+        case 'camera':
+          this.switchModeCamera();
+          break;
+        case 'block':
+          this.switchModeBlock();
+          break;
+      }
     }
   }, {
-    key: 'swithModeBlock',
-    value: function swithModeBlock() {
-      console.log('swithModeBlock');
+    key: 'switchModeCamera',
+    value: function switchModeCamera() {
+      console.log('switchModeCamera');
+      this.touch.dispose();
+      this.view.startControls();
+      this.emit('switchModeCamera');
+    }
+  }, {
+    key: 'switchModeBlock',
+    value: function switchModeBlock() {
+      console.log('switchModeBlock');
       this.touch.setEvent();
       this.view.stopControls();
+      this.emit('switchModeBlock');
     }
   }, {
     key: 'moveBlockRightAndLeft',
@@ -17737,6 +17760,70 @@ module.exports = TouchController;
 },{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1}],9:[function(require,module,exports){
 'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _eventemitter = require("./../../bower_components/eventemitter2/lib/eventemitter2.js");
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var UserInterface = function (_EventEmitter) {
+  _inherits(UserInterface, _EventEmitter);
+
+  function UserInterface() {
+    _classCallCheck(this, UserInterface);
+
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(UserInterface).call(this));
+
+    _this.$switchCamera = $('.js-switch-camera');
+    _this.$switchBlock = $('.js-switch-block');
+    _this.$btns = _this.$switchCamera.add(_this.$switchBlock);
+
+    _this.setEvent();
+    return _this;
+  }
+
+  _createClass(UserInterface, [{
+    key: 'setEvent',
+    value: function setEvent() {
+      var _this2 = this;
+
+      this.$switchCamera.on('click', function () {
+        _this2.switchModeCamera();
+        _this2.emit('switchCameraClick');
+      });
+      this.$switchBlock.on('click', function () {
+        _this2.switchModeBlock();
+        _this2.emit('switchBlockClick');
+      });
+    }
+  }, {
+    key: 'switchModeCamera',
+    value: function switchModeCamera() {
+      this.$btns.removeClass('is-active');
+      this.$switchCamera.addClass('is-active');
+      this.emit('switchModeCamera');
+    }
+  }, {
+    key: 'switchModeBlock',
+    value: function switchModeBlock() {
+      this.$btns.removeClass('is-active');
+      this.$switchBlock.addClass('is-active');
+      this.emit('switchModeBlock');
+    }
+  }]);
+
+  return UserInterface;
+}(_eventemitter.EventEmitter2);
+
+module.exports = UserInterface;
+
+},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1}],10:[function(require,module,exports){
+'use strict';
+
 var _Tetris3dView = require('./Tetris3dView');
 
 var _Tetris3dView2 = _interopRequireDefault(_Tetris3dView);
@@ -17749,36 +17836,39 @@ var _Tetris3dController = require('./Tetris3dController');
 
 var _Tetris3dController2 = _interopRequireDefault(_Tetris3dController);
 
+var _UserInterface = require('./UserInterface');
+
+var _UserInterface2 = _interopRequireDefault(_UserInterface);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // const tetris = new Tetris3d();
-var tetris3dModel = new _Tetris3dModel2.default(); // import $ from 'jquery';
+// import $ from 'jquery';
 // import Util from './Util';
 // import Tetris3d from './Tetris3d';
-
+var tetris3dModel = new _Tetris3dModel2.default();
 var tetris3dView = new _Tetris3dView2.default();
 var tetris3dController = new _Tetris3dController2.default(tetris3dModel, tetris3dView);
-
-var $switchCamera = $('.js-switch-camera');
-var $switchBlock = $('.js-switch-block');
-var $btns = $switchCamera.add($switchBlock);
+var ui = new _UserInterface2.default();
 
 // event
-$switchCamera.on('click', function () {
-  $btns.removeClass('is-active');
-  $(this).addClass('is-active');
-  tetris3dController.swithModeCamera();
+ui.on('switchCameraClick', function () {
+  tetris3dController.switchModeCamera();
 });
-$switchBlock.on('click', function () {
-  $btns.removeClass('is-active');
-  $(this).addClass('is-active');
-  tetris3dController.swithModeBlock();
+ui.on('switchBlockClick', function () {
+  tetris3dController.switchModeBlock();
+});
+tetris3dController.on('switchModeCamera', function () {
+  ui.switchModeCamera();
+});
+tetris3dController.on('switchModeBlock', function () {
+  ui.switchModeBlock();
 });
 
 // start
 tetris3dController.newGame();
 
 // default mode
-$switchCamera.trigger('click');
+ui.switchModeCamera();
 
-},{"./Tetris3dController":5,"./Tetris3dModel":6,"./Tetris3dView":7}]},{},[9]);
+},{"./Tetris3dController":5,"./Tetris3dModel":6,"./Tetris3dView":7,"./UserInterface":9}]},{},[10]);
