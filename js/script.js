@@ -17737,10 +17737,6 @@ module.exports = TouchController;
 },{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1}],9:[function(require,module,exports){
 'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // import $ from 'jquery';
-// import Util from './Util';
-// import Tetris3d from './Tetris3d';
-
 var _Tetris3dView = require('./Tetris3dView');
 
 var _Tetris3dView2 = _interopRequireDefault(_Tetris3dView);
@@ -17755,10 +17751,11 @@ var _Tetris3dController2 = _interopRequireDefault(_Tetris3dController);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 // const tetris = new Tetris3d();
-var tetris3dModel = new _Tetris3dModel2.default();
+var tetris3dModel = new _Tetris3dModel2.default(); // import $ from 'jquery';
+// import Util from './Util';
+// import Tetris3d from './Tetris3d';
+
 var tetris3dView = new _Tetris3dView2.default();
 var tetris3dController = new _Tetris3dController2.default(tetris3dModel, tetris3dView);
 
@@ -17766,6 +17763,7 @@ var $switchCamera = $('.js-switch-camera');
 var $switchBlock = $('.js-switch-block');
 var $btns = $switchCamera.add($switchBlock);
 
+// event
 $switchCamera.on('click', function () {
   $btns.removeClass('is-active');
   $(this).addClass('is-active');
@@ -17777,26 +17775,10 @@ $switchBlock.on('click', function () {
   tetris3dController.swithModeBlock();
 });
 
-var Main = function () {
-  function Main() {
-    _classCallCheck(this, Main);
-  }
+// start
+tetris3dController.newGame();
 
-  _createClass(Main, [{
-    key: 'exec',
-    value: function exec() {
-      // tetris.init();
-      tetris3dController.newGame();
-
-      // default mode
-      $switchCamera.trigger('click');
-    }
-  }]);
-
-  return Main;
-}();
-
-var main = new Main();
-main.exec();
+// default mode
+$switchCamera.trigger('click');
 
 },{"./Tetris3dController":5,"./Tetris3dModel":6,"./Tetris3dView":7}]},{},[9]);
