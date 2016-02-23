@@ -14,6 +14,7 @@ const $switchCamera = $('.js-switch-camera');
 const $switchBlock = $('.js-switch-block');
 const $btns = $switchCamera.add($switchBlock);
 
+// event
 $switchCamera.on('click', function(){
   $btns.removeClass('is-active');
   $(this).addClass('is-active');
@@ -25,17 +26,8 @@ $switchBlock.on('click', function(){
   tetris3dController.swithModeBlock();
 });
 
-class Main {
-  constructor() {
-  }
-  exec() {
-    // tetris.init();
-    tetris3dController.newGame();
-    
-    // default mode
-    $switchCamera.trigger('click');
-  }
-}
+// start
+tetris3dController.newGame();
 
-const main = new Main();
-main.exec();
+// default mode
+$switchCamera.trigger('click');
