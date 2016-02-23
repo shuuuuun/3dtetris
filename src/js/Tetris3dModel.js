@@ -1,4 +1,4 @@
-import $ from 'jquery';
+// import $ from 'jquery';
 import { EventEmitter2 } from 'eventemitter2';
 import Tetris3dCONST from './Tetris3dCONST';
 

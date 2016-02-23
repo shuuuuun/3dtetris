@@ -1,6 +1,6 @@
-import $ from 'jquery';
+// import $ from 'jquery';
 // import Util from './Util';
-import Tetris3d from './Tetris3d';
+// import Tetris3d from './Tetris3d';
 import Tetris3dView from './Tetris3dView';
 import Tetris3dModel from './Tetris3dModel';
 import Tetris3dController from './Tetris3dController';
