@@ -113,7 +113,9 @@ class Tetris3dView {
         new THREE.Vector3( size,            0, size ),
         new THREE.Vector3( size, CONST.HEIGHT, size ),
         new THREE.Vector3( size, CONST.HEIGHT,    0 ),
-        new THREE.Vector3( size,            0,    0 )
+        new THREE.Vector3( size,            0,    0 ),
+        new THREE.Vector3(    0,            0,    0 ),
+        new THREE.Vector3(    0, CONST.HEIGHT,    0 )
       );
       const material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2, transparent: true } );
       const line = new THREE.Line( geometry, material );
