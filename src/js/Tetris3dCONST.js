@@ -38,6 +38,8 @@ class Tetris3dCONST {
       40: 'forward', // ↓
       38: 'backward', // ↑
       32: 'rotate', // space
+      16: 'rotateX', // shift
+      17: 'rotateY', // control
     };
     
     this.KEYS_VIEW = {

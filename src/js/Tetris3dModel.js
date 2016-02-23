@@ -267,6 +267,20 @@ class Tetris3dModel extends EventEmitter2 {
     return newBlockShape;
   };
   
+  rotateX(block) {
+    let newBlockShape = [];
+    for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
+      newBlockShape[z] = [];
+      for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
+        newBlockShape[z][y] = [];
+        for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
+          newBlockShape[z][y][x] = block.shape[CONST.VOXEL_LENGTH - 1 - x][y][z];
+        }
+      }
+    }
+    return newBlockShape;
+  };
+  
   valid(offsetX, offsetY, offsetZ, newBlockShape) {
     offsetX = offsetX || 0;
     offsetY = offsetY || 0;
