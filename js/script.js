@@ -17878,5 +17878,6 @@ tetris3dController.newGame();
 
 // default mode
 ui.switchModeCamera();
+tetris3dController.switchModeCamera();
 
 },{"./Tetris3dController":5,"./Tetris3dModel":6,"./Tetris3dView":7,"./UserInterface":9}]},{},[10]);
