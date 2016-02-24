@@ -54,12 +54,8 @@
 
 ---
 
-###Revパズル
-の話が来た説明
-
----
-
-###それがこちら
+<!-- ###Revパズルの話が来た説明 -->
+###そんな感じで作ったのがこちら
 <a href="http://global.yamaha-motor.com/jp/yamahastyle/revstretch/game/">http://global.yamaha-motor.com/jp/yamahastyle/revstretch/game/</a>
 
 ---
@@ -87,13 +83,7 @@
 ---
 
 ###DEMO
-
-<a href="../">DEMO</a>
-<a href="https://shuuuuun.github.io/3dtetris/">DEMO</a>
-
-<div class="qr">
-    <!-- <img src="/img/qr-sp-url.png"> -->
-</div>
+<a href="https://shuuuuun.github.io/3dtetris/">https://shuuuuun.github.io/3dtetris/</a>
 
 ---
 
