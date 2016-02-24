@@ -31,3 +31,4 @@ tetris3dController.newGame();
 
 // default mode
 ui.switchModeCamera();
+tetris3dController.switchModeCamera();
