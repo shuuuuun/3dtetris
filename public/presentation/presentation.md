@@ -41,7 +41,7 @@
 <!-- このテトリスセーバーの面白いところは、スクリーンセーバーなのに、この状態で操作できるというところですね -->
 
 <!-- ###そう、テトリス風スクリーンセーバーです  -->
-<!-- <a href="http://shuuuuun.github.io/TetrisSaver/">http://shuuuuun.github.io/TetrisSaver/</a> -->
+<!-- <a href="http://shuuuuun.github.io/TetrisSaver/" target="_blank">http://shuuuuun.github.io/TetrisSaver/</a> -->
 
 ---
 
@@ -56,7 +56,7 @@
 
 <!-- ###Revパズルの話が来た説明 -->
 ###そんな感じで作ったのがこちら
-<a href="http://global.yamaha-motor.com/jp/yamahastyle/revstretch/game/">http://global.yamaha-motor.com/jp/yamahastyle/revstretch/game/</a>
+<a href="http://global.yamaha-motor.com/jp/yamahastyle/revstretch/game/" target="_blank">http://global.yamaha-motor.com/jp/yamahastyle/revstretch/game/</a>
 
 ---
 
@@ -83,10 +83,11 @@
 ---
 
 ###DEMO
-<a href="https://shuuuuun.github.io/3dtetris/">https://shuuuuun.github.io/3dtetris/</a>
+<a href="https://shuuuuun.github.io/3dtetris/" target="_blank">https://shuuuuun.github.io/3dtetris/</a>
 
 ---
 
+<!-- まだ完璧ではないなと思っているんですが、残る課題としては、 -->
 ###残る課題
 - 操作が複雑すぎる
 - デザインがださい
