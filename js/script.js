@@ -17251,11 +17251,9 @@ var Tetris3dView = function () {
 
     this.framecount = 0;
     this.ZERO_VECTOR = new THREE.Vector3(0, 0, 0);
-    this.CAMERA_DISTANCE_DEFAULT = 1700;
+    this.CAMERA_DISTANCE_DEFAULT = 1500;
     this.CENTER_VECTOR = new THREE.Vector3(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
-    // this.CENTER_VECTOR = { x: CONST.CENTER_X, y: CONST.CENTER_Y, z: CONST.CENTER_Z };
-    this.CAMERA_POSITION = new THREE.Vector3(this.CAMERA_DISTANCE_DEFAULT, CONST.HEIGHT, this.CAMERA_DISTANCE_DEFAULT);
-    // this.CAMERA_POSITION = { x: this.CAMERA_DISTANCE_DEFAULT, y: CONST.CENTER_Y, z: this.CAMERA_DISTANCE_DEFAULT };
+    this.CAMERA_POSITION = new THREE.Vector3(CONST.CENTER_X, 0, this.CAMERA_DISTANCE_DEFAULT);
     this.CAMERA_NEAR = 1;
     this.CAMERA_FAR = 100000;
   }
@@ -17436,8 +17434,7 @@ var Tetris3dView = function () {
           // 'pers'
           this.camera = this.perscamera;
           // this.camera.clone(this.perscamera);
-          // this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
-          this.camera.position.set(this.CAMERA_DISTANCE_DEFAULT, 0, this.CAMERA_DISTANCE_DEFAULT);
+          this.camera.position.copy(this.CAMERA_POSITION);
           break;
       }
       this.camera.up.set(0, -1, 0); // y down
