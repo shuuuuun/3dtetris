@@ -30,5 +30,5 @@ tetris3dController.on('switchModeBlock', () => {
 tetris3dController.newGame();
 
 // default mode
-ui.switchModeCamera();
-tetris3dController.switchModeCamera();
+ui.switchModeBlock();
+tetris3dController.switchModeBlock();
