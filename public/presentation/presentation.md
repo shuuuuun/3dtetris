@@ -89,6 +89,7 @@
 ###DEMO
 
 <a href="../">DEMO</a>
+<a href="https://shuuuuun.github.io/3dtetris/">DEMO</a>
 
 <div class="qr">
     <!-- <img src="/img/qr-sp-url.png"> -->
