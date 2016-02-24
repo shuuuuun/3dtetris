@@ -106,11 +106,10 @@ class Tetris3dModel extends EventEmitter2 {
   tick() {
     clearTimeout(this.tickId);
     let isMoveDown = this.moveBlock('down');
-    // console.log("tick", isMoveDown, this.checkGameOver());
+    console.log("tick", isMoveDown);
     if (!isMoveDown) {
-    // if (false) {
       this.freeze();
-      // this.clearLines();
+      this.clearLines();
       if (this.checkGameOver()) {
         this.emit('gameover');
         // this.quitGame().then(function(){});
@@ -166,16 +165,18 @@ class Tetris3dModel extends EventEmitter2 {
     let blankRow = Array.apply(null, Array(CONST.COLS)).map(function(){ return 0; }); // => [0,0,0,0,0,...]
     let dfd = $.Deferred();
     dfd.resolve();
-    for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
-      let isRowFilled = this.board[y].every(function(val){
-        return val !== 0;
-      });
-      if (!isRowFilled) continue;
-      filledRowList.push(y);
-      clearLineLength++;
-      this.sumOfClearLines++;
-      this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
-    }
+    
+    // for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
+    //   let isRowFilled = this.board[y].every(function(val){
+    //     return val !== 0;
+    //   });
+    //   if (!isRowFilled) continue;
+    //   filledRowList.push(y);
+    //   clearLineLength++;
+    //   this.sumOfClearLines++;
+    //   this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
+    // }
+    console.log('hoge');
     // clear line drop
     // dfd.then(dropRow(x, y));
     
