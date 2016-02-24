@@ -572,1025 +572,978 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
  * @author WestLangley / http://github.com/WestLangley
  * @author erich666 / http://erichaines.com
  */
-/*global THREE, console */
 
-(function () {
+// This set of controls performs orbiting, dollying (zooming), and panning.
+// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
+//
+//    Orbit - left mouse / touch: one finger move
+//    Zoom - middle mouse, or mousewheel / touch: two finger spread or squish
+//    Pan - right mouse, or arrow keys / touch: three finter swipe
 
-	function OrbitConstraint(object) {
+THREE.OrbitControls = function (object, domElement) {
 
-		this.object = object;
+	this.object = object;
 
-		// "target" sets the location of focus, where the object orbits around
-		// and where it pans with respect to.
-		this.target = new THREE.Vector3();
+	this.domElement = domElement !== undefined ? domElement : document;
 
-		// Limits to how far you can dolly in and out ( PerspectiveCamera only )
-		this.minDistance = 0;
-		this.maxDistance = Infinity;
+	// Set to false to disable this control
+	this.enabled = true;
 
-		// Limits to how far you can zoom in and out ( OrthographicCamera only )
-		this.minZoom = 0;
-		this.maxZoom = Infinity;
+	// "target" sets the location of focus, where the object orbits around
+	this.target = new THREE.Vector3();
 
-		// How far you can orbit vertically, upper and lower limits.
-		// Range is 0 to Math.PI radians.
-		this.minPolarAngle = 0; // radians
-		this.maxPolarAngle = Math.PI; // radians
+	// How far you can dolly in and out ( PerspectiveCamera only )
+	this.minDistance = 0;
+	this.maxDistance = Infinity;
 
-		// How far you can orbit horizontally, upper and lower limits.
-		// If set, must be a sub-interval of the interval [ - Math.PI, Math.PI ].
-		this.minAzimuthAngle = -Infinity; // radians
-		this.maxAzimuthAngle = Infinity; // radians
+	// How far you can zoom in and out ( OrthographicCamera only )
+	this.minZoom = 0;
+	this.maxZoom = Infinity;
 
-		// Set to true to enable damping (inertia)
-		// If damping is enabled, you must call controls.update() in your animation loop
-		this.enableDamping = false;
-		this.dampingFactor = 0.25;
+	// How far you can orbit vertically, upper and lower limits.
+	// Range is 0 to Math.PI radians.
+	this.minPolarAngle = 0; // radians
+	this.maxPolarAngle = Math.PI; // radians
 
-		////////////
-		// internals
+	// How far you can orbit horizontally, upper and lower limits.
+	// If set, must be a sub-interval of the interval [ - Math.PI, Math.PI ].
+	this.minAzimuthAngle = -Infinity; // radians
+	this.maxAzimuthAngle = Infinity; // radians
 
-		var scope = this;
+	// Set to true to enable damping (inertia)
+	// If damping is enabled, you must call controls.update() in your animation loop
+	this.enableDamping = false;
+	this.dampingFactor = 0.25;
 
-		var EPS = 0.000001;
+	// This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
+	// Set to false to disable zooming
+	this.enableZoom = true;
+	this.zoomSpeed = 1.0;
 
-		// Current position in spherical coordinate system.
-		var theta;
-		var phi;
+	// Set to false to disable rotating
+	this.enableRotate = true;
+	this.rotateSpeed = 1.0;
 
-		// Pending changes
-		var phiDelta = 0;
-		var thetaDelta = 0;
-		var scale = 1;
-		var panOffset = new THREE.Vector3();
-		var zoomChanged = false;
+	// Set to false to disable panning
+	this.enablePan = true;
+	this.keyPanSpeed = 7.0; // pixels moved per arrow key push
 
-		// API
+	// Set to true to automatically rotate around the target
+	// If auto-rotate is enabled, you must call controls.update() in your animation loop
+	this.autoRotate = false;
+	this.autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
 
-		this.getPolarAngle = function () {
+	// Set to false to disable use of the keys
+	this.enableKeys = true;
 
-			return phi;
+	// The four arrow keys
+	this.keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40 };
+
+	// Mouse buttons
+	this.mouseButtons = { ORBIT: THREE.MOUSE.LEFT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.RIGHT };
+
+	// for reset
+	this.target0 = this.target.clone();
+	this.position0 = this.object.position.clone();
+	this.zoom0 = this.object.zoom;
+
+	//
+	// public methods
+	//
+
+	this.getPolarAngle = function () {
+
+		return phi;
+	};
+
+	this.getAzimuthalAngle = function () {
+
+		return theta;
+	};
+
+	this.reset = function () {
+
+		scope.target.copy(scope.target0);
+		scope.object.position.copy(scope.position0);
+		scope.object.zoom = scope.zoom0;
+
+		scope.object.updateProjectionMatrix();
+		scope.dispatchEvent(changeEvent);
+
+		scope.update();
+
+		state = STATE.NONE;
+	};
+
+	// this method is exposed, but perhaps it would be better if we can make it private...
+	this.update = function () {
+
+		var offset = new THREE.Vector3();
+
+		// so camera.up is the orbit axis
+		var quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0, 1, 0));
+		var quatInverse = quat.clone().inverse();
+
+		var lastPosition = new THREE.Vector3();
+		var lastQuaternion = new THREE.Quaternion();
+
+		return function () {
+
+			var position = scope.object.position;
+
+			offset.copy(position).sub(scope.target);
+
+			// rotate offset to "y-axis-is-up" space
+			offset.applyQuaternion(quat);
+
+			// angle from z-axis around y-axis
+
+			theta = Math.atan2(offset.x, offset.z);
+
+			// angle from y-axis
+
+			phi = Math.atan2(Math.sqrt(offset.x * offset.x + offset.z * offset.z), offset.y);
+
+			if (scope.autoRotate && state === STATE.NONE) {
+
+				rotateLeft(getAutoRotationAngle());
+			}
+
+			theta += thetaDelta;
+			phi += phiDelta;
+
+			// restrict theta to be between desired limits
+			theta = Math.max(scope.minAzimuthAngle, Math.min(scope.maxAzimuthAngle, theta));
+
+			// restrict phi to be between desired limits
+			phi = Math.max(scope.minPolarAngle, Math.min(scope.maxPolarAngle, phi));
+
+			// restrict phi to be betwee EPS and PI-EPS
+			phi = Math.max(EPS, Math.min(Math.PI - EPS, phi));
+
+			var radius = offset.length() * scale;
+
+			// restrict radius to be between desired limits
+			radius = Math.max(scope.minDistance, Math.min(scope.maxDistance, radius));
+
+			// move target to panned location
+			scope.target.add(panOffset);
+
+			offset.x = radius * Math.sin(phi) * Math.sin(theta);
+			offset.y = radius * Math.cos(phi);
+			offset.z = radius * Math.sin(phi) * Math.cos(theta);
+
+			// rotate offset back to "camera-up-vector-is-up" space
+			offset.applyQuaternion(quatInverse);
+
+			position.copy(scope.target).add(offset);
+
+			scope.object.lookAt(scope.target);
+
+			if (scope.enableDamping === true) {
+
+				thetaDelta *= 1 - scope.dampingFactor;
+				phiDelta *= 1 - scope.dampingFactor;
+			} else {
+
+				thetaDelta = 0;
+				phiDelta = 0;
+			}
+
+			scale = 1;
+			panOffset.set(0, 0, 0);
+
+			// update condition is:
+			// min(camera displacement, camera rotation in radians)^2 > EPS
+			// using small-angle approximation cos(x/2) = 1 - x^2 / 8
+
+			if (zoomChanged || lastPosition.distanceToSquared(scope.object.position) > EPS || 8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS) {
+
+				scope.dispatchEvent(changeEvent);
+
+				lastPosition.copy(scope.object.position);
+				lastQuaternion.copy(scope.object.quaternion);
+				zoomChanged = false;
+
+				return true;
+			}
+
+			return false;
 		};
+	}();
 
-		this.getAzimuthalAngle = function () {
+	this.dispose = function () {
 
-			return theta;
+		scope.domElement.removeEventListener('contextmenu', onContextMenu, false);
+		scope.domElement.removeEventListener('mousedown', onMouseDown, false);
+		scope.domElement.removeEventListener('mousewheel', onMouseWheel, false);
+		scope.domElement.removeEventListener('MozMousePixelScroll', onMouseWheel, false); // firefox
+
+		scope.domElement.removeEventListener('touchstart', onTouchStart, false);
+		scope.domElement.removeEventListener('touchend', onTouchEnd, false);
+		scope.domElement.removeEventListener('touchmove', onTouchMove, false);
+
+		document.removeEventListener('mousemove', onMouseMove, false);
+		document.removeEventListener('mouseup', onMouseUp, false);
+		document.removeEventListener('mouseout', onMouseUp, false);
+
+		window.removeEventListener('keydown', onKeyDown, false);
+
+		//scope.dispatchEvent( { type: 'dispose' } ); // should this be added here?
+	};
+
+	//
+	// internals
+	//
+
+	var scope = this;
+
+	var changeEvent = { type: 'change' };
+	var startEvent = { type: 'start' };
+	var endEvent = { type: 'end' };
+
+	var STATE = { NONE: -1, ROTATE: 0, DOLLY: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_DOLLY: 4, TOUCH_PAN: 5 };
+
+	var state = STATE.NONE;
+
+	var EPS = 0.000001;
+
+	// current position in spherical coordinates
+	var theta;
+	var phi;
+
+	var phiDelta = 0;
+	var thetaDelta = 0;
+	var scale = 1;
+	var panOffset = new THREE.Vector3();
+	var zoomChanged = false;
+
+	var rotateStart = new THREE.Vector2();
+	var rotateEnd = new THREE.Vector2();
+	var rotateDelta = new THREE.Vector2();
+
+	var panStart = new THREE.Vector2();
+	var panEnd = new THREE.Vector2();
+	var panDelta = new THREE.Vector2();
+
+	var dollyStart = new THREE.Vector2();
+	var dollyEnd = new THREE.Vector2();
+	var dollyDelta = new THREE.Vector2();
+
+	function getAutoRotationAngle() {
+
+		return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
+	}
+
+	function getZoomScale() {
+
+		return Math.pow(0.95, scope.zoomSpeed);
+	}
+
+	function rotateLeft(angle) {
+
+		thetaDelta -= angle;
+	}
+
+	function rotateUp(angle) {
+
+		phiDelta -= angle;
+	}
+
+	var panLeft = function () {
+
+		var v = new THREE.Vector3();
+
+		return function panLeft(distance, objectMatrix) {
+
+			var te = objectMatrix.elements;
+
+			// get X column of objectMatrix
+			v.set(te[0], te[1], te[2]);
+
+			v.multiplyScalar(-distance);
+
+			panOffset.add(v);
 		};
+	}();
 
-		this.rotateLeft = function (angle) {
+	var panUp = function () {
 
-			thetaDelta -= angle;
+		var v = new THREE.Vector3();
+
+		return function panUp(distance, objectMatrix) {
+
+			var te = objectMatrix.elements;
+
+			// get Y column of objectMatrix
+			v.set(te[4], te[5], te[6]);
+
+			v.multiplyScalar(distance);
+
+			panOffset.add(v);
 		};
+	}();
 
-		this.rotateUp = function (angle) {
+	// deltaX and deltaY are in pixels; right and down are positive
+	var pan = function () {
 
-			phiDelta -= angle;
-		};
+		var offset = new THREE.Vector3();
 
-		// pass in distance in world space to move left
-		this.panLeft = function () {
+		return function (deltaX, deltaY) {
 
-			var v = new THREE.Vector3();
-
-			return function panLeft(distance) {
-
-				var te = this.object.matrix.elements;
-
-				// get X column of matrix
-				v.set(te[0], te[1], te[2]);
-				v.multiplyScalar(-distance);
-
-				panOffset.add(v);
-			};
-		}();
-
-		// pass in distance in world space to move up
-		this.panUp = function () {
-
-			var v = new THREE.Vector3();
-
-			return function panUp(distance) {
-
-				var te = this.object.matrix.elements;
-
-				// get Y column of matrix
-				v.set(te[4], te[5], te[6]);
-				v.multiplyScalar(distance);
-
-				panOffset.add(v);
-			};
-		}();
-
-		// pass in x,y of change desired in pixel space,
-		// right and down are positive
-		this.pan = function (deltaX, deltaY, screenWidth, screenHeight) {
+			var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 
 			if (scope.object instanceof THREE.PerspectiveCamera) {
 
 				// perspective
 				var position = scope.object.position;
-				var offset = position.clone().sub(scope.target);
+				offset.copy(position).sub(scope.target);
 				var targetDistance = offset.length();
 
 				// half of the fov is center to top of screen
 				targetDistance *= Math.tan(scope.object.fov / 2 * Math.PI / 180.0);
 
 				// we actually don't use screenWidth, since perspective camera is fixed to screen height
-				scope.panLeft(2 * deltaX * targetDistance / screenHeight);
-				scope.panUp(2 * deltaY * targetDistance / screenHeight);
+				panLeft(2 * deltaX * targetDistance / element.clientHeight, scope.object.matrix);
+				panUp(2 * deltaY * targetDistance / element.clientHeight, scope.object.matrix);
 			} else if (scope.object instanceof THREE.OrthographicCamera) {
 
 				// orthographic
-				scope.panLeft(deltaX * (scope.object.right - scope.object.left) / screenWidth);
-				scope.panUp(deltaY * (scope.object.top - scope.object.bottom) / screenHeight);
+				panLeft(deltaX * (scope.object.right - scope.object.left) / element.clientWidth, scope.object.matrix);
+				panUp(deltaY * (scope.object.top - scope.object.bottom) / element.clientHeight, scope.object.matrix);
 			} else {
 
-				// camera neither orthographic or perspective
+				// camera neither orthographic nor perspective
 				console.warn('WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.');
+				scope.enablePan = false;
 			}
 		};
+	}();
 
-		this.dollyIn = function (dollyScale) {
+	function dollyIn(dollyScale) {
 
-			if (scope.object instanceof THREE.PerspectiveCamera) {
+		if (scope.object instanceof THREE.PerspectiveCamera) {
 
-				scale /= dollyScale;
-			} else if (scope.object instanceof THREE.OrthographicCamera) {
+			scale /= dollyScale;
+		} else if (scope.object instanceof THREE.OrthographicCamera) {
 
-				scope.object.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, this.object.zoom * dollyScale));
-				scope.object.updateProjectionMatrix();
-				zoomChanged = true;
-			} else {
+			scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom * dollyScale));
+			scope.object.updateProjectionMatrix();
+			zoomChanged = true;
+		} else {
 
-				console.warn('WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.');
-			}
-		};
+			console.warn('WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.');
+			scope.enableZoom = false;
+		}
+	}
 
-		this.dollyOut = function (dollyScale) {
+	function dollyOut(dollyScale) {
 
-			if (scope.object instanceof THREE.PerspectiveCamera) {
+		if (scope.object instanceof THREE.PerspectiveCamera) {
 
-				scale *= dollyScale;
-			} else if (scope.object instanceof THREE.OrthographicCamera) {
+			scale *= dollyScale;
+		} else if (scope.object instanceof THREE.OrthographicCamera) {
 
-				scope.object.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, this.object.zoom / dollyScale));
-				scope.object.updateProjectionMatrix();
-				zoomChanged = true;
-			} else {
+			scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom / dollyScale));
+			scope.object.updateProjectionMatrix();
+			zoomChanged = true;
+		} else {
 
-				console.warn('WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.');
-			}
-		};
+			console.warn('WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.');
+			scope.enableZoom = false;
+		}
+	}
 
-		this.update = function () {
-
-			var offset = new THREE.Vector3();
-
-			// so camera.up is the orbit axis
-			var quat = new THREE.Quaternion().setFromUnitVectors(object.up, new THREE.Vector3(0, 1, 0));
-			var quatInverse = quat.clone().inverse();
-
-			var lastPosition = new THREE.Vector3();
-			var lastQuaternion = new THREE.Quaternion();
-
-			return function () {
-
-				var position = this.object.position;
-
-				offset.copy(position).sub(this.target);
-
-				// rotate offset to "y-axis-is-up" space
-				offset.applyQuaternion(quat);
-
-				// angle from z-axis around y-axis
-
-				theta = Math.atan2(offset.x, offset.z);
-
-				// angle from y-axis
-
-				phi = Math.atan2(Math.sqrt(offset.x * offset.x + offset.z * offset.z), offset.y);
-
-				theta += thetaDelta;
-				phi += phiDelta;
-
-				// restrict theta to be between desired limits
-				theta = Math.max(this.minAzimuthAngle, Math.min(this.maxAzimuthAngle, theta));
-
-				// restrict phi to be between desired limits
-				phi = Math.max(this.minPolarAngle, Math.min(this.maxPolarAngle, phi));
-
-				// restrict phi to be betwee EPS and PI-EPS
-				phi = Math.max(EPS, Math.min(Math.PI - EPS, phi));
-
-				var radius = offset.length() * scale;
-
-				// restrict radius to be between desired limits
-				radius = Math.max(this.minDistance, Math.min(this.maxDistance, radius));
-
-				// move target to panned location
-				this.target.add(panOffset);
-
-				offset.x = radius * Math.sin(phi) * Math.sin(theta);
-				offset.y = radius * Math.cos(phi);
-				offset.z = radius * Math.sin(phi) * Math.cos(theta);
-
-				// rotate offset back to "camera-up-vector-is-up" space
-				offset.applyQuaternion(quatInverse);
-
-				position.copy(this.target).add(offset);
-
-				this.object.lookAt(this.target);
-
-				if (this.enableDamping === true) {
-
-					thetaDelta *= 1 - this.dampingFactor;
-					phiDelta *= 1 - this.dampingFactor;
-				} else {
-
-					thetaDelta = 0;
-					phiDelta = 0;
-				}
-
-				scale = 1;
-				panOffset.set(0, 0, 0);
-
-				// update condition is:
-				// min(camera displacement, camera rotation in radians)^2 > EPS
-				// using small-angle approximation cos(x/2) = 1 - x^2 / 8
-
-				if (zoomChanged || lastPosition.distanceToSquared(this.object.position) > EPS || 8 * (1 - lastQuaternion.dot(this.object.quaternion)) > EPS) {
-
-					lastPosition.copy(this.object.position);
-					lastQuaternion.copy(this.object.quaternion);
-					zoomChanged = false;
-
-					return true;
-				}
-
-				return false;
-			};
-		}();
-	};
-
-	// This set of controls performs orbiting, dollying (zooming), and panning. It maintains
-	// the "up" direction as +Y, unlike the TrackballControls. Touch on tablet and phones is
-	// supported.
 	//
-	//    Orbit - left mouse / touch: one finger move
-	//    Zoom - middle mouse, or mousewheel / touch: two finger spread or squish
-	//    Pan - right mouse, or arrow keys / touch: three finter swipe
+	// event callbacks - update the object state
+	//
 
-	THREE.OrbitControls = function (object, domElement) {
+	function handleMouseDownRotate(event) {
 
-		var constraint = new OrbitConstraint(object);
+		//console.log( 'handleMouseDownRotate' );
 
-		this.domElement = domElement !== undefined ? domElement : document;
+		rotateStart.set(event.clientX, event.clientY);
+	}
 
-		// API
+	function handleMouseDownDolly(event) {
 
-		Object.defineProperty(this, 'constraint', {
+		//console.log( 'handleMouseDownDolly' );
 
-			get: function get() {
+		dollyStart.set(event.clientX, event.clientY);
+	}
 
-				return constraint;
-			}
+	function handleMouseDownPan(event) {
 
-		});
+		//console.log( 'handleMouseDownPan' );
 
-		this.getPolarAngle = function () {
+		panStart.set(event.clientX, event.clientY);
+	}
 
-			return constraint.getPolarAngle();
-		};
+	function handleMouseMoveRotate(event) {
 
-		this.getAzimuthalAngle = function () {
+		//console.log( 'handleMouseMoveRotate' );
 
-			return constraint.getAzimuthalAngle();
-		};
+		rotateEnd.set(event.clientX, event.clientY);
+		rotateDelta.subVectors(rotateEnd, rotateStart);
 
-		// Set to false to disable this control
-		this.enabled = true;
+		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
 
-		// center is old, deprecated; use "target" instead
-		this.center = this.target;
+		// rotating across whole screen goes 360 degrees around
+		rotateLeft(2 * Math.PI * rotateDelta.x / element.clientWidth * scope.rotateSpeed);
 
-		// This option actually enables dollying in and out; left as "zoom" for
-		// backwards compatibility.
-		// Set to false to disable zooming
-		this.enableZoom = true;
-		this.zoomSpeed = 1.0;
+		// rotating up and down along whole screen attempts to go 360, but limited to 180
+		rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight * scope.rotateSpeed);
 
-		// Set to false to disable rotating
-		this.enableRotate = true;
-		this.rotateSpeed = 1.0;
+		rotateStart.copy(rotateEnd);
 
-		// Set to false to disable panning
-		this.enablePan = true;
-		this.keyPanSpeed = 7.0; // pixels moved per arrow key push
+		scope.update();
+	}
 
-		// Set to true to automatically rotate around the target
-		// If auto-rotate is enabled, you must call controls.update() in your animation loop
-		this.autoRotate = false;
-		this.autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
+	function handleMouseMoveDolly(event) {
 
-		// Set to false to disable use of the keys
-		this.enableKeys = true;
+		//console.log( 'handleMouseMoveDolly' );
 
-		// The four arrow keys
-		this.keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40 };
+		dollyEnd.set(event.clientX, event.clientY);
 
-		// Mouse buttons
-		this.mouseButtons = { ORBIT: THREE.MOUSE.LEFT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.RIGHT };
+		dollyDelta.subVectors(dollyEnd, dollyStart);
 
-		////////////
-		// internals
+		if (dollyDelta.y > 0) {
 
-		var scope = this;
+			dollyIn(getZoomScale());
+		} else if (dollyDelta.y < 0) {
 
-		var rotateStart = new THREE.Vector2();
-		var rotateEnd = new THREE.Vector2();
-		var rotateDelta = new THREE.Vector2();
-
-		var panStart = new THREE.Vector2();
-		var panEnd = new THREE.Vector2();
-		var panDelta = new THREE.Vector2();
-
-		var dollyStart = new THREE.Vector2();
-		var dollyEnd = new THREE.Vector2();
-		var dollyDelta = new THREE.Vector2();
-
-		var STATE = { NONE: -1, ROTATE: 0, DOLLY: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_DOLLY: 4, TOUCH_PAN: 5 };
-
-		var state = STATE.NONE;
-
-		// for reset
-
-		this.target0 = this.target.clone();
-		this.position0 = this.object.position.clone();
-		this.zoom0 = this.object.zoom;
-
-		// events
-
-		var changeEvent = { type: 'change' };
-		var startEvent = { type: 'start' };
-		var endEvent = { type: 'end' };
-
-		// pass in x,y of change desired in pixel space,
-		// right and down are positive
-		function pan(deltaX, deltaY) {
-
-			var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
-
-			constraint.pan(deltaX, deltaY, element.clientWidth, element.clientHeight);
+			dollyOut(getZoomScale());
 		}
 
-		this.update = function () {
+		dollyStart.copy(dollyEnd);
 
-			if (this.autoRotate && state === STATE.NONE) {
+		scope.update();
+	}
 
-				constraint.rotateLeft(getAutoRotationAngle());
-			}
+	function handleMouseMovePan(event) {
 
-			if (constraint.update() === true) {
+		//console.log( 'handleMouseMovePan' );
 
-				this.dispatchEvent(changeEvent);
-			}
-		};
+		panEnd.set(event.clientX, event.clientY);
 
-		this.reset = function () {
+		panDelta.subVectors(panEnd, panStart);
 
-			state = STATE.NONE;
+		pan(panDelta.x, panDelta.y);
 
-			this.target.copy(this.target0);
-			this.object.position.copy(this.position0);
-			this.object.zoom = this.zoom0;
+		panStart.copy(panEnd);
 
-			this.object.updateProjectionMatrix();
-			this.dispatchEvent(changeEvent);
+		scope.update();
+	}
 
-			this.update();
-		};
+	function handleMouseUp(event) {
 
-		function getAutoRotationAngle() {
+		//console.log( 'handleMouseUp' );
 
-			return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
+	}
+
+	function handleMouseWheel(event) {
+
+		//console.log( 'handleMouseWheel' );
+
+		var delta = 0;
+
+		if (event.wheelDelta !== undefined) {
+
+			// WebKit / Opera / Explorer 9
+
+			delta = event.wheelDelta;
+		} else if (event.detail !== undefined) {
+
+			// Firefox
+
+			delta = -event.detail;
 		}
 
-		function getZoomScale() {
+		if (delta > 0) {
 
-			return Math.pow(0.95, scope.zoomSpeed);
+			dollyOut(getZoomScale());
+		} else if (delta < 0) {
+
+			dollyIn(getZoomScale());
 		}
 
-		function onMouseDown(event) {
+		scope.update();
+	}
 
-			if (scope.enabled === false) return;
+	function handleKeyDown(event) {
 
-			event.preventDefault();
+		//console.log( 'handleKeyDown' );
 
-			if (event.button === scope.mouseButtons.ORBIT) {
+		switch (event.keyCode) {
 
-				if (scope.enableRotate === false) return;
+			case scope.keys.UP:
+				pan(0, scope.keyPanSpeed);
+				scope.update();
+				break;
 
-				state = STATE.ROTATE;
+			case scope.keys.BOTTOM:
+				pan(0, -scope.keyPanSpeed);
+				scope.update();
+				break;
 
-				rotateStart.set(event.clientX, event.clientY);
-			} else if (event.button === scope.mouseButtons.ZOOM) {
+			case scope.keys.LEFT:
+				pan(scope.keyPanSpeed, 0);
+				scope.update();
+				break;
 
-				if (scope.enableZoom === false) return;
+			case scope.keys.RIGHT:
+				pan(-scope.keyPanSpeed, 0);
+				scope.update();
+				break;
 
-				state = STATE.DOLLY;
+		}
+	}
 
-				dollyStart.set(event.clientX, event.clientY);
-			} else if (event.button === scope.mouseButtons.PAN) {
+	function handleTouchStartRotate(event) {
 
-				if (scope.enablePan === false) return;
+		//console.log( 'handleTouchStartRotate' );
 
-				state = STATE.PAN;
+		rotateStart.set(event.touches[0].pageX, event.touches[0].pageY);
+	}
 
-				panStart.set(event.clientX, event.clientY);
-			}
+	function handleTouchStartDolly(event) {
 
-			if (state !== STATE.NONE) {
+		//console.log( 'handleTouchStartDolly' );
 
-				document.addEventListener('mousemove', onMouseMove, false);
-				document.addEventListener('mouseup', onMouseUp, false);
-				scope.dispatchEvent(startEvent);
-			}
+		var dx = event.touches[0].pageX - event.touches[1].pageX;
+		var dy = event.touches[0].pageY - event.touches[1].pageY;
+
+		var distance = Math.sqrt(dx * dx + dy * dy);
+
+		dollyStart.set(0, distance);
+	}
+
+	function handleTouchStartPan(event) {
+
+		//console.log( 'handleTouchStartPan' );
+
+		panStart.set(event.touches[0].pageX, event.touches[0].pageY);
+	}
+
+	function handleTouchMoveRotate(event) {
+
+		//console.log( 'handleTouchMoveRotate' );
+
+		rotateEnd.set(event.touches[0].pageX, event.touches[0].pageY);
+		rotateDelta.subVectors(rotateEnd, rotateStart);
+
+		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+
+		// rotating across whole screen goes 360 degrees around
+		rotateLeft(2 * Math.PI * rotateDelta.x / element.clientWidth * scope.rotateSpeed);
+
+		// rotating up and down along whole screen attempts to go 360, but limited to 180
+		rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight * scope.rotateSpeed);
+
+		rotateStart.copy(rotateEnd);
+
+		scope.update();
+	}
+
+	function handleTouchMoveDolly(event) {
+
+		//console.log( 'handleTouchMoveDolly' );
+
+		var dx = event.touches[0].pageX - event.touches[1].pageX;
+		var dy = event.touches[0].pageY - event.touches[1].pageY;
+
+		var distance = Math.sqrt(dx * dx + dy * dy);
+
+		dollyEnd.set(0, distance);
+
+		dollyDelta.subVectors(dollyEnd, dollyStart);
+
+		if (dollyDelta.y > 0) {
+
+			dollyOut(getZoomScale());
+		} else if (dollyDelta.y < 0) {
+
+			dollyIn(getZoomScale());
 		}
 
-		function onMouseMove(event) {
+		dollyStart.copy(dollyEnd);
 
-			if (scope.enabled === false) return;
+		scope.update();
+	}
 
-			event.preventDefault();
+	function handleTouchMovePan(event) {
 
-			var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+		//console.log( 'handleTouchMovePan' );
 
-			if (state === STATE.ROTATE) {
+		panEnd.set(event.touches[0].pageX, event.touches[0].pageY);
 
-				if (scope.enableRotate === false) return;
+		panDelta.subVectors(panEnd, panStart);
 
-				rotateEnd.set(event.clientX, event.clientY);
-				rotateDelta.subVectors(rotateEnd, rotateStart);
+		pan(panDelta.x, panDelta.y);
 
-				// rotating across whole screen goes 360 degrees around
-				constraint.rotateLeft(2 * Math.PI * rotateDelta.x / element.clientWidth * scope.rotateSpeed);
+		panStart.copy(panEnd);
 
-				// rotating up and down along whole screen attempts to go 360, but limited to 180
-				constraint.rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight * scope.rotateSpeed);
+		scope.update();
+	}
 
-				rotateStart.copy(rotateEnd);
-			} else if (state === STATE.DOLLY) {
+	function handleTouchEnd(event) {}
 
-				if (scope.enableZoom === false) return;
+	//console.log( 'handleTouchEnd' );
 
-				dollyEnd.set(event.clientX, event.clientY);
-				dollyDelta.subVectors(dollyEnd, dollyStart);
+	//
+	// event handlers - FSM: listen for events and reset state
+	//
 
-				if (dollyDelta.y > 0) {
+	function onMouseDown(event) {
 
-					constraint.dollyIn(getZoomScale());
-				} else if (dollyDelta.y < 0) {
+		if (scope.enabled === false) return;
 
-					constraint.dollyOut(getZoomScale());
-				}
+		event.preventDefault();
 
-				dollyStart.copy(dollyEnd);
-			} else if (state === STATE.PAN) {
+		if (event.button === scope.mouseButtons.ORBIT) {
 
-				if (scope.enablePan === false) return;
+			if (scope.enableRotate === false) return;
 
-				panEnd.set(event.clientX, event.clientY);
-				panDelta.subVectors(panEnd, panStart);
+			handleMouseDownRotate(event);
 
-				pan(panDelta.x, panDelta.y);
+			state = STATE.ROTATE;
+		} else if (event.button === scope.mouseButtons.ZOOM) {
 
-				panStart.copy(panEnd);
-			}
+			if (scope.enableZoom === false) return;
 
-			if (state !== STATE.NONE) scope.update();
+			handleMouseDownDolly(event);
+
+			state = STATE.DOLLY;
+		} else if (event.button === scope.mouseButtons.PAN) {
+
+			if (scope.enablePan === false) return;
+
+			handleMouseDownPan(event);
+
+			state = STATE.PAN;
 		}
 
-		function onMouseUp() /* event */{
+		if (state !== STATE.NONE) {
 
-			if (scope.enabled === false) return;
+			document.addEventListener('mousemove', onMouseMove, false);
+			document.addEventListener('mouseup', onMouseUp, false);
+			document.addEventListener('mouseout', onMouseUp, false);
 
-			document.removeEventListener('mousemove', onMouseMove, false);
-			document.removeEventListener('mouseup', onMouseUp, false);
-			scope.dispatchEvent(endEvent);
-			state = STATE.NONE;
-		}
-
-		function onMouseWheel(event) {
-
-			if (scope.enabled === false || scope.enableZoom === false || state !== STATE.NONE) return;
-
-			event.preventDefault();
-			event.stopPropagation();
-
-			var delta = 0;
-
-			if (event.wheelDelta !== undefined) {
-
-				// WebKit / Opera / Explorer 9
-
-				delta = event.wheelDelta;
-			} else if (event.detail !== undefined) {
-
-				// Firefox
-
-				delta = -event.detail;
-			}
-
-			if (delta > 0) {
-
-				constraint.dollyOut(getZoomScale());
-			} else if (delta < 0) {
-
-				constraint.dollyIn(getZoomScale());
-			}
-
-			scope.update();
 			scope.dispatchEvent(startEvent);
-			scope.dispatchEvent(endEvent);
 		}
+	}
 
-		function onKeyDown(event) {
+	function onMouseMove(event) {
 
-			if (scope.enabled === false || scope.enableKeys === false || scope.enablePan === false) return;
+		if (scope.enabled === false) return;
 
-			switch (event.keyCode) {
+		event.preventDefault();
 
-				case scope.keys.UP:
-					pan(0, scope.keyPanSpeed);
-					scope.update();
-					break;
+		if (state === STATE.ROTATE) {
 
-				case scope.keys.BOTTOM:
-					pan(0, -scope.keyPanSpeed);
-					scope.update();
-					break;
+			if (scope.enableRotate === false) return;
 
-				case scope.keys.LEFT:
-					pan(scope.keyPanSpeed, 0);
-					scope.update();
-					break;
+			handleMouseMoveRotate(event);
+		} else if (state === STATE.DOLLY) {
 
-				case scope.keys.RIGHT:
-					pan(-scope.keyPanSpeed, 0);
-					scope.update();
-					break;
+			if (scope.enableZoom === false) return;
 
-			}
+			handleMouseMoveDolly(event);
+		} else if (state === STATE.PAN) {
+
+			if (scope.enablePan === false) return;
+
+			handleMouseMovePan(event);
 		}
+	}
 
-		function touchstart(event) {
+	function onMouseUp(event) {
 
-			if (scope.enabled === false) return;
+		if (scope.enabled === false) return;
 
-			switch (event.touches.length) {
+		handleMouseUp(event);
 
-				case 1:
-					// one-fingered touch: rotate
+		document.removeEventListener('mousemove', onMouseMove, false);
+		document.removeEventListener('mouseup', onMouseUp, false);
+		document.removeEventListener('mouseout', onMouseUp, false);
 
-					if (scope.enableRotate === false) return;
+		scope.dispatchEvent(endEvent);
 
-					state = STATE.TOUCH_ROTATE;
+		state = STATE.NONE;
+	}
 
-					rotateStart.set(event.touches[0].pageX, event.touches[0].pageY);
-					break;
+	function onMouseWheel(event) {
 
-				case 2:
-					// two-fingered touch: dolly
+		if (scope.enabled === false || scope.enableZoom === false || state !== STATE.NONE) return;
 
-					if (scope.enableZoom === false) return;
+		event.preventDefault();
+		event.stopPropagation();
 
-					state = STATE.TOUCH_DOLLY;
+		handleMouseWheel(event);
 
-					var dx = event.touches[0].pageX - event.touches[1].pageX;
-					var dy = event.touches[0].pageY - event.touches[1].pageY;
-					var distance = Math.sqrt(dx * dx + dy * dy);
-					dollyStart.set(0, distance);
-					break;
+		scope.dispatchEvent(startEvent); // not sure why these are here...
+		scope.dispatchEvent(endEvent);
+	}
 
-				case 3:
-					// three-fingered touch: pan
+	function onKeyDown(event) {
 
-					if (scope.enablePan === false) return;
+		if (scope.enabled === false || scope.enableKeys === false || scope.enablePan === false) return;
 
-					state = STATE.TOUCH_PAN;
+		handleKeyDown(event);
+	}
 
-					panStart.set(event.touches[0].pageX, event.touches[0].pageY);
-					break;
+	function onTouchStart(event) {
 
-				default:
+		if (scope.enabled === false) return;
 
-					state = STATE.NONE;
+		switch (event.touches.length) {
 
-			}
+			case 1:
+				// one-fingered touch: rotate
 
-			if (state !== STATE.NONE) scope.dispatchEvent(startEvent);
-		}
+				if (scope.enableRotate === false) return;
 
-		function touchmove(event) {
+				handleTouchStartRotate(event);
 
-			if (scope.enabled === false) return;
+				state = STATE.TOUCH_ROTATE;
 
-			event.preventDefault();
-			event.stopPropagation();
+				break;
 
-			var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+			case 2:
+				// two-fingered touch: dolly
 
-			switch (event.touches.length) {
+				if (scope.enableZoom === false) return;
 
-				case 1:
-					// one-fingered touch: rotate
+				handleTouchStartDolly(event);
 
-					if (scope.enableRotate === false) return;
-					if (state !== STATE.TOUCH_ROTATE) return;
+				state = STATE.TOUCH_DOLLY;
 
-					rotateEnd.set(event.touches[0].pageX, event.touches[0].pageY);
-					rotateDelta.subVectors(rotateEnd, rotateStart);
+				break;
 
-					// rotating across whole screen goes 360 degrees around
-					constraint.rotateLeft(2 * Math.PI * rotateDelta.x / element.clientWidth * scope.rotateSpeed);
-					// rotating up and down along whole screen attempts to go 360, but limited to 180
-					constraint.rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight * scope.rotateSpeed);
+			case 3:
+				// three-fingered touch: pan
 
-					rotateStart.copy(rotateEnd);
+				if (scope.enablePan === false) return;
 
-					scope.update();
-					break;
+				handleTouchStartPan(event);
 
-				case 2:
-					// two-fingered touch: dolly
+				state = STATE.TOUCH_PAN;
 
-					if (scope.enableZoom === false) return;
-					if (state !== STATE.TOUCH_DOLLY) return;
+				break;
 
-					var dx = event.touches[0].pageX - event.touches[1].pageX;
-					var dy = event.touches[0].pageY - event.touches[1].pageY;
-					var distance = Math.sqrt(dx * dx + dy * dy);
+			default:
 
-					dollyEnd.set(0, distance);
-					dollyDelta.subVectors(dollyEnd, dollyStart);
-
-					if (dollyDelta.y > 0) {
-
-						constraint.dollyOut(getZoomScale());
-					} else if (dollyDelta.y < 0) {
-
-						constraint.dollyIn(getZoomScale());
-					}
-
-					dollyStart.copy(dollyEnd);
-
-					scope.update();
-					break;
-
-				case 3:
-					// three-fingered touch: pan
-
-					if (scope.enablePan === false) return;
-					if (state !== STATE.TOUCH_PAN) return;
-
-					panEnd.set(event.touches[0].pageX, event.touches[0].pageY);
-					panDelta.subVectors(panEnd, panStart);
-
-					pan(panDelta.x, panDelta.y);
-
-					panStart.copy(panEnd);
-
-					scope.update();
-					break;
-
-				default:
-
-					state = STATE.NONE;
-
-			}
-		}
-
-		function touchend() /* event */{
-
-			if (scope.enabled === false) return;
-
-			scope.dispatchEvent(endEvent);
-			state = STATE.NONE;
-		}
-
-		function contextmenu(event) {
-
-			event.preventDefault();
-		}
-
-		this.dispose = function () {
-
-			this.domElement.removeEventListener('contextmenu', contextmenu, false);
-			this.domElement.removeEventListener('mousedown', onMouseDown, false);
-			this.domElement.removeEventListener('mousewheel', onMouseWheel, false);
-			this.domElement.removeEventListener('MozMousePixelScroll', onMouseWheel, false); // firefox
-
-			this.domElement.removeEventListener('touchstart', touchstart, false);
-			this.domElement.removeEventListener('touchend', touchend, false);
-			this.domElement.removeEventListener('touchmove', touchmove, false);
-
-			document.removeEventListener('mousemove', onMouseMove, false);
-			document.removeEventListener('mouseup', onMouseUp, false);
-
-			window.removeEventListener('keydown', onKeyDown, false);
-		};
-
-		this.domElement.addEventListener('contextmenu', contextmenu, false);
-
-		this.domElement.addEventListener('mousedown', onMouseDown, false);
-		this.domElement.addEventListener('mousewheel', onMouseWheel, false);
-		this.domElement.addEventListener('MozMousePixelScroll', onMouseWheel, false); // firefox
-
-		this.domElement.addEventListener('touchstart', touchstart, false);
-		this.domElement.addEventListener('touchend', touchend, false);
-		this.domElement.addEventListener('touchmove', touchmove, false);
-
-		window.addEventListener('keydown', onKeyDown, false);
-
-		// force an update at start
-		this.update();
-	};
-
-	THREE.OrbitControls.prototype = Object.create(THREE.EventDispatcher.prototype);
-	THREE.OrbitControls.prototype.constructor = THREE.OrbitControls;
-
-	Object.defineProperties(THREE.OrbitControls.prototype, {
-
-		object: {
-
-			get: function get() {
-
-				return this.constraint.object;
-			}
-
-		},
-
-		target: {
-
-			get: function get() {
-
-				return this.constraint.target;
-			},
-
-			set: function set(value) {
-
-				console.warn('THREE.OrbitControls: target is now immutable. Use target.set() instead.');
-				this.constraint.target.copy(value);
-			}
-
-		},
-
-		minDistance: {
-
-			get: function get() {
-
-				return this.constraint.minDistance;
-			},
-
-			set: function set(value) {
-
-				this.constraint.minDistance = value;
-			}
-
-		},
-
-		maxDistance: {
-
-			get: function get() {
-
-				return this.constraint.maxDistance;
-			},
-
-			set: function set(value) {
-
-				this.constraint.maxDistance = value;
-			}
-
-		},
-
-		minZoom: {
-
-			get: function get() {
-
-				return this.constraint.minZoom;
-			},
-
-			set: function set(value) {
-
-				this.constraint.minZoom = value;
-			}
-
-		},
-
-		maxZoom: {
-
-			get: function get() {
-
-				return this.constraint.maxZoom;
-			},
-
-			set: function set(value) {
-
-				this.constraint.maxZoom = value;
-			}
-
-		},
-
-		minPolarAngle: {
-
-			get: function get() {
-
-				return this.constraint.minPolarAngle;
-			},
-
-			set: function set(value) {
-
-				this.constraint.minPolarAngle = value;
-			}
-
-		},
-
-		maxPolarAngle: {
-
-			get: function get() {
-
-				return this.constraint.maxPolarAngle;
-			},
-
-			set: function set(value) {
-
-				this.constraint.maxPolarAngle = value;
-			}
-
-		},
-
-		minAzimuthAngle: {
-
-			get: function get() {
-
-				return this.constraint.minAzimuthAngle;
-			},
-
-			set: function set(value) {
-
-				this.constraint.minAzimuthAngle = value;
-			}
-
-		},
-
-		maxAzimuthAngle: {
-
-			get: function get() {
-
-				return this.constraint.maxAzimuthAngle;
-			},
-
-			set: function set(value) {
-
-				this.constraint.maxAzimuthAngle = value;
-			}
-
-		},
-
-		enableDamping: {
-
-			get: function get() {
-
-				return this.constraint.enableDamping;
-			},
-
-			set: function set(value) {
-
-				this.constraint.enableDamping = value;
-			}
-
-		},
-
-		dampingFactor: {
-
-			get: function get() {
-
-				return this.constraint.dampingFactor;
-			},
-
-			set: function set(value) {
-
-				this.constraint.dampingFactor = value;
-			}
-
-		},
-
-		// backward compatibility
-
-		noZoom: {
-
-			get: function get() {
-
-				console.warn('THREE.OrbitControls: .noZoom has been deprecated. Use .enableZoom instead.');
-				return !this.enableZoom;
-			},
-
-			set: function set(value) {
-
-				console.warn('THREE.OrbitControls: .noZoom has been deprecated. Use .enableZoom instead.');
-				this.enableZoom = !value;
-			}
-
-		},
-
-		noRotate: {
-
-			get: function get() {
-
-				console.warn('THREE.OrbitControls: .noRotate has been deprecated. Use .enableRotate instead.');
-				return !this.enableRotate;
-			},
-
-			set: function set(value) {
-
-				console.warn('THREE.OrbitControls: .noRotate has been deprecated. Use .enableRotate instead.');
-				this.enableRotate = !value;
-			}
-
-		},
-
-		noPan: {
-
-			get: function get() {
-
-				console.warn('THREE.OrbitControls: .noPan has been deprecated. Use .enablePan instead.');
-				return !this.enablePan;
-			},
-
-			set: function set(value) {
-
-				console.warn('THREE.OrbitControls: .noPan has been deprecated. Use .enablePan instead.');
-				this.enablePan = !value;
-			}
-
-		},
-
-		noKeys: {
-
-			get: function get() {
-
-				console.warn('THREE.OrbitControls: .noKeys has been deprecated. Use .enableKeys instead.');
-				return !this.enableKeys;
-			},
-
-			set: function set(value) {
-
-				console.warn('THREE.OrbitControls: .noKeys has been deprecated. Use .enableKeys instead.');
-				this.enableKeys = !value;
-			}
-
-		},
-
-		staticMoving: {
-
-			get: function get() {
-
-				console.warn('THREE.OrbitControls: .staticMoving has been deprecated. Use .enableDamping instead.');
-				return !this.constraint.enableDamping;
-			},
-
-			set: function set(value) {
-
-				console.warn('THREE.OrbitControls: .staticMoving has been deprecated. Use .enableDamping instead.');
-				this.constraint.enableDamping = !value;
-			}
-
-		},
-
-		dynamicDampingFactor: {
-
-			get: function get() {
-
-				console.warn('THREE.OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.');
-				return this.constraint.dampingFactor;
-			},
-
-			set: function set(value) {
-
-				console.warn('THREE.OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.');
-				this.constraint.dampingFactor = value;
-			}
+				state = STATE.NONE;
 
 		}
 
-	});
-})();
+		if (state !== STATE.NONE) {
+
+			scope.dispatchEvent(startEvent);
+		}
+	}
+
+	function onTouchMove(event) {
+
+		if (scope.enabled === false) return;
+
+		event.preventDefault();
+		event.stopPropagation();
+
+		switch (event.touches.length) {
+
+			case 1:
+				// one-fingered touch: rotate
+
+				if (scope.enableRotate === false) return;
+				if (state !== STATE.TOUCH_ROTATE) return; // is this needed?...
+
+				handleTouchMoveRotate(event);
+
+				break;
+
+			case 2:
+				// two-fingered touch: dolly
+
+				if (scope.enableZoom === false) return;
+				if (state !== STATE.TOUCH_DOLLY) return; // is this needed?...
+
+				handleTouchMoveDolly(event);
+
+				break;
+
+			case 3:
+				// three-fingered touch: pan
+
+				if (scope.enablePan === false) return;
+				if (state !== STATE.TOUCH_PAN) return; // is this needed?...
+
+				handleTouchMovePan(event);
+
+				break;
+
+			default:
+
+				state = STATE.NONE;
+
+		}
+	}
+
+	function onTouchEnd(event) {
+
+		if (scope.enabled === false) return;
+
+		handleTouchEnd(event);
+
+		scope.dispatchEvent(endEvent);
+
+		state = STATE.NONE;
+	}
+
+	function onContextMenu(event) {
+
+		event.preventDefault();
+	}
+
+	//
+
+	scope.domElement.addEventListener('contextmenu', onContextMenu, false);
+
+	scope.domElement.addEventListener('mousedown', onMouseDown, false);
+	scope.domElement.addEventListener('mousewheel', onMouseWheel, false);
+	scope.domElement.addEventListener('MozMousePixelScroll', onMouseWheel, false); // firefox
+
+	scope.domElement.addEventListener('touchstart', onTouchStart, false);
+	scope.domElement.addEventListener('touchend', onTouchEnd, false);
+	scope.domElement.addEventListener('touchmove', onTouchMove, false);
+
+	window.addEventListener('keydown', onKeyDown, false);
+
+	// force an update at start
+
+	this.update();
+};
+
+THREE.OrbitControls.prototype = Object.create(THREE.EventDispatcher.prototype);
+THREE.OrbitControls.prototype.constructor = THREE.OrbitControls;
+
+Object.defineProperties(THREE.OrbitControls.prototype, {
+
+	center: {
+
+		get: function get() {
+
+			console.warn('THREE.OrbitControls: .center has been renamed to .target');
+			return this.target;
+		}
+
+	},
+
+	// backward compatibility
+
+	noZoom: {
+
+		get: function get() {
+
+			console.warn('THREE.OrbitControls: .noZoom has been deprecated. Use .enableZoom instead.');
+			return !this.enableZoom;
+		},
+
+		set: function set(value) {
+
+			console.warn('THREE.OrbitControls: .noZoom has been deprecated. Use .enableZoom instead.');
+			this.enableZoom = !value;
+		}
+
+	},
+
+	noRotate: {
+
+		get: function get() {
+
+			console.warn('THREE.OrbitControls: .noRotate has been deprecated. Use .enableRotate instead.');
+			return !this.enableRotate;
+		},
+
+		set: function set(value) {
+
+			console.warn('THREE.OrbitControls: .noRotate has been deprecated. Use .enableRotate instead.');
+			this.enableRotate = !value;
+		}
+
+	},
+
+	noPan: {
+
+		get: function get() {
+
+			console.warn('THREE.OrbitControls: .noPan has been deprecated. Use .enablePan instead.');
+			return !this.enablePan;
+		},
+
+		set: function set(value) {
+
+			console.warn('THREE.OrbitControls: .noPan has been deprecated. Use .enablePan instead.');
+			this.enablePan = !value;
+		}
+
+	},
+
+	noKeys: {
+
+		get: function get() {
+
+			console.warn('THREE.OrbitControls: .noKeys has been deprecated. Use .enableKeys instead.');
+			return !this.enableKeys;
+		},
+
+		set: function set(value) {
+
+			console.warn('THREE.OrbitControls: .noKeys has been deprecated. Use .enableKeys instead.');
+			this.enableKeys = !value;
+		}
+
+	},
+
+	staticMoving: {
+
+		get: function get() {
+
+			console.warn('THREE.OrbitControls: .staticMoving has been deprecated. Use .enableDamping instead.');
+			return !this.constraint.enableDamping;
+		},
+
+		set: function set(value) {
+
+			console.warn('THREE.OrbitControls: .staticMoving has been deprecated. Use .enableDamping instead.');
+			this.constraint.enableDamping = !value;
+		}
+
+	},
+
+	dynamicDampingFactor: {
+
+		get: function get() {
+
+			console.warn('THREE.OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.');
+			return this.constraint.dampingFactor;
+		},
+
+		set: function set(value) {
+
+			console.warn('THREE.OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.');
+			this.constraint.dampingFactor = value;
+		}
+
+	}
+
+});
 
 },{}],3:[function(require,module,exports){
 (function (global){
 /**
  * @license
- * lodash 4.4.0 (Custom Build) <https://lodash.com/>
+ * lodash 4.5.1 (Custom Build) <https://lodash.com/>
  * Build: `lodash -d -o ./foo/lodash.js`
  * Copyright 2012-2016 The Dojo Foundation <http://dojofoundation.org/>
  * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
@@ -1603,7 +1556,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   var undefined;
 
   /** Used as the semantic version number. */
-  var VERSION = '4.4.0';
+  var VERSION = '4.5.1';
 
   /** Used to compose bitmasks for wrapper metadata. */
   var BIND_FLAG = 1,
@@ -2624,6 +2577,26 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
   }
 
   /**
+   * Gets the number of `placeholder` occurrences in `array`.
+   *
+   * @private
+   * @param {Array} array The array to inspect.
+   * @param {*} placeholder The placeholder to search for.
+   * @returns {number} Returns the placeholder count.
+   */
+  function countHolders(array, placeholder) {
+    var length = array.length,
+        result = 0;
+
+    while (length--) {
+      if (array[length] === placeholder) {
+        result++;
+      }
+    }
+    return result;
+  }
+
+  /**
    * Used by `_.deburr` to convert latin-1 supplementary letters to basic latin letters.
    *
    * @private
@@ -2761,7 +2734,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         result = [];
 
     while (++index < length) {
-      if (array[index] === placeholder) {
+      var value = array[index];
+      if (value === placeholder || value === PLACEHOLDER) {
         array[index] = PLACEHOLDER;
         result[++resIndex] = index;
       }
@@ -3020,25 +2994,26 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * The wrapper methods that are **not** chainable by default are:
      * `add`, `attempt`, `camelCase`, `capitalize`, `ceil`, `clamp`, `clone`,
      * `cloneDeep`, `cloneDeepWith`, `cloneWith`, `deburr`, `endsWith`, `eq`,
-     * `escape`, `escapeRegExp`, `every`, `find`, `findIndex`, `findKey`,
-     * `findLast`, `findLastIndex`, `findLastKey`, `floor`, `forEach`, `forEachRight`,
-     * `forIn`, `forInRight`, `forOwn`, `forOwnRight`, `get`, `gt`, `gte`, `has`,
-     * `hasIn`, `head`, `identity`, `includes`, `indexOf`, `inRange`, `invoke`,
-     * `isArguments`, `isArray`, `isArrayLike`, `isArrayLikeObject`, `isBoolean`,
-     * `isDate`, `isElement`, `isEmpty`, `isEqual`, `isEqualWith`, `isError`,
-     * `isFinite`, `isFunction`, `isInteger`, `isLength`, `isMatch`, `isMatchWith`,
-     * `isNaN`, `isNative`, `isNil`, `isNull`, `isNumber`, `isObject`, `isObjectLike`,
-     * `isPlainObject`, `isRegExp`, `isSafeInteger`, `isString`, `isUndefined`,
-     * `isTypedArray`, `join`, `kebabCase`, `last`, `lastIndexOf`, `lowerCase`,
-     * `lowerFirst`, `lt`, `lte`, `max`, `maxBy`, `mean`, `min`, `minBy`,
-     * `noConflict`, `noop`, `now`, `pad`, `padEnd`, `padStart`, `parseInt`,
-     * `pop`, `random`, `reduce`, `reduceRight`, `repeat`, `result`, `round`,
-     * `runInContext`, `sample`, `shift`, `size`, `snakeCase`, `some`, `sortedIndex`,
-     * `sortedIndexBy`, `sortedLastIndex`, `sortedLastIndexBy`, `startCase`,
-     * `startsWith`, `subtract`, `sum`, `sumBy`, `template`, `times`, `toLower`,
-     * `toInteger`, `toLength`, `toNumber`, `toSafeInteger`, `toString`, `toUpper`,
-     * `trim`, `trimEnd`, `trimStart`, `truncate`, `unescape`, `uniqueId`,
-     * `upperCase`, `upperFirst`, `value`, and `words`
+     * `escape`, `escapeRegExp`, `every`, `find`, `findIndex`, `findKey`, `findLast`,
+     * `findLastIndex`, `findLastKey`, `floor`, `forEach`, `forEachRight`, `forIn`,
+     * `forInRight`, `forOwn`, `forOwnRight`, `get`, `gt`, `gte`, `has`, `hasIn`,
+     * `head`, `identity`, `includes`, `indexOf`, `inRange`, `invoke`, `isArguments`,
+     * `isArray`, `isArrayBuffer`, `isArrayLike`, `isArrayLikeObject`, `isBoolean`,
+     * `isBuffer`, `isDate`, `isElement`, `isEmpty`, `isEqual`, `isEqualWith`,
+     * `isError`, `isFinite`, `isFunction`, `isInteger`, `isLength`, `isMap`,
+     * `isMatch`, `isMatchWith`, `isNaN`, `isNative`, `isNil`, `isNull`, `isNumber`,
+     * `isObject`, `isObjectLike`, `isPlainObject`, `isRegExp`, `isSafeInteger`,
+     * `isSet`, `isString`, `isUndefined`, `isTypedArray`, `isWeakMap`, `isWeakSet`,
+     * `join`, `kebabCase`, `last`, `lastIndexOf`, `lowerCase`, `lowerFirst`,
+     * `lt`, `lte`, `max`, `maxBy`, `mean`, `min`, `minBy`, `noConflict`, `noop`,
+     * `now`, `pad`, `padEnd`, `padStart`, `parseInt`, `pop`, `random`, `reduce`,
+     * `reduceRight`, `repeat`, `result`, `round`, `runInContext`, `sample`,
+     * `shift`, `size`, `snakeCase`, `some`, `sortedIndex`, `sortedIndexBy`,
+     * `sortedLastIndex`, `sortedLastIndexBy`, `startCase`, `startsWith`, `subtract`,
+     * `sum`, `sumBy`, `template`, `times`, `toLower`, `toInteger`, `toLength`,
+     * `toNumber`, `toSafeInteger`, `toString`, `toUpper`, `trim`, `trimEnd`,
+     * `trimStart`, `truncate`, `unescape`, `uniqueId`, `upperCase`, `upperFirst`,
+     * `value`, and `words`
      *
      * @name _
      * @constructor
@@ -3750,8 +3725,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      */
     function assignValue(object, key, value) {
       var objValue = object[key];
-      if ((!eq(objValue, value) ||
-            (eq(objValue, objectProto[key]) && !hasOwnProperty.call(object, key))) ||
+      if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) ||
           (value === undefined && !(key in object))) {
         object[key] = value;
       }
@@ -3908,9 +3882,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             return copySymbols(value, baseAssign(result, value));
           }
         } else {
-          return cloneableTags[tag]
-            ? initCloneByTag(value, tag, isDeep)
-            : (object ? value : {});
+          if (!cloneableTags[tag]) {
+            return object ? value : {};
+          }
+          result = initCloneByTag(value, tag, isDeep);
         }
       }
       // Check for circular references and return its corresponding clone.
@@ -5460,23 +5435,28 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * @param {Array|Object} args The provided arguments.
      * @param {Array} partials The arguments to prepend to those provided.
      * @param {Array} holders The `partials` placeholder indexes.
+     * @params {boolean} [isCurried] Specify composing for a curried function.
      * @returns {Array} Returns the new array of composed arguments.
      */
-    function composeArgs(args, partials, holders) {
-      var holdersLength = holders.length,
-          argsIndex = -1,
-          argsLength = nativeMax(args.length - holdersLength, 0),
+    function composeArgs(args, partials, holders, isCurried) {
+      var argsIndex = -1,
+          argsLength = args.length,
+          holdersLength = holders.length,
           leftIndex = -1,
           leftLength = partials.length,
-          result = Array(leftLength + argsLength);
+          rangeLength = nativeMax(argsLength - holdersLength, 0),
+          result = Array(leftLength + rangeLength),
+          isUncurried = !isCurried;
 
       while (++leftIndex < leftLength) {
         result[leftIndex] = partials[leftIndex];
       }
       while (++argsIndex < holdersLength) {
-        result[holders[argsIndex]] = args[argsIndex];
+        if (isUncurried || argsIndex < argsLength) {
+          result[holders[argsIndex]] = args[argsIndex];
+        }
       }
-      while (argsLength--) {
+      while (rangeLength--) {
         result[leftIndex++] = args[argsIndex++];
       }
       return result;
@@ -5490,18 +5470,21 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * @param {Array|Object} args The provided arguments.
      * @param {Array} partials The arguments to append to those provided.
      * @param {Array} holders The `partials` placeholder indexes.
+     * @params {boolean} [isCurried] Specify composing for a curried function.
      * @returns {Array} Returns the new array of composed arguments.
      */
-    function composeArgsRight(args, partials, holders) {
-      var holdersIndex = -1,
+    function composeArgsRight(args, partials, holders, isCurried) {
+      var argsIndex = -1,
+          argsLength = args.length,
+          holdersIndex = -1,
           holdersLength = holders.length,
-          argsIndex = -1,
-          argsLength = nativeMax(args.length - holdersLength, 0),
           rightIndex = -1,
           rightLength = partials.length,
-          result = Array(argsLength + rightLength);
+          rangeLength = nativeMax(argsLength - holdersLength, 0),
+          result = Array(rangeLength + rightLength),
+          isUncurried = !isCurried;
 
-      while (++argsIndex < argsLength) {
+      while (++argsIndex < rangeLength) {
         result[argsIndex] = args[argsIndex];
       }
       var offset = argsIndex;
@@ -5509,7 +5492,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         result[offset + rightIndex] = partials[rightIndex];
       }
       while (++holdersIndex < holdersLength) {
-        result[offset + holders[holdersIndex]] = args[argsIndex++];
+        if (isUncurried || argsIndex < argsLength) {
+          result[offset + holders[holdersIndex]] = args[argsIndex++];
+        }
       }
       return result;
     }
@@ -5793,10 +5778,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
       function wrapper() {
         var length = arguments.length,
-            index = length,
             args = Array(length),
-            fn = (this && this !== root && this instanceof wrapper) ? Ctor : func,
-            placeholder = lodash.placeholder || wrapper.placeholder;
+            index = length,
+            placeholder = getPlaceholder(wrapper);
 
         while (index--) {
           args[index] = arguments[index];
@@ -5806,9 +5790,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           : replaceHolders(args, placeholder);
 
         length -= holders.length;
-        return length < arity
-          ? createRecurryWrapper(func, bitmask, createHybridWrapper, placeholder, undefined, args, holders, undefined, undefined, arity - length)
-          : apply(fn, this, args);
+        if (length < arity) {
+          return createRecurryWrapper(
+            func, bitmask, createHybridWrapper, wrapper.placeholder, undefined,
+            args, holders, undefined, undefined, arity - length);
+        }
+        var fn = (this && this !== root && this instanceof wrapper) ? Ctor : func;
+        return apply(fn, this, args);
       }
       return wrapper;
     }
@@ -5896,8 +5884,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       var isAry = bitmask & ARY_FLAG,
           isBind = bitmask & BIND_FLAG,
           isBindKey = bitmask & BIND_KEY_FLAG,
-          isCurry = bitmask & CURRY_FLAG,
-          isCurryRight = bitmask & CURRY_RIGHT_FLAG,
+          isCurried = bitmask & (CURRY_FLAG | CURRY_RIGHT_FLAG),
           isFlip = bitmask & FLIP_FLAG,
           Ctor = isBindKey ? undefined : createCtorWrapper(func);
 
@@ -5909,33 +5896,34 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         while (index--) {
           args[index] = arguments[index];
         }
+        if (isCurried) {
+          var placeholder = getPlaceholder(wrapper),
+              holdersCount = countHolders(args, placeholder);
+        }
         if (partials) {
-          args = composeArgs(args, partials, holders);
+          args = composeArgs(args, partials, holders, isCurried);
         }
         if (partialsRight) {
-          args = composeArgsRight(args, partialsRight, holdersRight);
+          args = composeArgsRight(args, partialsRight, holdersRight, isCurried);
         }
-        if (isCurry || isCurryRight) {
-          var placeholder = lodash.placeholder || wrapper.placeholder,
-              argsHolders = replaceHolders(args, placeholder);
-
-          length -= argsHolders.length;
-          if (length < arity) {
-            return createRecurryWrapper(
-              func, bitmask, createHybridWrapper, placeholder, thisArg, args,
-              argsHolders, argPos, ary, arity - length
-            );
-          }
+        length -= holdersCount;
+        if (isCurried && length < arity) {
+          var newHolders = replaceHolders(args, placeholder);
+          return createRecurryWrapper(
+            func, bitmask, createHybridWrapper, wrapper.placeholder, thisArg,
+            args, newHolders, argPos, ary, arity - length
+          );
         }
         var thisBinding = isBind ? thisArg : this,
             fn = isBindKey ? thisBinding[func] : func;
 
+        length = args.length;
         if (argPos) {
           args = reorder(args, argPos);
-        } else if (isFlip && args.length > 1) {
+        } else if (isFlip && length > 1) {
           args.reverse();
         }
-        if (isAry && ary < args.length) {
+        if (isAry && ary < length) {
           args.length = ary;
         }
         if (this && this !== root && this instanceof wrapper) {
@@ -6073,7 +6061,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * @param {Function} func The function to wrap.
      * @param {number} bitmask The bitmask of wrapper flags. See `createWrapper` for more details.
      * @param {Function} wrapFunc The function to create the `func` wrapper.
-     * @param {*} placeholder The placeholder to replace.
+     * @param {*} placeholder The placeholder value.
      * @param {*} [thisArg] The `this` binding of `func`.
      * @param {Array} [partials] The arguments to prepend to those provided to the new function.
      * @param {Array} [holders] The `partials` placeholder indexes.
@@ -6085,7 +6073,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     function createRecurryWrapper(func, bitmask, wrapFunc, placeholder, thisArg, partials, holders, argPos, ary, arity) {
       var isCurry = bitmask & CURRY_FLAG,
           newArgPos = argPos ? copyArray(argPos) : undefined,
-          newsHolders = isCurry ? holders : undefined,
+          newHolders = isCurry ? holders : undefined,
           newHoldersRight = isCurry ? undefined : holders,
           newPartials = isCurry ? partials : undefined,
           newPartialsRight = isCurry ? undefined : partials;
@@ -6097,7 +6085,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         bitmask &= ~(BIND_FLAG | BIND_KEY_FLAG);
       }
       var newData = [
-        func, bitmask, thisArg, newPartials, newsHolders, newPartialsRight,
+        func, bitmask, thisArg, newPartials, newHolders, newPartialsRight,
         newHoldersRight, newArgPos, ary, arity
       ];
 
@@ -6519,6 +6507,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }
 
     /**
+     * Gets the argument placeholder value for `func`.
+     *
+     * @private
+     * @param {Function} func The function to inspect.
+     * @returns {*} Returns the placeholder value.
+     */
+    function getPlaceholder(func) {
+      var object = hasOwnProperty.call(lodash, 'placeholder') ? lodash : func;
+      return object.placeholder;
+    }
+
+    /**
      * Creates an array of the own symbol properties of `object`.
      *
      * @private
@@ -6644,11 +6644,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * @returns {Object} Returns the initialized clone.
      */
     function initCloneObject(object) {
-      if (isPrototype(object)) {
-        return {};
-      }
-      var Ctor = object.constructor;
-      return baseCreate(isFunction(Ctor) ? Ctor.prototype : undefined);
+      return (isFunction(object.constructor) && !isPrototype(object))
+        ? baseCreate(getPrototypeOf(object))
+        : {};
     }
 
     /**
@@ -6795,7 +6793,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      */
     function isPrototype(value) {
       var Ctor = value && value.constructor,
-          proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
+          proto = (isFunction(Ctor) && Ctor.prototype) || objectProto;
 
       return value === proto;
     }
@@ -6834,9 +6832,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           isCommon = newBitmask < (BIND_FLAG | BIND_KEY_FLAG | ARY_FLAG);
 
       var isCombo =
-        (srcBitmask == ARY_FLAG && (bitmask == CURRY_FLAG)) ||
-        (srcBitmask == ARY_FLAG && (bitmask == REARG_FLAG) && (data[7].length <= source[8])) ||
-        (srcBitmask == (ARY_FLAG | REARG_FLAG) && (source[7].length <= source[8]) && (bitmask == CURRY_FLAG));
+        ((srcBitmask == ARY_FLAG) && (bitmask == CURRY_FLAG)) ||
+        ((srcBitmask == ARY_FLAG) && (bitmask == REARG_FLAG) && (data[7].length <= source[8])) ||
+        ((srcBitmask == (ARY_FLAG | REARG_FLAG)) && (source[7].length <= source[8]) && (bitmask == CURRY_FLAG));
 
       // Exit early if metadata can't be merged.
       if (!(isCommon || isCombo)) {
@@ -6846,7 +6844,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       if (srcBitmask & BIND_FLAG) {
         data[2] = source[2];
         // Set when currying a bound function.
-        newBitmask |= (bitmask & BIND_FLAG) ? 0 : CURRY_BOUND_FLAG;
+        newBitmask |= bitmask & BIND_FLAG ? 0 : CURRY_BOUND_FLAG;
       }
       // Compose partial arguments.
       var value = source[3];
@@ -7778,7 +7776,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * [`SameValueZero`](http://ecma-international.org/ecma-262/6.0/#sec-samevaluezero)
      * for equality comparisons.
      *
-     * **Note:** Unlike `_.without`, this method mutates `array`.
+     * **Note:** Unlike `_.without`, this method mutates `array`. Use `_.remove`
+     * to remove elements from an array by predicate.
      *
      * @static
      * @memberOf _
@@ -7883,10 +7882,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
     /**
      * Removes all elements from `array` that `predicate` returns truthy for
-     * and returns an array of the removed elements. The predicate is invoked with
-     * three arguments: (value, index, array).
+     * and returns an array of the removed elements. The predicate is invoked
+     * with three arguments: (value, index, array).
      *
-     * **Note:** Unlike `_.filter`, this method mutates `array`.
+     * **Note:** Unlike `_.filter`, this method mutates `array`. Use `_.pull`
+     * to pull elements from an array by value.
      *
      * @static
      * @memberOf _
@@ -10049,9 +10049,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     var bind = rest(function(func, thisArg, partials) {
       var bitmask = BIND_FLAG;
       if (partials.length) {
-        var placeholder = lodash.placeholder || bind.placeholder,
-            holders = replaceHolders(partials, placeholder);
-
+        var holders = replaceHolders(partials, getPlaceholder(bind));
         bitmask |= PARTIAL_FLAG;
       }
       return createWrapper(func, bitmask, thisArg, partials, holders);
@@ -10104,9 +10102,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     var bindKey = rest(function(object, key, partials) {
       var bitmask = BIND_FLAG | BIND_KEY_FLAG;
       if (partials.length) {
-        var placeholder = lodash.placeholder || bindKey.placeholder,
-            holders = replaceHolders(partials, placeholder);
-
+        var holders = replaceHolders(partials, getPlaceholder(bindKey));
         bitmask |= PARTIAL_FLAG;
       }
       return createWrapper(key, bitmask, object, partials, holders);
@@ -10155,7 +10151,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     function curry(func, arity, guard) {
       arity = guard ? undefined : arity;
       var result = createWrapper(func, CURRY_FLAG, undefined, undefined, undefined, undefined, undefined, arity);
-      result.placeholder = lodash.placeholder || curry.placeholder;
+      result.placeholder = curry.placeholder;
       return result;
     }
 
@@ -10199,7 +10195,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     function curryRight(func, arity, guard) {
       arity = guard ? undefined : arity;
       var result = createWrapper(func, CURRY_RIGHT_FLAG, undefined, undefined, undefined, undefined, undefined, arity);
-      result.placeholder = lodash.placeholder || curryRight.placeholder;
+      result.placeholder = curryRight.placeholder;
       return result;
     }
 
@@ -10623,9 +10619,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * // => 'hi fred'
      */
     var partial = rest(function(func, partials) {
-      var placeholder = lodash.placeholder || partial.placeholder,
-          holders = replaceHolders(partials, placeholder);
-
+      var holders = replaceHolders(partials, getPlaceholder(partial));
       return createWrapper(func, PARTIAL_FLAG, undefined, partials, holders);
     });
 
@@ -10661,9 +10655,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * // => 'hello fred'
      */
     var partialRight = rest(function(func, partials) {
-      var placeholder = lodash.placeholder || partialRight.placeholder,
-          holders = replaceHolders(partials, placeholder);
-
+      var holders = replaceHolders(partials, getPlaceholder(partialRight));
       return createWrapper(func, PARTIAL_RIGHT_FLAG, undefined, partials, holders);
     });
 
@@ -11462,9 +11454,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       if (!isObjectLike(value)) {
         return false;
       }
-      var Ctor = value.constructor;
       return (objectToString.call(value) == errorTag) ||
-        (typeof Ctor == 'function' && objectToString.call(Ctor.prototype) == errorTag);
+        (typeof value.message == 'string' && typeof value.name == 'string');
     }
 
     /**
@@ -11877,10 +11868,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           objectToString.call(value) != objectTag || isHostObject(value)) {
         return false;
       }
-      var proto = objectProto;
-      if (typeof value.constructor == 'function') {
-        proto = getPrototypeOf(value);
-      }
+      var proto = getPrototypeOf(value);
       if (proto === null) {
         return true;
       }
@@ -13094,7 +13082,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     /**
      * The opposite of `_.mapValues`; this method creates an object with the
      * same values as `object` and keys generated by running each own enumerable
-     * property of `object` through `iteratee`.
+     * property of `object` through `iteratee`. The iteratee is invoked with
+     * three arguments: (value, key, object).
      *
      * @static
      * @memberOf _
@@ -13122,7 +13111,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     /**
      * Creates an object with the same keys as `object` and values generated by
      * running each own enumerable property of `object` through `iteratee`. The
-     * iteratee function is invoked with three arguments: (value, key, object).
+     * iteratee is invoked with three arguments: (value, key, object).
      *
      * @static
      * @memberOf _
@@ -13255,9 +13244,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     });
 
     /**
-     * The opposite of `_.pickBy`; this method creates an object composed of the
-     * own and inherited enumerable properties of `object` that `predicate`
-     * doesn't return truthy for.
+     * The opposite of `_.pickBy`; this method creates an object composed of
+     * the own and inherited enumerable properties of `object` that `predicate`
+     * doesn't return truthy for. The predicate is invoked with two arguments:
+     * (value, key).
      *
      * @static
      * @memberOf _
@@ -13273,7 +13263,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * // => { 'b': '2' }
      */
     function omitBy(object, predicate) {
-      predicate = getIteratee(predicate, 2);
+      predicate = getIteratee(predicate);
       return basePickBy(object, function(value, key) {
         return !predicate(value, key);
       });
@@ -13318,7 +13308,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
      * // => { 'a': 1, 'c': 3 }
      */
     function pickBy(object, predicate) {
-      return object == null ? {} : basePickBy(object, getIteratee(predicate, 2));
+      return object == null ? {} : basePickBy(object, getIteratee(predicate));
     }
 
     /**
@@ -13508,7 +13498,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           if (isArr) {
             accumulator = isArray(object) ? new Ctor : [];
           } else {
-            accumulator = baseCreate(isFunction(Ctor) ? Ctor.prototype : undefined);
+            accumulator = isFunction(Ctor) ? baseCreate(getPrototypeOf(object)) : {};
           }
         } else {
           accumulator = {};
@@ -15504,8 +15494,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     var rangeRight = createRange(true);
 
     /**
-     * Invokes the iteratee function `n` times, returning an array of the results
-     * of each invocation. The iteratee is invoked with one argument; (index).
+     * Invokes the iteratee `n` times, returning an array of the results of
+     * each invocation. The iteratee is invoked with one argument; (index).
      *
      * @static
      * @memberOf _
@@ -16623,6 +16613,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // import $ from 'jquery';
 
+
 var CONST = _Tetris3dCONST2.default;
 
 var Tetris3dController = function (_EventEmitter) {
@@ -16847,6 +16838,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // import $ from 'jquery';
 
+
 var CONST = _Tetris3dCONST2.default;
 
 var Tetris3dModel = function (_EventEmitter) {
@@ -16961,6 +16953,7 @@ var Tetris3dModel = function (_EventEmitter) {
     }
   }, {
     key: 'tick',
+
 
     // メインでループする関数
     value: function tick() {
@@ -17248,6 +17241,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 // global.THREE = require('three.js'); // global === window
 // import OrbitControls from 'three.js/examples/js/controls/OrbitControls.js'; // これじゃだめ
 var OrbitControls = require("./../../bower_components/three.js/examples/js/controls/OrbitControls.js");
+
 
 var CONST = _Tetris3dCONST2.default;
 
