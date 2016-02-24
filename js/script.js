@@ -16961,11 +16961,10 @@ var Tetris3dModel = function (_EventEmitter) {
 
       clearTimeout(this.tickId);
       var isMoveDown = this.moveBlock('down');
-      // console.log("tick", isMoveDown, this.checkGameOver());
+      console.log("tick", isMoveDown);
       if (!isMoveDown) {
-        // if (false) {
         this.freeze();
-        // this.clearLines();
+        this.clearLines();
         if (this.checkGameOver()) {
           this.emit('gameover');
           // this.quitGame().then(function(){});
@@ -17040,16 +17039,18 @@ var Tetris3dModel = function (_EventEmitter) {
       }); // => [0,0,0,0,0,...]
       var dfd = $.Deferred();
       dfd.resolve();
-      for (var y = CONST.LOGICAL_ROWS - 1; y >= 0; --y) {
-        var isRowFilled = this.board[y].every(function (val) {
-          return val !== 0;
-        });
-        if (!isRowFilled) continue;
-        filledRowList.push(y);
-        clearLineLength++;
-        this.sumOfClearLines++;
-        this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
-      }
+
+      // for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
+      //   let isRowFilled = this.board[y].every(function(val){
+      //     return val !== 0;
+      //   });
+      //   if (!isRowFilled) continue;
+      //   filledRowList.push(y);
+      //   clearLineLength++;
+      //   this.sumOfClearLines++;
+      //   this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
+      // }
+      console.log('hoge');
       // clear line drop
       // dfd.then(dropRow(x, y));
 
@@ -17830,7 +17831,129 @@ var UserInterface = function (_EventEmitter) {
 module.exports = UserInterface;
 
 },{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1}],10:[function(require,module,exports){
+"use strict";
+
+// import $ from 'jquery';
+
+var $win = $(window);
+
+// prefix:
+window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || window.oRequestAnimationFrame || function (callback) {
+  var id = window.setTimeout(callback, 1000 / 60);return id;
+};
+window.cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame || window.webkitCancelAnimationFrame || window.msCancelAnimationFrame || window.oCancelAnimationFrame || function (id) {
+  window.clearTimeout(id);
+};
+
+var Util = {
+  TRANSITIONEND: "transitionend webkitTransitionEnd mozTransitionEnd msTransitionEnd oTransitionEnd",
+  ANIMATIONEND: "animationend webkitAnimationEnd mozAnimationEnd msAnimationEnd oAnimationEnd",
+  getWinSize: function getWinSize() {
+    window.winW = Math.max($win.width(), window.innerWidth || 0);
+    window.winH = Math.max($win.height(), window.innerHeight || 0);
+  },
+  getRandomInt: function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  },
+  throttle: function throttle(fn, interval) {
+    var isWaiting = false;
+    var exec = function exec(event) {
+      if (isWaiting) return;
+      isWaiting = true;
+      setTimeout(function () {
+        isWaiting = false;
+        fn(event);
+      }, interval);
+    };
+    return exec;
+  },
+  debounce: function debounce(fn, interval) {
+    var timer;
+    var exec = function exec(event) {
+      clearTimeout(timer);
+      timer = setTimeout(function () {
+        fn(event);
+      }, interval);
+    };
+    return exec;
+  },
+  async: function async(fnList) {
+    // fnList ... 第一引数にcallbackを取る関数の配列
+    (function exec(index) {
+      if (!fnList[index]) return;
+      fnList[index](function () {
+        exec(index + 1);
+      });
+    })(0);
+  },
+  delay: function delay(time) {
+    // asyncで使う用
+    return function (callback) {
+      setTimeout(callback, time);
+    };
+  },
+  sleep: function sleep(time) {
+    // Deferred
+    return function () {
+      var dfd = $.Deferred();
+      setTimeout(function () {
+        dfd.resolve();
+      }, time);
+      return dfd.promise();
+    };
+  },
+  zeroPadding: function zeroPadding(num, len) {
+    return (new Array(len).join("0") + num).slice(-len);
+  },
+  getQueryString: function getQueryString() {
+    var result = {};
+    var search = window.location.search;
+    if (search.length > 1) {
+      var query = search.substring(1);
+      var parameters = query.split("&");
+      for (var i = 0; i < parameters.length; i++) {
+        var element = parameters[i].split("=");
+        var paramName = decodeURIComponent(element[0]);
+        var paramValue = decodeURIComponent(element[1]);
+        result[paramName] = paramValue;
+      }
+    }
+    return result;
+  },
+  getUserAgent: function getUserAgent() {
+    Util.ua = {};
+    Util.ua.name = window.navigator.userAgent.toLowerCase();
+    Util.ua.isSP = /ipod|iphone|ipad|android/i.test(Util.ua.name);
+    Util.ua.isPC = !Util.ua.isSP;
+    Util.ua.isIOS = /ipod|iphone|ipad/i.test(Util.ua.name);
+    Util.ua.isAndroid = /android/.test(Util.ua.name);
+    Util.ua.isIE8 = /msie 8/.test(Util.ua.name);
+    Util.ua.isIE9 = /msie 9/.test(Util.ua.name);
+    if (Util.ua.isSP) document.body.className += " isSP";
+    if (Util.ua.isPC) document.body.className += " isPC";
+    return Util.ua;
+  },
+  removeOtherDeviceElement: function removeOtherDeviceElement() {
+    if (Util.ua.isSP) {
+      $('.onlypc').remove();
+    } else {
+      $('.onlysp').remove();
+    }
+  }
+};
+
+module.exports = Util;
+
+},{}],11:[function(require,module,exports){
 'use strict';
+
+var _Util = require('./Util');
+
+var _Util2 = _interopRequireDefault(_Util);
+
+var _Tetris3dCONST = require('./Tetris3dCONST');
+
+var _Tetris3dCONST2 = _interopRequireDefault(_Tetris3dCONST);
 
 var _Tetris3dView = require('./Tetris3dView');
 
@@ -17850,9 +17973,12 @@ var _UserInterface2 = _interopRequireDefault(_UserInterface);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// const tetris = new Tetris3d();
 // import $ from 'jquery';
-// import Util from './Util';
+
+
+var util = _Util2.default;
+// const tetris = new Tetris3d();
+
 // import Tetris3d from './Tetris3d';
 var tetris3dModel = new _Tetris3dModel2.default();
 var tetris3dView = new _Tetris3dView2.default();
@@ -17880,4 +18006,14 @@ tetris3dController.newGame();
 ui.switchModeBlock();
 tetris3dController.switchModeBlock();
 
-},{"./Tetris3dController":5,"./Tetris3dModel":6,"./Tetris3dView":7,"./UserInterface":9}]},{},[10]);
+// debug mode
+var query = util.getQueryString();
+if (query.debug) {
+  _Tetris3dCONST2.default.BLOCK_LIST.forEach(function (data) {
+    var ary = [[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]];
+    data.shape = ary;
+  });
+  // tetris3dController.newGame();
+}
+
+},{"./Tetris3dCONST":4,"./Tetris3dController":5,"./Tetris3dModel":6,"./Tetris3dView":7,"./UserInterface":9,"./Util":10}]},{},[11]);
