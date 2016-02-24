@@ -66,7 +66,7 @@ const Util = {
   },
   getQueryString: function(){
     var result = {};
-    var search = win.location.search;
+    var search = window.location.search;
     if (search.length > 1) {
       var query = search.substring(1);
       var parameters = query.split("&");
