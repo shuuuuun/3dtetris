@@ -16961,7 +16961,7 @@ var Tetris3dModel = function (_EventEmitter) {
 
       clearTimeout(this.tickId);
       var isMoveDown = this.moveBlock('down');
-      console.log("tick", isMoveDown);
+      // console.log("tick", isMoveDown);
       if (!isMoveDown) {
         this.freeze();
         this.clearLines();
@@ -17040,17 +17040,27 @@ var Tetris3dModel = function (_EventEmitter) {
       var dfd = $.Deferred();
       dfd.resolve();
 
-      // for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
-      //   let isRowFilled = this.board[y].every(function(val){
-      //     return val !== 0;
-      //   });
-      //   if (!isRowFilled) continue;
-      //   filledRowList.push(y);
-      //   clearLineLength++;
-      //   this.sumOfClearLines++;
-      //   this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
-      // }
-      console.log('hoge');
+      for (var z = 0; z < CONST.COLS; ++z) {
+        for (var y = CONST.LOGICAL_ROWS - 1; y >= 0; --y) {
+          var isRowFilled = this.board[z][y].every(function (val) {
+            return val !== 0;
+          });
+          if (!isRowFilled) continue;
+          console.log('isRowFilled', isRowFilled);
+          filledRowList.push(y);
+          clearLineLength++;
+          this.sumOfClearLines++;
+          this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
+
+          // clear line effect
+          // for ( var x = 0; x < this.COLS; ++x ) {
+          //   if (!this.board[y][x]) continue;
+          //   dfd = dfd
+          //     .then(effect(x, y))
+          //     .then(util.sleep(10));
+          // }
+        }
+      }
       // clear line drop
       // dfd.then(dropRow(x, y));
 
