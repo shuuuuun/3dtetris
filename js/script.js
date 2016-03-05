@@ -16759,7 +16759,7 @@ var Tetris3dController = function (_EventEmitter) {
         }
       });
       this.touch.on('touchend', function (evt) {
-        // if (!!evt.isTap) this.moveBlock('rotate');
+        if (!!evt.isTap) _this5.model.rotateBlockXZ();
       });
     }
   }, {
@@ -17053,7 +17053,7 @@ var Tetris3dModel = function (_EventEmitter) {
           this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
 
           // clear line effect
-          // for ( var x = 0; x < this.COLS; ++x ) {
+          // for ( let x = 0; x < this.COLS; ++x ) {
           //   if (!this.board[y][x]) continue;
           //   dfd = dfd
           //     .then(effect(x, y))
@@ -17086,7 +17086,7 @@ var Tetris3dModel = function (_EventEmitter) {
     key: 'moveBlockX',
     value: function moveBlockX(distance) {
       // sign: boolean
-      // var sign = sign; // 1 or -1
+      // const sign = sign; // 1 or -1
       var isValid = this.valid(distance, 0, 0);
       if (isValid) this.currentBlock.x += distance;
       return isValid;
@@ -17108,65 +17108,111 @@ var Tetris3dModel = function (_EventEmitter) {
   }, {
     key: 'moveBlock',
     value: function moveBlock(code) {
+      var isValid = undefined;
       switch (code) {
         case 'left':
-          var isValid = this.valid(1, 0, 0);
+          isValid = this.valid(1, 0, 0);
           if (isValid) ++this.currentBlock.x;
           return isValid;
           break;
         case 'right':
-          var isValid = this.valid(-1, 0, 0);
+          isValid = this.valid(-1, 0, 0);
           if (isValid) --this.currentBlock.x;
           return isValid;
           break;
         case 'down':
-          var isValid = this.valid(0, 1, 0);
+          isValid = this.valid(0, 1, 0);
           if (isValid) ++this.currentBlock.y;
           return isValid;
           break;
         case 'forward':
-          var isValid = this.valid(0, 0, 1);
+          isValid = this.valid(0, 0, 1);
           if (isValid) ++this.currentBlock.z;
           return isValid;
           break;
         case 'backward':
-          var isValid = this.valid(0, 0, -1);
+          isValid = this.valid(0, 0, -1);
           if (isValid) --this.currentBlock.z;
           return isValid;
           break;
         case 'rotate':
-          var rotatedBlockShape = this.rotate(this.currentBlock);
-          var isValid = this.valid(0, 0, 0, rotatedBlockShape);
+          var rotatedBlockShape = this.rotateXZ(this.currentBlock.shape);
+          isValid = this.valid(0, 0, 0, rotatedBlockShape);
           if (isValid) this.currentBlock.shape = rotatedBlockShape;
           return isValid;
           break;
       }
     }
   }, {
-    key: 'rotate',
-    value: function rotate(block) {
+    key: 'rotateBlockXZ',
+    value: function rotateBlockXZ() {
+      var rotatedBlockShape = this.rotateXZ(this.currentBlock.shape);
+      var isValid = this.valid(0, 0, 0, rotatedBlockShape);
+      if (isValid) this.currentBlock.shape = rotatedBlockShape;
+      return isValid;
+    }
+  }, {
+    key: 'rotateBlockXY',
+    value: function rotateBlockXY() {
+      var rotatedBlockShape = this.rotateXY(this.currentBlock.shape);
+      var isValid = this.valid(0, 0, 0, rotatedBlockShape);
+      if (isValid) this.currentBlock.shape = rotatedBlockShape;
+      return isValid;
+    }
+  }, {
+    key: 'rotateBlockZY',
+    value: function rotateBlockZY() {
+      var rotatedBlockShape = this.rotateZY(this.currentBlock.shape);
+      var isValid = this.valid(0, 0, 0, rotatedBlockShape);
+      if (isValid) this.currentBlock.shape = rotatedBlockShape;
+      return isValid;
+    }
+  }, {
+    key: 'rotateXZ',
+    value: function rotateXZ(shape) {
+      // x軸→z軸方向
+      var last = CONST.VOXEL_LENGTH - 1;
       var newBlockShape = [];
       for (var z = 0; z < CONST.VOXEL_LENGTH; ++z) {
         newBlockShape[z] = [];
         for (var y = 0; y < CONST.VOXEL_LENGTH; ++y) {
           newBlockShape[z][y] = [];
           for (var x = 0; x < CONST.VOXEL_LENGTH; ++x) {
-            newBlockShape[z][y][x] = block.shape[CONST.VOXEL_LENGTH - 1 - x][y][z];
+            newBlockShape[z][y][x] = shape[last - x][y][z];
           }
         }
       }
       return newBlockShape;
     }
   }, {
-    key: 'rotateX',
-    value: function rotateX(block) {
+    key: 'rotateXY',
+    value: function rotateXY(shape) {
+      // x軸→y軸方向
+      var last = CONST.VOXEL_LENGTH - 1;
       var newBlockShape = [];
       for (var z = 0; z < CONST.VOXEL_LENGTH; ++z) {
         newBlockShape[z] = [];
         for (var y = 0; y < CONST.VOXEL_LENGTH; ++y) {
           newBlockShape[z][y] = [];
           for (var x = 0; x < CONST.VOXEL_LENGTH; ++x) {
-            newBlockShape[z][y][x] = block.shape[CONST.VOXEL_LENGTH - 1 - x][y][z];
+            newBlockShape[z][y][x] = shape[z][last - x][y];
+          }
+        }
+      }
+      return newBlockShape;
+    }
+  }, {
+    key: 'rotateZY',
+    value: function rotateZY(shape) {
+      // z軸→y軸方向
+      var last = CONST.VOXEL_LENGTH - 1;
+      var newBlockShape = [];
+      for (var z = 0; z < CONST.VOXEL_LENGTH; ++z) {
+        newBlockShape[z] = [];
+        for (var y = 0; y < CONST.VOXEL_LENGTH; ++y) {
+          newBlockShape[z][y] = [];
+          for (var x = 0; x < CONST.VOXEL_LENGTH; ++x) {
+            newBlockShape[z][y][x] = shape[y][last - z][x];
           }
         }
       }
@@ -18019,11 +18065,14 @@ tetris3dController.switchModeBlock();
 // debug mode
 var query = util.getQueryString();
 if (query.debug) {
-  _Tetris3dCONST2.default.BLOCK_LIST.forEach(function (data) {
-    var ary = [[[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [1, 1, 1, 1], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]];
-    data.shape = ary;
-  });
-  // tetris3dController.newGame();
+  (function () {
+    var blockId = +query.debug || 0;
+    var shape = _Tetris3dCONST2.default.BLOCK_LIST[blockId].shape;
+    _Tetris3dCONST2.default.BLOCK_LIST.forEach(function (data) {
+      data.shape = shape;
+    });
+    // tetris3dController.newGame();
+  })();
 }
 
 },{"./Tetris3dCONST":4,"./Tetris3dController":5,"./Tetris3dModel":6,"./Tetris3dView":7,"./UserInterface":9,"./Util":10}]},{},[11]);
