@@ -97,7 +97,7 @@ class Tetris3dModel extends EventEmitter2 {
   };
   
   createNextBlock() {
-    var id = Math.floor(Math.random() * CONST.BLOCK_LIST.length);
+    const id = Math.floor(Math.random() * CONST.BLOCK_LIST.length);
     this.nextBlock = this.createBlock(id);
     this.emit('nextblockcreated');
   };
@@ -124,7 +124,7 @@ class Tetris3dModel extends EventEmitter2 {
   };
   
   quitGame() {
-    var dfd = $.Deferred();
+    let dfd = $.Deferred();
     // this.gameOverEffect().then(() => {
     //   this.isPlayng = false;
     //   this.emit('gamequit');
@@ -177,7 +177,7 @@ class Tetris3dModel extends EventEmitter2 {
         this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
         
         // clear line effect
-        // for ( var x = 0; x < this.COLS; ++x ) {
+        // for ( let x = 0; x < this.COLS; ++x ) {
         //   if (!this.board[y][x]) continue;
         //   dfd = dfd
         //     .then(effect(x, y))
@@ -208,54 +208,55 @@ class Tetris3dModel extends EventEmitter2 {
   };
   
   moveBlockX(distance) { // sign: boolean
-    // var sign = sign; // 1 or -1
-    var isValid = this.valid(distance, 0, 0);
+    // const sign = sign; // 1 or -1
+    const isValid = this.valid(distance, 0, 0);
     if (isValid) this.currentBlock.x += distance;
     return isValid;
   };
   
   moveBlockY(distance) {
-    var isValid = this.valid(0, distance, 0);
+    const isValid = this.valid(0, distance, 0);
     if (isValid) this.currentBlock.y += distance;
     return isValid;
   };
   
   moveBlockZ(distance) {
-    var isValid = this.valid(0, 0, distance);
+    const isValid = this.valid(0, 0, distance);
     if (isValid) this.currentBlock.z += distance;
     return isValid;
   };
   
   moveBlock(code) {
+    let isValid;
     switch (code) {
       case 'left':
-        var isValid = this.valid(1, 0, 0);
+        isValid = this.valid(1, 0, 0);
         if (isValid) ++this.currentBlock.x;
         return isValid;
         break;
       case 'right':
-        var isValid = this.valid(-1, 0, 0);
+        isValid = this.valid(-1, 0, 0);
         if (isValid) --this.currentBlock.x;
         return isValid;
         break;
       case 'down':
-        var isValid = this.valid(0, 1, 0);
+        isValid = this.valid(0, 1, 0);
         if (isValid) ++this.currentBlock.y;
         return isValid;
         break;
       case 'forward':
-        var isValid = this.valid(0, 0, 1);
+        isValid = this.valid(0, 0, 1);
         if (isValid) ++this.currentBlock.z;
         return isValid;
         break;
       case 'backward':
-        var isValid = this.valid(0, 0, -1);
+        isValid = this.valid(0, 0, -1);
         if (isValid) --this.currentBlock.z;
         return isValid;
         break;
       case 'rotate':
-        let rotatedBlockShape = this.rotateXZ(this.currentBlock.shape);
-        var isValid = this.valid(0, 0, 0, rotatedBlockShape);
+        const rotatedBlockShape = this.rotateXZ(this.currentBlock.shape);
+        isValid = this.valid(0, 0, 0, rotatedBlockShape);
         if (isValid) this.currentBlock.shape = rotatedBlockShape;
         return isValid;
         break;
