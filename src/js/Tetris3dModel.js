@@ -254,7 +254,7 @@ class Tetris3dModel extends EventEmitter2 {
         return isValid;
         break;
       case 'rotate':
-        let rotatedBlockShape = this.rotate(this.currentBlock.shape);
+        let rotatedBlockShape = this.rotateXZ(this.currentBlock.shape);
         var isValid = this.valid(0, 0, 0, rotatedBlockShape);
         if (isValid) this.currentBlock.shape = rotatedBlockShape;
         return isValid;
@@ -262,19 +262,25 @@ class Tetris3dModel extends EventEmitter2 {
     }
   };
   
-  rotate(shape) {
-    const last = CONST.VOXEL_LENGTH - 1;
-    let newBlockShape = [];
-    for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
-      newBlockShape[z] = [];
-      for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
-        newBlockShape[z][y] = [];
-        for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
-          newBlockShape[z][y][x] = shape[last - x][y][z];
-        }
-      }
-    }
-    return newBlockShape;
+  rotateBlockXZ() {
+    const rotatedBlockShape = this.rotateXZ(this.currentBlock.shape);
+    const isValid = this.valid(0, 0, 0, rotatedBlockShape);
+    if (isValid) this.currentBlock.shape = rotatedBlockShape;
+    return isValid;
+  };
+  
+  rotateBlockXY() {
+    const rotatedBlockShape = this.rotateXY(this.currentBlock.shape);
+    const isValid = this.valid(0, 0, 0, rotatedBlockShape);
+    if (isValid) this.currentBlock.shape = rotatedBlockShape;
+    return isValid;
+  };
+  
+  rotateBlockZY() {
+    const rotatedBlockShape = this.rotateZY(this.currentBlock.shape);
+    const isValid = this.valid(0, 0, 0, rotatedBlockShape);
+    if (isValid) this.currentBlock.shape = rotatedBlockShape;
+    return isValid;
   };
   
   rotateXZ(shape) { // x軸→z軸方向

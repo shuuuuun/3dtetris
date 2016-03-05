@@ -130,7 +130,7 @@ class Tetris3dController extends EventEmitter2 {
       }
     });
     this.touch.on('touchend', (evt) => {
-      // if (!!evt.isTap) this.moveBlock('rotate');
+      if (!!evt.isTap) this.model.rotateBlockXZ();
     });
   };
     
