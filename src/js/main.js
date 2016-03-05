@@ -37,36 +37,12 @@ tetris3dController.switchModeBlock();
 
 
 // debug mode
-var query = util.getQueryString();
+const query = util.getQueryString();
 if (query.debug) {
+  const blockId = +query.debug || 0;
+  const shape = Tetris3dCONST.BLOCK_LIST[blockId].shape;
   Tetris3dCONST.BLOCK_LIST.forEach(function(data){
-    var ary = [
-      [
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-      ],
-      [
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [1, 1, 1, 1],
-        [0, 0, 0, 0],
-      ],
-      [
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-      ],
-      [
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-      ],
-    ];
-    data.shape = ary;
+    data.shape = shape;
   });
   // tetris3dController.newGame();
 }
