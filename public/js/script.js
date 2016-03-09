@@ -16759,7 +16759,7 @@ var Tetris3dController = function (_EventEmitter) {
         }
       });
       this.touch.on('touchend', function (evt) {
-        if (!!evt.isTap) _this5.model.rotateBlockXZ();
+        if (!!evt.isTap) _this5.rotateBlock();
       });
     }
   }, {
@@ -16789,6 +16789,38 @@ var Tetris3dController = function (_EventEmitter) {
       this.touch.setEvent();
       this.view.stopControls();
       this.emit('switchModeBlock');
+    }
+  }, {
+    key: 'changeRotateDirection',
+    value: function changeRotateDirection() {
+      console.log('changeRotateDirection');
+      this.isVertical = !this.isVertical;
+      this.emit('changeRotateDirection');
+    }
+  }, {
+    key: 'rotateBlock',
+    value: function rotateBlock() {
+      if (this.isVertical) {
+        this.rotateBlockVertical();
+      } else {
+        this.rotateBlockHorizontal();
+      }
+    }
+  }, {
+    key: 'rotateBlockHorizontal',
+    value: function rotateBlockHorizontal() {
+      this.model.rotateBlockXZ();
+    }
+  }, {
+    key: 'rotateBlockVertical',
+    value: function rotateBlockVertical() {
+      var direction = this.view.checkCameraDirection();
+      if (direction.x !== 0) {
+        this.model.rotateBlockZY();
+      }
+      if (direction.z !== 0) {
+        this.model.rotateBlockXY();
+      }
     }
   }, {
     key: 'moveBlockRightAndLeft',
@@ -17462,11 +17494,12 @@ var Tetris3dView = function () {
   }, {
     key: 'setSize',
     value: function setSize() {
-      CONST.WIDTH = window.innerWidth;
-      CONST.HEIGHT = window.innerHeight;
-      this.camera.aspect = CONST.WIDTH / CONST.HEIGHT;
+      this.width = window.innerWidth || CONST.WIDTH;
+      this.height = window.innerHeight || CONST.HEIGHT;
+      // alert(window.innerWidth + ',' + CONST.WIDTH);
+      this.camera.aspect = this.width / this.height;
       this.camera.updateProjectionMatrix();
-      this.renderer.setSize(CONST.WIDTH, CONST.HEIGHT);
+      this.renderer.setSize(this.width, this.height);
     }
   }, {
     key: 'setCamera',
@@ -17845,6 +17878,7 @@ var UserInterface = function (_EventEmitter) {
 
     _this.$switchCamera = $('.js-switch-camera');
     _this.$switchBlock = $('.js-switch-block');
+    _this.$switchRotate = $('.js-switch-rotate');
     _this.$btns = _this.$switchCamera.add(_this.$switchBlock);
 
     _this.setEvent();
@@ -17863,6 +17897,10 @@ var UserInterface = function (_EventEmitter) {
       this.$switchBlock.on('click', function () {
         _this2.switchModeBlock();
         _this2.emit('switchBlockClick');
+      });
+      this.$switchRotate.on('click', function () {
+        _this2.$switchRotate.toggleClass('is-active');
+        _this2.emit('switchRotateClick');
       });
     }
   }, {
@@ -18047,6 +18085,9 @@ ui.on('switchCameraClick', function () {
 });
 ui.on('switchBlockClick', function () {
   tetris3dController.switchModeBlock();
+});
+ui.on('switchRotateClick', function () {
+  tetris3dController.changeRotateDirection();
 });
 tetris3dController.on('switchModeCamera', function () {
   ui.switchModeCamera();
