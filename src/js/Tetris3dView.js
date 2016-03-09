@@ -183,11 +183,12 @@ class Tetris3dView {
   }
   
   setSize() {
-    CONST.WIDTH = window.innerWidth;
-    CONST.HEIGHT = window.innerHeight;
-    this.camera.aspect = CONST.WIDTH / CONST.HEIGHT;
+    this.width = window.innerWidth || CONST.WIDTH;
+    this.height = window.innerHeight || CONST.HEIGHT;
+    // alert(window.innerWidth + ',' + CONST.WIDTH);
+    this.camera.aspect = this.width / this.height;
     this.camera.updateProjectionMatrix();
-    this.renderer.setSize( CONST.WIDTH, CONST.HEIGHT );
+    this.renderer.setSize( this.width, this.height );
   }
   
   setCamera(code) {
