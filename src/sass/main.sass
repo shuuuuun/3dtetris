@@ -40,6 +40,7 @@ h1
     color: #555
     +transition(all 0.3s)
     position: relative
+    float: left
     
     &:before, &:after
       content: ""
@@ -73,6 +74,25 @@ h1
       +transform(translate(10px, 10px))
       &:before, &:after
         width: 0px
+    
+    &.round
+      border-radius: 50px
+      box-shadow: 10px 10px 0 0 #ccc
+      &:before, &:after
+        display: none
+      &.is-active
+        box-shadow: 2px 2px 0 0 #ccc
+      
+      &:active
+        box-shadow: 0px 0px 0 0 #ccc
+    
+    &.right span:after
+      content: "→"
+      display: block
+    
+    &.up span:after
+      content: "↑"
+      display: block
 
 .inspired
   position: fixed

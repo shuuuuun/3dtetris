@@ -130,7 +130,7 @@ class Tetris3dController extends EventEmitter2 {
       }
     });
     this.touch.on('touchend', (evt) => {
-      if (!!evt.isTap) this.model.rotateBlockXZ();
+      if (!!evt.isTap) this.rotateBlock();
     });
   };
     
@@ -157,6 +157,35 @@ class Tetris3dController extends EventEmitter2 {
     this.touch.setEvent();
     this.view.stopControls();
     this.emit('switchModeBlock');
+  };
+  
+  changeRotateDirection() {
+    console.log('changeRotateDirection');
+    this.isVertical = !this.isVertical;
+    this.emit('changeRotateDirection');
+  };
+  
+  rotateBlock() {
+    if (this.isVertical) {
+      this.rotateBlockVertical();
+    }
+    else {
+      this.rotateBlockHorizontal();
+    }
+  };
+  
+  rotateBlockHorizontal() {
+    this.model.rotateBlockXZ();
+  };
+  
+  rotateBlockVertical() {
+    let direction = this.view.checkCameraDirection();
+    if (direction.x !== 0) {
+      this.model.rotateBlockZY();
+    }
+    if (direction.z !== 0) {
+      this.model.rotateBlockXY();
+    }
   };
   
   moveBlockRightAndLeft(distance) {

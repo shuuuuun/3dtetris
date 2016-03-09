@@ -21,6 +21,9 @@ ui.on('switchCameraClick', () => {
 ui.on('switchBlockClick', () => {
   tetris3dController.switchModeBlock();
 });
+ui.on('switchRotateClick', () => {
+  tetris3dController.changeRotateDirection();
+});
 tetris3dController.on('switchModeCamera', () => {
   ui.switchModeCamera();
 });

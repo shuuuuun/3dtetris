@@ -6,6 +6,7 @@ class UserInterface extends EventEmitter2 {
     
     this.$switchCamera = $('.js-switch-camera');
     this.$switchBlock = $('.js-switch-block');
+    this.$switchRotate = $('.js-switch-rotate');
     this.$btns = this.$switchCamera.add(this.$switchBlock);
     
     this.setEvent();
@@ -19,6 +20,10 @@ class UserInterface extends EventEmitter2 {
     this.$switchBlock.on('click', () => {
       this.switchModeBlock();
       this.emit('switchBlockClick');
+    });
+    this.$switchRotate.on('click', () => {
+      this.$switchRotate.toggleClass('is-active');
+      this.emit('switchRotateClick');
     });
   }
   
