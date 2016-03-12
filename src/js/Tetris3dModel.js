@@ -290,7 +290,7 @@ class Tetris3dModel extends EventEmitter2 {
   
   rotateXZ(shape) { // x軸→z軸方向
     const last = CONST.VOXEL_LENGTH - 1;
-    let newBlockShape = [];
+    const newBlockShape = [];
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
       newBlockShape[z] = [];
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
@@ -305,7 +305,7 @@ class Tetris3dModel extends EventEmitter2 {
   
   rotateXY(shape) { // x軸→y軸方向
     const last = CONST.VOXEL_LENGTH - 1;
-    let newBlockShape = [];
+    const newBlockShape = [];
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
       newBlockShape[z] = [];
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
@@ -320,7 +320,7 @@ class Tetris3dModel extends EventEmitter2 {
   
   rotateZY(shape) { // z軸→y軸方向
     const last = CONST.VOXEL_LENGTH - 1;
-    let newBlockShape = [];
+    const newBlockShape = [];
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
       newBlockShape[z] = [];
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
@@ -338,9 +338,9 @@ class Tetris3dModel extends EventEmitter2 {
     offsetY = offsetY || 0;
     offsetZ = offsetZ || 0;
     block = block || this.currentBlock;
-    let nextX = block.x + offsetX;
-    let nextY = block.y + offsetY;
-    let nextZ = block.z + offsetZ;
+    const nextX = block.x + offsetX;
+    const nextY = block.y + offsetY;
+    const nextZ = block.z + offsetZ;
     
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
