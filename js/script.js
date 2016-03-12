@@ -16537,8 +16537,14 @@ var Tetris3dCONST = function Tetris3dCONST() {
     67: 'camera', // c
     66: 'block' };
 
-  // shape: 4 x 4 x 4
   // b
+  this.SHADOW_BLOCK = {
+    id: 8,
+    color: '#000',
+    opacity: 0.3
+  };
+
+  // shape: 4 x 4 x 4
   this.BLOCK_LIST = [{
     id: 0,
     color: 'rgb(254,183,76)',
@@ -16653,15 +16659,24 @@ var Tetris3dController = function (_EventEmitter) {
       this.model.on('gamestart', function () {});
       this.model.on('newblockcreated', function () {});
       this.model.on('currentblockcreated', function () {
-        _this2.view.drawBlock(_this2.model.currentBlock);
+        _this2.view.drawCurrentBlock(_this2.model.currentBlock);
+
+        var shadowBlock = _lodash2.default.cloneDeep(_this2.model.currentBlock);
+        shadowBlock.y = CONST.ROWS + 1;
+        shadowBlock.id = CONST.SHADOW_BLOCK.id;
+        _this2.view.drawShadowBlock(shadowBlock);
       });
       this.model.on('nextblockcreated', function () {});
       this.model.on('gameover', function () {
         alert('gameover!!');
       });
       this.model.on('tick', function (isNewBlock) {
-        // console.log(_.flattenDeep(this.model.currentBlock.shape).length);
-        _this2.view.moveBlock(_this2.model.currentBlock);
+        _this2.view.moveCurrentBlock(_this2.model.currentBlock);
+
+        var shadowBlock = _lodash2.default.cloneDeep(_this2.model.currentBlock);
+        shadowBlock.y = CONST.ROWS + 1;
+        shadowBlock.id = CONST.SHADOW_BLOCK.id;
+        _this2.view.moveShadowBlock(shadowBlock);
       });
       this.model.on('gamequit', function () {});
       this.model.on('freeze', function () {});
@@ -17168,9 +17183,10 @@ var Tetris3dModel = function (_EventEmitter) {
           return isValid;
           break;
         case 'rotate':
-          var rotatedBlockShape = this.rotateXZ(this.currentBlock.shape);
-          isValid = this.valid(0, 0, 0, rotatedBlockShape);
-          if (isValid) this.currentBlock.shape = rotatedBlockShape;
+          var rotatedBlock = Object.assign(this.currentBlock);
+          rotatedBlock.shape = this.rotateXZ(this.currentBlock.shape);
+          isValid = this.valid(0, 0, 0, rotatedBlock);
+          if (isValid) this.currentBlock = rotatedBlock;
           return isValid;
           break;
       }
@@ -17178,25 +17194,28 @@ var Tetris3dModel = function (_EventEmitter) {
   }, {
     key: 'rotateBlockXZ',
     value: function rotateBlockXZ() {
-      var rotatedBlockShape = this.rotateXZ(this.currentBlock.shape);
-      var isValid = this.valid(0, 0, 0, rotatedBlockShape);
-      if (isValid) this.currentBlock.shape = rotatedBlockShape;
+      var rotatedBlock = Object.assign(this.currentBlock);
+      rotatedBlock.shape = this.rotateXZ(this.currentBlock.shape);
+      var isValid = this.valid(0, 0, 0, rotatedBlock);
+      if (isValid) this.currentBlock = rotatedBlock;
       return isValid;
     }
   }, {
     key: 'rotateBlockXY',
     value: function rotateBlockXY() {
-      var rotatedBlockShape = this.rotateXY(this.currentBlock.shape);
-      var isValid = this.valid(0, 0, 0, rotatedBlockShape);
-      if (isValid) this.currentBlock.shape = rotatedBlockShape;
+      var rotatedBlock = Object.assign(this.currentBlock);
+      rotatedBlock.shape = this.rotateXY(this.currentBlock.shape);
+      var isValid = this.valid(0, 0, 0, rotatedBlock);
+      if (isValid) this.currentBlock = rotatedBlock;
       return isValid;
     }
   }, {
     key: 'rotateBlockZY',
     value: function rotateBlockZY() {
-      var rotatedBlockShape = this.rotateZY(this.currentBlock.shape);
-      var isValid = this.valid(0, 0, 0, rotatedBlockShape);
-      if (isValid) this.currentBlock.shape = rotatedBlockShape;
+      var rotatedBlock = Object.assign(this.currentBlock);
+      rotatedBlock.shape = this.rotateZY(this.currentBlock.shape);
+      var isValid = this.valid(0, 0, 0, rotatedBlock);
+      if (isValid) this.currentBlock = rotatedBlock;
       return isValid;
     }
   }, {
@@ -17252,14 +17271,15 @@ var Tetris3dModel = function (_EventEmitter) {
     }
   }, {
     key: 'valid',
-    value: function valid(offsetX, offsetY, offsetZ, newBlockShape) {
-      offsetX = offsetX || 0;
-      offsetY = offsetY || 0;
-      offsetZ = offsetZ || 0;
-      var nextX = this.currentBlock.x + offsetX;
-      var nextY = this.currentBlock.y + offsetY;
-      var nextZ = this.currentBlock.z + offsetZ;
-      var blockShape = newBlockShape || this.currentBlock.shape;
+    value: function valid() {
+      var offsetX = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
+      var offsetY = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+      var offsetZ = arguments.length <= 2 || arguments[2] === undefined ? 0 : arguments[2];
+      var block = arguments.length <= 3 || arguments[3] === undefined ? this.currentBlock : arguments[3];
+
+      var nextX = block.x + offsetX;
+      var nextY = block.y + offsetY;
+      var nextZ = block.z + offsetZ;
 
       for (var z = 0; z < CONST.VOXEL_LENGTH; ++z) {
         for (var y = 0; y < CONST.VOXEL_LENGTH; ++y) {
@@ -17267,7 +17287,7 @@ var Tetris3dModel = function (_EventEmitter) {
             var boardX = x + nextX;
             var boardY = y + nextY;
             var boardZ = z + nextZ;
-            if (!blockShape[z][y][x]) continue;
+            if (!block.shape[z][y][x]) continue;
             if (typeof this.board[boardZ] === 'undefined' // 次の位置が盤面外なら
              || typeof this.board[boardZ][boardY] === 'undefined' // 盤面外なら
              || typeof this.board[boardZ][boardY][boardX] === 'undefined' // 盤面外なら
@@ -17350,6 +17370,8 @@ var Tetris3dView = function () {
   _createClass(Tetris3dView, [{
     key: 'init',
     value: function init() {
+      var _this2 = this;
+
       // container ------------------------------
       this.container = document.getElementById('canvas-container');
 
@@ -17474,20 +17496,15 @@ var Tetris3dView = function () {
       // cubes ------------------------------
       this.cubeGeo = new THREE.BoxGeometry(CONST.VOXEL_SIZE, CONST.VOXEL_SIZE, CONST.VOXEL_SIZE);
       this.cubeMaterial = [];
-      // this.cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, ambient: 0x00ff80, shading: THREE.FlatShading, map: THREE.ImageUtils.loadTexture( "textures/square-outline-textured.png" ) } );
-      // this.cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, ambient: 0x00ff80, shading: THREE.FlatShading } );
-      // this.cubeMaterial.ambient = this.cubeMaterial.color;
-      // this.cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, shading: THREE.FlatShading } );
-      // this.cubeMaterial = new THREE.MeshLambertMaterial({ color: 0xfeb74c, ambient: 0xfeb74c });
-      this.cubeMaterial[0] = new THREE.MeshLambertMaterial({ color: "rgb(254,183,76)", ambient: "rgb(254, 183, 76)" });
-      this.cubeMaterial[1] = new THREE.MeshLambertMaterial({ color: "rgb(251,122,111)", ambient: "rgb(251,122,111)" });
-      this.cubeMaterial[2] = new THREE.MeshLambertMaterial({ color: "rgb(247,181,90)", ambient: "rgb(247,181,90)" });
-      this.cubeMaterial[3] = new THREE.MeshLambertMaterial({ color: "rgb(241,221,96)", ambient: "rgb(241,221,96)" });
-      this.cubeMaterial[4] = new THREE.MeshLambertMaterial({ color: "rgb(191,216,94)", ambient: "rgb(191,216,94)" });
-      this.cubeMaterial[5] = new THREE.MeshLambertMaterial({ color: "rgb(107,180,252)", ambient: "rgb(107,180,252)" });
-      this.cubeMaterial[6] = new THREE.MeshLambertMaterial({ color: "rgb(202,162,221)", ambient: "rgb(202,162,221)" });
-      this.cubeMaterial[7] = new THREE.MeshLambertMaterial({ color: "rgb(100,198,173)", ambient: "rgb(100,198,173)" });
-      // this.cubeMaterial.ambient = this.cubeMaterial.color;
+      CONST.BLOCK_LIST.forEach(function (block) {
+        var material = new THREE.MeshLambertMaterial({ color: block.color });
+        _this2.cubeMaterial.push(material);
+      });
+      {
+        // shadow block color
+        var material = new THREE.MeshLambertMaterial({ color: CONST.SHADOW_BLOCK.color, transparent: true, opacity: CONST.SHADOW_BLOCK.opacity });
+        this.cubeMaterial.push(material);
+      }
 
       this.setSize();
     }
@@ -17607,10 +17624,31 @@ var Tetris3dView = function () {
     key: 'renderCurrentBlock',
     value: function renderCurrentBlock() {}
   }, {
-    key: 'drawBlock',
-    value: function drawBlock(block) {
+    key: 'drawCurrentBlock',
+    value: function drawCurrentBlock(block) {
       this.currentBlock = block;
       this.currentBlock.voxels = [];
+      this.drawBlock(block, true);
+    }
+  }, {
+    key: 'drawShadowBlock',
+    value: function drawShadowBlock(block) {
+      var _this3 = this;
+
+      if (this.shadowBlock) {
+        this.shadowBlock.voxels.forEach(function (mesh) {
+          mesh.geometry.dispose();
+          mesh.material.dispose();
+          _this3.scene.remove(mesh);
+        });
+      }
+      this.shadowBlock = block;
+      this.shadowBlock.voxels = [];
+      this.drawBlock(block, false, true);
+    }
+  }, {
+    key: 'drawBlock',
+    value: function drawBlock(block, isCurrent, isShadow) {
       for (var z = 0; z < CONST.VOXEL_LENGTH; ++z) {
         for (var y = 0; y < CONST.VOXEL_LENGTH; ++y) {
           for (var x = 0; x < CONST.VOXEL_LENGTH; ++x) {
@@ -17618,10 +17656,28 @@ var Tetris3dView = function () {
             var drawX = x + block.x;
             var drawY = y + block.y - CONST.HIDDEN_ROWS;
             var drawZ = z + block.z;
-            this.drawVoxel(drawX, drawY, drawZ, block.id);
+            if (isCurrent) {
+              this.drawCurrentVoxel(drawX, drawY, drawZ, block.id);
+            } else if (isShadow) {
+              this.drawShadowVoxel(drawX, drawY, drawZ, block.id);
+            } else {
+              this.drawVoxel(drawX, drawY, drawZ, block.id);
+            }
           }
         }
       }
+    }
+  }, {
+    key: 'drawCurrentVoxel',
+    value: function drawCurrentVoxel(x, y, z, id) {
+      var voxel = this.drawVoxel(x, y, z, id);
+      this.currentBlock.voxels.push(voxel);
+    }
+  }, {
+    key: 'drawShadowVoxel',
+    value: function drawShadowVoxel(x, y, z, id) {
+      var voxel = this.drawVoxel(x, y, z, id);
+      this.shadowBlock.voxels.push(voxel);
     }
   }, {
     key: 'drawVoxel',
@@ -17634,17 +17690,25 @@ var Tetris3dView = function () {
       voxel.position.set(blockX, blockY, blockZ);
       voxel.position.addScalar(CONST.VOXEL_SIZE / 2); // グリッドに合わせる。
 
-      // this.voxels = this.voxels || [];
-      // this.voxels.push(voxel);
-      this.currentBlock.voxels.push(voxel);
-
-      if (y < 0) return; // 盤面外は描画しない
+      if (y < 0) return voxel; // 盤面外は描画しない
       this.scene.add(voxel);
+      return voxel;
+    }
+  }, {
+    key: 'moveCurrentBlock',
+    value: function moveCurrentBlock(block) {
+      if (!this.currentBlock) return;
+      this.moveBlock(block, true);
+    }
+  }, {
+    key: 'moveShadowBlock',
+    value: function moveShadowBlock(block) {
+      if (!this.shadowBlock) return;
+      this.moveBlock(block, false, true);
     }
   }, {
     key: 'moveBlock',
-    value: function moveBlock(block) {
-      if (!this.currentBlock) return;
+    value: function moveBlock(block, isCurrent, isShadow) {
       var index = 0;
       for (var z = 0; z < CONST.VOXEL_LENGTH; ++z) {
         for (var y = 0; y < CONST.VOXEL_LENGTH; ++y) {
@@ -17653,11 +17717,45 @@ var Tetris3dView = function () {
             var drawX = x + block.x;
             var drawY = y + block.y - CONST.HIDDEN_ROWS;
             var drawZ = z + block.z;
-            this.moveVoxel(drawX, drawY, drawZ, index);
+            if (isCurrent) {
+              this.moveCurrentVoxel(drawX, drawY, drawZ, index);
+            } else if (isShadow) {
+              this.moveShadowVoxel(drawX, drawY, drawZ, index);
+            } else {
+              this.moveVoxel(drawX, drawY, drawZ, index);
+            }
             index++;
           }
         }
       }
+    }
+  }, {
+    key: 'moveCurrentVoxel',
+    value: function moveCurrentVoxel(x, y, z, index) {
+      if (y < 0) return; // 盤面外は描画しない
+
+      var blockX = x * CONST.VOXEL_SIZE;
+      var blockY = y * CONST.VOXEL_SIZE;
+      var blockZ = z * CONST.VOXEL_SIZE;
+
+      var voxel = this.currentBlock.voxels[index];
+      voxel.position.set(blockX, blockY, blockZ);
+      voxel.position.addScalar(CONST.VOXEL_SIZE / 2); // グリッドに合わせる。
+      this.scene.add(voxel);
+    }
+  }, {
+    key: 'moveShadowVoxel',
+    value: function moveShadowVoxel(x, y, z, index) {
+      if (y < 0) return; // 盤面外は描画しない
+
+      var blockX = x * CONST.VOXEL_SIZE;
+      var blockY = y * CONST.VOXEL_SIZE;
+      var blockZ = z * CONST.VOXEL_SIZE;
+
+      var voxel = this.shadowBlock.voxels[index];
+      voxel.position.set(blockX, blockY, blockZ);
+      voxel.position.addScalar(CONST.VOXEL_SIZE / 2); // グリッドに合わせる。
+      this.scene.add(voxel);
     }
   }, {
     key: 'moveVoxel',
