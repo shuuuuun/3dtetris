@@ -167,7 +167,10 @@ class Tetris3dView {
       const material = new THREE.MeshLambertMaterial({ color: block.color });
       this.cubeMaterial.push(material);
     });
-    
+    { // shadow block color
+      const material = new THREE.MeshLambertMaterial({ color: CONST.SHADOW_BLOCK.color, transparent: true, opacity: CONST.SHADOW_BLOCK.opacity });
+      this.cubeMaterial.push(material);
+    }
     
     this.setSize();
   }
@@ -279,9 +282,13 @@ class Tetris3dView {
   renderCurrentBlock() {
   }
   
-  drawBlock(block) {
+  drawCurrentBlock(block) {
     this.currentBlock = block;
     this.currentBlock.voxels = [];
+    this.drawBlock(block, true);
+  }
+  
+  drawBlock(block, isCurrent) {
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
         for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
@@ -289,10 +296,20 @@ class Tetris3dView {
           let drawX = x + block.x;
           let drawY = y + block.y - CONST.HIDDEN_ROWS;
           let drawZ = z + block.z;
-          this.drawVoxel(drawX, drawY, drawZ, block.id);
+          if (isCurrent) {
+            this.drawCurrentVoxel(drawX, drawY, drawZ, block.id);
+          }
+          else {
+            this.drawVoxel(drawX, drawY, drawZ, block.id);
+          }
         }
       }
     }
+  }
+  
+  drawCurrentVoxel(x, y, z, id) {
+    const voxel = this.drawVoxel(x, y, z, id);
+    this.currentBlock.voxels.push(voxel);
   }
   
   drawVoxel(x, y, z, id) {
@@ -304,12 +321,9 @@ class Tetris3dView {
     voxel.position.set(blockX, blockY, blockZ);
     voxel.position.addScalar( CONST.VOXEL_SIZE / 2 ); // グリッドに合わせる。
     
-    // this.voxels = this.voxels || [];
-    // this.voxels.push(voxel);
-    this.currentBlock.voxels.push(voxel);
-    
-    if (y < 0) return; // 盤面外は描画しない
+    if (y < 0) return voxel; // 盤面外は描画しない
     this.scene.add( voxel );
+    return voxel;
   }
   
   moveBlock(block) {

@@ -54,6 +54,12 @@ class Tetris3dCONST {
       66: 'block', // b
     };
     
+    this.SHADOW_BLOCK = {
+      id: 8,
+      color: '#000',
+      opacity: 0.3,
+    };
+    
     // shape: 4 x 4 x 4
     this.BLOCK_LIST = [
       {
