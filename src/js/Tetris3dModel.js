@@ -255,32 +255,36 @@ class Tetris3dModel extends EventEmitter2 {
         return isValid;
         break;
       case 'rotate':
-        const rotatedBlockShape = this.rotateXZ(this.currentBlock.shape);
-        isValid = this.valid(0, 0, 0, rotatedBlockShape);
-        if (isValid) this.currentBlock.shape = rotatedBlockShape;
+        const rotatedBlock = Object.assign(this.currentBlock);
+        rotatedBlock.shape = this.rotateXZ(this.currentBlock.shape);
+        isValid = this.valid(0, 0, 0, rotatedBlock);
+        if (isValid) this.currentBlock = rotatedBlock;
         return isValid;
         break;
     }
   };
   
   rotateBlockXZ() {
-    const rotatedBlockShape = this.rotateXZ(this.currentBlock.shape);
-    const isValid = this.valid(0, 0, 0, rotatedBlockShape);
-    if (isValid) this.currentBlock.shape = rotatedBlockShape;
+    const rotatedBlock = Object.assign(this.currentBlock);
+    rotatedBlock.shape = this.rotateXZ(this.currentBlock.shape);
+    const isValid = this.valid(0, 0, 0, rotatedBlock);
+    if (isValid) this.currentBlock = rotatedBlock;
     return isValid;
   };
   
   rotateBlockXY() {
-    const rotatedBlockShape = this.rotateXY(this.currentBlock.shape);
-    const isValid = this.valid(0, 0, 0, rotatedBlockShape);
-    if (isValid) this.currentBlock.shape = rotatedBlockShape;
+    const rotatedBlock = Object.assign(this.currentBlock);
+    rotatedBlock.shape = this.rotateXY(this.currentBlock.shape);
+    const isValid = this.valid(0, 0, 0, rotatedBlock);
+    if (isValid) this.currentBlock = rotatedBlock;
     return isValid;
   };
   
   rotateBlockZY() {
-    const rotatedBlockShape = this.rotateZY(this.currentBlock.shape);
-    const isValid = this.valid(0, 0, 0, rotatedBlockShape);
-    if (isValid) this.currentBlock.shape = rotatedBlockShape;
+    const rotatedBlock = Object.assign(this.currentBlock);
+    rotatedBlock.shape = this.rotateZY(this.currentBlock.shape);
+    const isValid = this.valid(0, 0, 0, rotatedBlock);
+    if (isValid) this.currentBlock = rotatedBlock;
     return isValid;
   };
   
@@ -329,14 +333,14 @@ class Tetris3dModel extends EventEmitter2 {
     return newBlockShape;
   };
   
-  valid(offsetX, offsetY, offsetZ, newBlockShape) {
+  valid(offsetX, offsetY, offsetZ, block) {
     offsetX = offsetX || 0;
     offsetY = offsetY || 0;
     offsetZ = offsetZ || 0;
-    let nextX = this.currentBlock.x + offsetX;
-    let nextY = this.currentBlock.y + offsetY;
-    let nextZ = this.currentBlock.z + offsetZ;
-    let blockShape = newBlockShape || this.currentBlock.shape;
+    block = block || this.currentBlock;
+    let nextX = block.x + offsetX;
+    let nextY = block.y + offsetY;
+    let nextZ = block.z + offsetZ;
     
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
@@ -344,7 +348,7 @@ class Tetris3dModel extends EventEmitter2 {
           let boardX = x + nextX;
           let boardY = y + nextY;
           let boardZ = z + nextZ;
-          if (!blockShape[z][y][x]) continue;
+          if (!block.shape[z][y][x]) continue;
           if ( typeof this.board[boardZ] === 'undefined' // 次の位置が盤面外なら
             || typeof this.board[boardZ][boardY] === 'undefined' // 盤面外なら
             || typeof this.board[boardZ][boardY][boardX] === 'undefined' // 盤面外なら
