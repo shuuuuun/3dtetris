@@ -333,11 +333,7 @@ class Tetris3dModel extends EventEmitter2 {
     return newBlockShape;
   };
   
-  valid(offsetX, offsetY, offsetZ, block) {
-    offsetX = offsetX || 0;
-    offsetY = offsetY || 0;
-    offsetZ = offsetZ || 0;
-    block = block || this.currentBlock;
+  valid(offsetX = 0, offsetY = 0, offsetZ = 0, block = this.currentBlock) {
     const nextX = block.x + offsetX;
     const nextY = block.y + offsetY;
     const nextZ = block.z + offsetZ;
