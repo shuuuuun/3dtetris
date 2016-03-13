@@ -16485,8 +16485,8 @@ var Tetris3dCONST = function Tetris3dCONST() {
   _classCallCheck(this, Tetris3dCONST);
 
   this.COLS = 10; // x, z field size
-  this.ROWS = 17; // y field size
-  this.FIELD_SIZE = 10; // this.COLS
+  this.ROWS = 15; // y field size
+  // this.FIELD_SIZE = 10; // this.COLS
 
   // NUMBER_OF_BLOCK = 4;
   // NUMBER_OF_VOXEL = 4; // number of voxel in a block
@@ -17458,7 +17458,7 @@ var Tetris3dView = function () {
 
       // container line ------------------------------
       {
-        var size = CONST.FIELD_SIZE * CONST.VOXEL_SIZE;
+        var size = CONST.COLS * CONST.VOXEL_SIZE;
         var geometry = new THREE.Geometry();
         geometry.vertices.push(new THREE.Vector3(0, CONST.HEIGHT, 0), new THREE.Vector3(0, CONST.HEIGHT, size), new THREE.Vector3(0, 0, size), new THREE.Vector3(size, 0, size), new THREE.Vector3(size, CONST.HEIGHT, size), new THREE.Vector3(size, CONST.HEIGHT, 0), new THREE.Vector3(size, 0, 0), new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, CONST.HEIGHT, 0));
         var material = new THREE.LineBasicMaterial({ color: 0x000000, opacity: 0.2, transparent: true });
