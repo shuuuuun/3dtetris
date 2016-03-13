@@ -2,7 +2,7 @@ class Tetris3dCONST {
   constructor() {
     this.COLS = 10; // x, z field size
     this.ROWS = 17; // y field size
-    this.FIELD_SIZE = 10; // this.COLS
+    // this.FIELD_SIZE = 10; // this.COLS
     
     // NUMBER_OF_BLOCK = 4;
     // NUMBER_OF_VOXEL = 4; // number of voxel in a block

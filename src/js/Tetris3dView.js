@@ -102,7 +102,7 @@ class Tetris3dView {
     
     // container line ------------------------------
     {
-      const size = CONST.FIELD_SIZE * CONST.VOXEL_SIZE;
+      const size = CONST.COLS * CONST.VOXEL_SIZE;
       const geometry = new THREE.Geometry();
       geometry.vertices.push(
         new THREE.Vector3(    0, CONST.HEIGHT,    0 ),
