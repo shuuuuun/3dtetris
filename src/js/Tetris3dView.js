@@ -97,7 +97,7 @@ class Tetris3dView {
       const step = size * 2;
       const grid = new THREE.GridHelper(size, step);
       grid.position.set( size, 0, size ); // 0,0が端になるように移動
-      this.scene.add( grid );
+      // this.scene.add( grid );
     }
     
     // container line ------------------------------
@@ -118,7 +118,7 @@ class Tetris3dView {
       const material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2, transparent: true } );
       const line = new THREE.Line( geometry, material );
       line.type = THREE.LinePieces;
-      this.scene.add( line );
+      // this.scene.add( line );
     }
     
     
