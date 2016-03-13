@@ -16661,7 +16661,7 @@ var Tetris3dController = function (_EventEmitter) {
       this.model.on('currentblockcreated', function () {
         _this2.view.drawCurrentBlock(_this2.model.currentBlock);
 
-        var shadowBlock = _lodash2.default.cloneDeep(_this2.model.currentBlock);
+        var shadowBlock = _lodash2.default.clone(_this2.model.currentBlock);
         shadowBlock.y = CONST.ROWS + 1;
         shadowBlock.id = CONST.SHADOW_BLOCK.id;
         _this2.view.drawShadowBlock(shadowBlock);
@@ -16673,10 +16673,16 @@ var Tetris3dController = function (_EventEmitter) {
       this.model.on('tick', function (isNewBlock) {
         _this2.view.moveCurrentBlock(_this2.model.currentBlock);
 
-        var shadowBlock = _lodash2.default.cloneDeep(_this2.model.currentBlock);
-        shadowBlock.y = CONST.ROWS + 1;
+        // let shadowBlock = _.cloneDeep(this.model.currentBlock);
+        // let shadowBlock = Object.assign(this.model.currentBlock);
+        var shadowBlock = _lodash2.default.clone(_this2.model.currentBlock);
         shadowBlock.id = CONST.SHADOW_BLOCK.id;
-        _this2.view.moveShadowBlock(shadowBlock);
+        var isValid = _this2.model.valid(0, 1, 0, shadowBlock);
+        while (isValid) {
+          shadowBlock.y++;
+          _this2.view.moveShadowBlock(shadowBlock);
+          isValid = _this2.model.valid(0, 1, 0, shadowBlock);
+        }
       });
       this.model.on('gamequit', function () {});
       this.model.on('freeze', function () {});
