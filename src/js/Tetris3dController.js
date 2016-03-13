@@ -35,7 +35,7 @@ class Tetris3dController extends EventEmitter2 {
     this.model.on('currentblockcreated', () => {
       this.view.drawCurrentBlock(this.model.currentBlock);
       
-      let shadowBlock = _.cloneDeep(this.model.currentBlock);
+      let shadowBlock = _.clone(this.model.currentBlock);
       shadowBlock.y = CONST.ROWS + 1;
       shadowBlock.id = CONST.SHADOW_BLOCK.id;
       this.view.drawShadowBlock(shadowBlock);
@@ -47,10 +47,16 @@ class Tetris3dController extends EventEmitter2 {
     this.model.on('tick', (isNewBlock) => {
       this.view.moveCurrentBlock(this.model.currentBlock);
       
-      let shadowBlock = _.cloneDeep(this.model.currentBlock);
-      shadowBlock.y = CONST.ROWS + 1;
+      // let shadowBlock = _.cloneDeep(this.model.currentBlock);
+      // let shadowBlock = Object.assign(this.model.currentBlock);
+      let shadowBlock = _.clone(this.model.currentBlock);
       shadowBlock.id = CONST.SHADOW_BLOCK.id;
-      this.view.moveShadowBlock(shadowBlock);
+      let isValid = this.model.valid(0, 1, 0, shadowBlock);
+      while (isValid) {
+        shadowBlock.y++;
+        this.view.moveShadowBlock(shadowBlock);
+        isValid = this.model.valid(0, 1, 0, shadowBlock);
+      }
     });
     this.model.on('gamequit', () => {});
     this.model.on('freeze', () => {});
