@@ -1,4 +1,5 @@
 import { EventEmitter2 } from 'eventemitter2';
+import StickController from './StickController';
 
 class UserInterface extends EventEmitter2 {
   constructor() {
@@ -9,7 +10,15 @@ class UserInterface extends EventEmitter2 {
     this.$switchRotate = $('.js-switch-rotate');
     this.$btns = this.$switchCamera.add(this.$switchBlock);
     
+    this.setStickController();
     this.setEvent();
+  }
+  
+  setStickController() {
+    const $stickContainer = $('.js-stick-container');
+    const $stickToucharea = $('.js-stick-toucharea');
+    const radius = $stickContainer.width() / 2 + $stickToucharea.width() / 2;
+    const stick = new StickController($stickToucharea, radius);
   }
   
   setEvent() {

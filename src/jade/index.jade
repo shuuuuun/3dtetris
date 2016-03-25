@@ -11,13 +11,18 @@ html(lang="ja")
     
   body
     div.wrapper
-      h1=share_title
-      
-      div.game-container#canvas-container
+      div.game-container
+        div#canvas-container
         div.game__controller
-          button.js-switch-camera(type="button") camera
-          button.js-switch-block(type="button") block
-          button.round.js-switch-rotate(type="button") rotate direction
+          div.stick-container.js-stick-container
+            div.stick-toucharea.js-stick-toucharea
+              div.stick-dot
+          div.btn-rotate
+            button.js-switch-rotate(type="button") rotate direction
+
+          //- button.js-switch-camera(type="button") camera
+          //- button.js-switch-block(type="button") block
+          //- button.round.js-switch-rotate(type="button") rotate direction
             span
         
       //- p.inspired
