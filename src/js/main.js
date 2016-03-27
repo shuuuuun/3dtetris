@@ -1,14 +1,10 @@
-// import $ from 'jquery';
 import Util from './Util';
-// import Tetris3d from './Tetris3d';
 import Tetris3dCONST from './Tetris3dCONST';
 import Tetris3dView from './Tetris3dView';
 import Tetris3dModel from './Tetris3dModel';
 import Tetris3dController from './Tetris3dController';
 import Tetris3dUI from './Tetris3dUI';
 
-const util = Util;
-// const tetris = new Tetris3d();
 const tetris3dModel = new Tetris3dModel();
 const tetris3dView = new Tetris3dView();
 const tetris3dController = new Tetris3dController(tetris3dModel, tetris3dView);
@@ -40,7 +36,7 @@ tetris3dController.switchModeBlock();
 
 
 // debug mode
-const query = util.getQueryString();
+const query = Util.getQueryString();
 if (query.debug) {
   const blockId = +query.debug || 0;
   const shape = Tetris3dCONST.BLOCK_LIST[blockId].shape;
