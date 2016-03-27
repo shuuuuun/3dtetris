@@ -21,12 +21,17 @@
   </head>
   <body>
     <div class="wrapper">
-      <h1></h1>
-      <div id="canvas-container" class="game-container">
+      <div class="game-container">
+        <div id="canvas-container"></div>
         <div class="game__controller">
-          <button type="button" class="js-switch-camera">camera</button>
-          <button type="button" class="js-switch-block">block</button>
-          <button type="button" class="round js-switch-rotate">rotate direction<span></span></button>
+          <div class="stick-container js-stick-container">
+            <div class="stick-toucharea js-stick-toucharea">
+              <div class="stick-dot"></div>
+            </div>
+          </div>
+          <div class="btn-rotate">
+            <button type="button" class="js-switch-rotate">rotate direction</button>
+          </div>
         </div>
       </div>
     </div>
