@@ -16709,6 +16709,10 @@ var _TouchController = require('./TouchController');
 
 var _TouchController2 = _interopRequireDefault(_TouchController);
 
+var _StickController = require('./StickController');
+
+var _StickController2 = _interopRequireDefault(_StickController);
+
 var _Tetris3dCONST = require('./Tetris3dCONST');
 
 var _Tetris3dCONST2 = _interopRequireDefault(_Tetris3dCONST);
@@ -16735,13 +16739,16 @@ var Tetris3dController = function (_EventEmitter) {
     _this.model = model;
     _this.view = view;
 
-    _this.$root = $("#canvas-container");
+    _this.$root = $('#canvas-container');
     _this.touch = new _TouchController2.default();
+    _this.$stickContainer = $('.js-stick-container');
+    _this.$stickToucharea = $('.js-stick-toucharea');
 
     _this.setModelEvent();
     _this.setBlurEvent();
     _this.setKeyEvent();
     _this.setTouchEvent(_this.$root);
+    _this.setStickController();
     return _this;
   }
 
@@ -16886,6 +16893,12 @@ var Tetris3dController = function (_EventEmitter) {
       });
     }
   }, {
+    key: 'setStickController',
+    value: function setStickController() {
+      var radius = this.$stickContainer.width() / 2 + this.$stickToucharea.width() / 2;
+      var stick = new _StickController2.default(this.$stickToucharea, radius);
+    }
+  }, {
     key: 'swithMode',
     value: function swithMode(code) {
       switch (code) {
@@ -16974,7 +16987,7 @@ var Tetris3dController = function (_EventEmitter) {
 
 exports.default = Tetris3dController;
 
-},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./Tetris3dCONST":5,"./TouchController":10,"lodash":3}],7:[function(require,module,exports){
+},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./StickController":4,"./Tetris3dCONST":5,"./TouchController":10,"lodash":3}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -17456,12 +17469,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _eventemitter = require("./../../bower_components/eventemitter2/lib/eventemitter2.js");
 
-var _StickController = require('./StickController');
-
-var _StickController2 = _interopRequireDefault(_StickController);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -17481,20 +17488,11 @@ var Tetris3dUI = function (_EventEmitter) {
     _this.$switchRotate = $('.js-switch-rotate');
     _this.$btns = _this.$switchCamera.add(_this.$switchBlock);
 
-    _this.setStickController();
     _this.setEvent();
     return _this;
   }
 
   _createClass(Tetris3dUI, [{
-    key: 'setStickController',
-    value: function setStickController() {
-      var $stickContainer = $('.js-stick-container');
-      var $stickToucharea = $('.js-stick-toucharea');
-      var radius = $stickContainer.width() / 2 + $stickToucharea.width() / 2;
-      var stick = new _StickController2.default($stickToucharea, radius);
-    }
-  }, {
     key: 'setEvent',
     value: function setEvent() {
       var _this2 = this;
@@ -17533,7 +17531,7 @@ var Tetris3dUI = function (_EventEmitter) {
 
 exports.default = Tetris3dUI;
 
-},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./StickController":4}],9:[function(require,module,exports){
+},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18304,13 +18302,6 @@ var _Tetris3dUI2 = _interopRequireDefault(_Tetris3dUI);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// import $ from 'jquery';
-
-
-var util = _Util2.default;
-// const tetris = new Tetris3d();
-
-// import Tetris3d from './Tetris3d';
 var tetris3dModel = new _Tetris3dModel2.default();
 var tetris3dView = new _Tetris3dView2.default();
 var tetris3dController = new _Tetris3dController2.default(tetris3dModel, tetris3dView);
@@ -18341,7 +18332,7 @@ tetris3dUI.switchModeBlock();
 tetris3dController.switchModeBlock();
 
 // debug mode
-var query = util.getQueryString();
+var query = _Util2.default.getQueryString();
 if (query.debug) {
   (function () {
     var blockId = +query.debug || 0;
