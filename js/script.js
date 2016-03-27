@@ -16570,7 +16570,7 @@ var StickController = function (_EventEmitter) {
 
 module.exports = StickController;
 
-},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./TouchController":9}],5:[function(require,module,exports){
+},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./TouchController":10}],5:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -16966,7 +16966,7 @@ var Tetris3dController = function (_EventEmitter) {
 
 module.exports = Tetris3dController;
 
-},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./Tetris3dCONST":5,"./TouchController":9,"lodash":3}],7:[function(require,module,exports){
+},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./Tetris3dCONST":5,"./TouchController":10,"lodash":3}],7:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -17434,6 +17434,90 @@ var Tetris3dModel = function (_EventEmitter) {
 module.exports = Tetris3dModel;
 
 },{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./Tetris3dCONST":5}],8:[function(require,module,exports){
+'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _eventemitter = require("./../../bower_components/eventemitter2/lib/eventemitter2.js");
+
+var _StickController = require('./StickController');
+
+var _StickController2 = _interopRequireDefault(_StickController);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Tetris3dUI = function (_EventEmitter) {
+  _inherits(Tetris3dUI, _EventEmitter);
+
+  function Tetris3dUI() {
+    _classCallCheck(this, Tetris3dUI);
+
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Tetris3dUI).call(this));
+
+    _this.$switchCamera = $('.js-switch-camera');
+    _this.$switchBlock = $('.js-switch-block');
+    _this.$switchRotate = $('.js-switch-rotate');
+    _this.$btns = _this.$switchCamera.add(_this.$switchBlock);
+
+    _this.setStickController();
+    _this.setEvent();
+    return _this;
+  }
+
+  _createClass(Tetris3dUI, [{
+    key: 'setStickController',
+    value: function setStickController() {
+      var $stickContainer = $('.js-stick-container');
+      var $stickToucharea = $('.js-stick-toucharea');
+      var radius = $stickContainer.width() / 2 + $stickToucharea.width() / 2;
+      var stick = new _StickController2.default($stickToucharea, radius);
+    }
+  }, {
+    key: 'setEvent',
+    value: function setEvent() {
+      var _this2 = this;
+
+      this.$switchCamera.on('click', function () {
+        _this2.switchModeCamera();
+        _this2.emit('switchCameraClick');
+      });
+      this.$switchBlock.on('click', function () {
+        _this2.switchModeBlock();
+        _this2.emit('switchBlockClick');
+      });
+      this.$switchRotate.on('click', function () {
+        _this2.$switchRotate.toggleClass('is-active');
+        _this2.emit('switchRotateClick');
+      });
+    }
+  }, {
+    key: 'switchModeCamera',
+    value: function switchModeCamera() {
+      this.$btns.removeClass('is-active');
+      this.$switchCamera.addClass('is-active');
+      this.emit('switchModeCamera');
+    }
+  }, {
+    key: 'switchModeBlock',
+    value: function switchModeBlock() {
+      this.$btns.removeClass('is-active');
+      this.$switchBlock.addClass('is-active');
+      this.emit('switchModeBlock');
+    }
+  }]);
+
+  return Tetris3dUI;
+}(_eventemitter.EventEmitter2);
+
+module.exports = Tetris3dUI;
+
+},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./StickController":4}],9:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -17913,7 +17997,7 @@ var Tetris3dView = function () {
 
 module.exports = Tetris3dView;
 
-},{"./../../bower_components/three.js/examples/js/controls/OrbitControls.js":2,"./Tetris3dCONST":5}],9:[function(require,module,exports){
+},{"./../../bower_components/three.js/examples/js/controls/OrbitControls.js":2,"./Tetris3dCONST":5}],10:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -18053,91 +18137,7 @@ var TouchController = function (_EventEmitter) {
 
 module.exports = TouchController;
 
-},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1}],10:[function(require,module,exports){
-'use strict';
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _eventemitter = require("./../../bower_components/eventemitter2/lib/eventemitter2.js");
-
-var _StickController = require('./StickController');
-
-var _StickController2 = _interopRequireDefault(_StickController);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var UserInterface = function (_EventEmitter) {
-  _inherits(UserInterface, _EventEmitter);
-
-  function UserInterface() {
-    _classCallCheck(this, UserInterface);
-
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(UserInterface).call(this));
-
-    _this.$switchCamera = $('.js-switch-camera');
-    _this.$switchBlock = $('.js-switch-block');
-    _this.$switchRotate = $('.js-switch-rotate');
-    _this.$btns = _this.$switchCamera.add(_this.$switchBlock);
-
-    _this.setStickController();
-    _this.setEvent();
-    return _this;
-  }
-
-  _createClass(UserInterface, [{
-    key: 'setStickController',
-    value: function setStickController() {
-      var $stickContainer = $('.js-stick-container');
-      var $stickToucharea = $('.js-stick-toucharea');
-      var radius = $stickContainer.width() / 2 + $stickToucharea.width() / 2;
-      var stick = new _StickController2.default($stickToucharea, radius);
-    }
-  }, {
-    key: 'setEvent',
-    value: function setEvent() {
-      var _this2 = this;
-
-      this.$switchCamera.on('click', function () {
-        _this2.switchModeCamera();
-        _this2.emit('switchCameraClick');
-      });
-      this.$switchBlock.on('click', function () {
-        _this2.switchModeBlock();
-        _this2.emit('switchBlockClick');
-      });
-      this.$switchRotate.on('click', function () {
-        _this2.$switchRotate.toggleClass('is-active');
-        _this2.emit('switchRotateClick');
-      });
-    }
-  }, {
-    key: 'switchModeCamera',
-    value: function switchModeCamera() {
-      this.$btns.removeClass('is-active');
-      this.$switchCamera.addClass('is-active');
-      this.emit('switchModeCamera');
-    }
-  }, {
-    key: 'switchModeBlock',
-    value: function switchModeBlock() {
-      this.$btns.removeClass('is-active');
-      this.$switchBlock.addClass('is-active');
-      this.emit('switchModeBlock');
-    }
-  }]);
-
-  return UserInterface;
-}(_eventemitter.EventEmitter2);
-
-module.exports = UserInterface;
-
-},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./StickController":4}],11:[function(require,module,exports){
+},{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1}],11:[function(require,module,exports){
 "use strict";
 
 // import $ from 'jquery';
@@ -18274,9 +18274,9 @@ var _Tetris3dController = require('./Tetris3dController');
 
 var _Tetris3dController2 = _interopRequireDefault(_Tetris3dController);
 
-var _UserInterface = require('./UserInterface');
+var _Tetris3dUI = require('./Tetris3dUI');
 
-var _UserInterface2 = _interopRequireDefault(_UserInterface);
+var _Tetris3dUI2 = _interopRequireDefault(_Tetris3dUI);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -18290,30 +18290,30 @@ var util = _Util2.default;
 var tetris3dModel = new _Tetris3dModel2.default();
 var tetris3dView = new _Tetris3dView2.default();
 var tetris3dController = new _Tetris3dController2.default(tetris3dModel, tetris3dView);
-var ui = new _UserInterface2.default();
+var tetris3dUI = new _Tetris3dUI2.default();
 
 // event
-ui.on('switchCameraClick', function () {
+tetris3dUI.on('switchCameraClick', function () {
   tetris3dController.switchModeCamera();
 });
-ui.on('switchBlockClick', function () {
+tetris3dUI.on('switchBlockClick', function () {
   tetris3dController.switchModeBlock();
 });
-ui.on('switchRotateClick', function () {
+tetris3dUI.on('switchRotateClick', function () {
   tetris3dController.changeRotateDirection();
 });
 tetris3dController.on('switchModeCamera', function () {
-  ui.switchModeCamera();
+  tetris3dUI.switchModeCamera();
 });
 tetris3dController.on('switchModeBlock', function () {
-  ui.switchModeBlock();
+  tetris3dUI.switchModeBlock();
 });
 
 // start
 tetris3dController.newGame();
 
 // default mode
-ui.switchModeBlock();
+tetris3dUI.switchModeBlock();
 tetris3dController.switchModeBlock();
 
 // debug mode
@@ -18329,4 +18329,4 @@ if (query.debug) {
   })();
 }
 
-},{"./Tetris3dCONST":5,"./Tetris3dController":6,"./Tetris3dModel":7,"./Tetris3dView":8,"./UserInterface":10,"./Util":11}]},{},[12]);
+},{"./Tetris3dCONST":5,"./Tetris3dController":6,"./Tetris3dModel":7,"./Tetris3dUI":8,"./Tetris3dView":9,"./Util":11}]},{},[12]);
