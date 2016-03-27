@@ -2,6 +2,7 @@
 import _ from 'lodash';
 import { EventEmitter2 } from 'eventemitter2';
 import TouchController from './TouchController';
+import StickController from './StickController';
 import Tetris3dCONST from './Tetris3dCONST';
 
 const CONST = Tetris3dCONST;
@@ -15,11 +16,14 @@ export default class Tetris3dController extends EventEmitter2 {
     
     this.$root = $("#canvas-container");
     this.touch = new TouchController();
+    this.$stickContainer = $('.js-stick-container');
+    this.$stickToucharea = $('.js-stick-toucharea');
     
     this.setModelEvent();
     this.setBlurEvent();
     this.setKeyEvent();
     this.setTouchEvent(this.$root);
+    this.setStickController();
   };
   
   newGame() {
@@ -148,7 +152,12 @@ export default class Tetris3dController extends EventEmitter2 {
       if (!!evt.isTap) this.rotateBlock();
     });
   };
-    
+  
+  setStickController() {
+    const radius = this.$stickContainer.width() / 2 + this.$stickToucharea.width() / 2;
+    const stick = new StickController(this.$stickToucharea, radius);
+  }
+  
   swithMode(code) {
     switch (code) {
       case 'camera':
