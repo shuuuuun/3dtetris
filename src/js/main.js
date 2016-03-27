@@ -5,37 +5,37 @@ import Tetris3dCONST from './Tetris3dCONST';
 import Tetris3dView from './Tetris3dView';
 import Tetris3dModel from './Tetris3dModel';
 import Tetris3dController from './Tetris3dController';
-import UserInterface from './UserInterface';
+import Tetris3dUI from './Tetris3dUI';
 
 const util = Util;
 // const tetris = new Tetris3d();
 const tetris3dModel = new Tetris3dModel();
 const tetris3dView = new Tetris3dView();
 const tetris3dController = new Tetris3dController(tetris3dModel, tetris3dView);
-const ui = new UserInterface();
+const tetris3dUI = new Tetris3dUI();
 
 // event
-ui.on('switchCameraClick', () => {
+tetris3dUI.on('switchCameraClick', () => {
   tetris3dController.switchModeCamera();
 });
-ui.on('switchBlockClick', () => {
+tetris3dUI.on('switchBlockClick', () => {
   tetris3dController.switchModeBlock();
 });
-ui.on('switchRotateClick', () => {
+tetris3dUI.on('switchRotateClick', () => {
   tetris3dController.changeRotateDirection();
 });
 tetris3dController.on('switchModeCamera', () => {
-  ui.switchModeCamera();
+  tetris3dUI.switchModeCamera();
 });
 tetris3dController.on('switchModeBlock', () => {
-  ui.switchModeBlock();
+  tetris3dUI.switchModeBlock();
 });
 
 // start
 tetris3dController.newGame();
 
 // default mode
-ui.switchModeBlock();
+tetris3dUI.switchModeBlock();
 tetris3dController.switchModeBlock();
 
 

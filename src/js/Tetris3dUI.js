@@ -1,7 +1,7 @@
 import { EventEmitter2 } from 'eventemitter2';
 import StickController from './StickController';
 
-class UserInterface extends EventEmitter2 {
+class Tetris3dUI extends EventEmitter2 {
   constructor() {
     super();
     
@@ -49,4 +49,4 @@ class UserInterface extends EventEmitter2 {
   }
 }
 
-module.exports = UserInterface;
+module.exports = Tetris3dUI;
