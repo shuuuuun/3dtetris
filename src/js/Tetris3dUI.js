@@ -1,7 +1,7 @@
 import { EventEmitter2 } from 'eventemitter2';
 import StickController from './StickController';
 
-class Tetris3dUI extends EventEmitter2 {
+export default class Tetris3dUI extends EventEmitter2 {
   constructor() {
     super();
     
@@ -48,5 +48,3 @@ class Tetris3dUI extends EventEmitter2 {
     this.emit('switchModeBlock');
   }
 }
-
-module.exports = Tetris3dUI;

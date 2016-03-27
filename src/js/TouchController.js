@@ -1,6 +1,6 @@
 import { EventEmitter2 } from 'eventemitter2';
 
-class TouchController extends EventEmitter2 {
+export default class TouchController extends EventEmitter2 {
   constructor() {
     super();
 
@@ -109,5 +109,3 @@ class TouchController extends EventEmitter2 {
     };
   }
 }
-
-module.exports = TouchController;

@@ -16479,6 +16479,10 @@ Object.defineProperties(THREE.OrbitControls.prototype, {
 },{}],4:[function(require,module,exports){
 'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _eventemitter = require("./../../bower_components/eventemitter2/lib/eventemitter2.js");
@@ -16568,7 +16572,7 @@ var StickController = function (_EventEmitter) {
   return StickController;
 }(_eventemitter.EventEmitter2);
 
-module.exports = StickController;
+exports.default = StickController;
 
 },{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./TouchController":10}],5:[function(require,module,exports){
 'use strict';
@@ -16688,6 +16692,10 @@ module.exports = new Tetris3dCONST();
 
 },{}],6:[function(require,module,exports){
 'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -16964,10 +16972,14 @@ var Tetris3dController = function (_EventEmitter) {
   return Tetris3dController;
 }(_eventemitter.EventEmitter2);
 
-module.exports = Tetris3dController;
+exports.default = Tetris3dController;
 
 },{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./Tetris3dCONST":5,"./TouchController":10,"lodash":3}],7:[function(require,module,exports){
 'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -17431,10 +17443,14 @@ var Tetris3dModel = function (_EventEmitter) {
   return Tetris3dModel;
 }(_eventemitter.EventEmitter2);
 
-module.exports = Tetris3dModel;
+exports.default = Tetris3dModel;
 
 },{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./Tetris3dCONST":5}],8:[function(require,module,exports){
 'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -17515,10 +17531,14 @@ var Tetris3dUI = function (_EventEmitter) {
   return Tetris3dUI;
 }(_eventemitter.EventEmitter2);
 
-module.exports = Tetris3dUI;
+exports.default = Tetris3dUI;
 
 },{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1,"./StickController":4}],9:[function(require,module,exports){
 'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -17995,10 +18015,14 @@ var Tetris3dView = function () {
   return Tetris3dView;
 }();
 
-module.exports = Tetris3dView;
+exports.default = Tetris3dView;
 
 },{"./../../bower_components/three.js/examples/js/controls/OrbitControls.js":2,"./Tetris3dCONST":5}],10:[function(require,module,exports){
 'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -18135,7 +18159,7 @@ var TouchController = function (_EventEmitter) {
   return TouchController;
 }(_eventemitter.EventEmitter2);
 
-module.exports = TouchController;
+exports.default = TouchController;
 
 },{"./../../bower_components/eventemitter2/lib/eventemitter2.js":1}],11:[function(require,module,exports){
 "use strict";

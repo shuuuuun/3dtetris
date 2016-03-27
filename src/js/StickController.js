@@ -1,7 +1,7 @@
 import { EventEmitter2 } from 'eventemitter2';
 import TouchController from './TouchController';
 
-class StickController extends EventEmitter2 {
+export default class StickController extends EventEmitter2 {
   constructor($element, radius) {
     super();
     
@@ -55,5 +55,3 @@ class StickController extends EventEmitter2 {
     });
   }
 }
-
-module.exports = StickController;

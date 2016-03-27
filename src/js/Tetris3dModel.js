@@ -4,7 +4,7 @@ import Tetris3dCONST from './Tetris3dCONST';
 
 const CONST = Tetris3dCONST;
 
-class Tetris3dModel extends EventEmitter2 {
+export default class Tetris3dModel extends EventEmitter2 {
   constructor() {
     super();
   };
@@ -382,5 +382,3 @@ class Tetris3dModel extends EventEmitter2 {
     return isGameOver;
   };
 }
-
-module.exports = Tetris3dModel;

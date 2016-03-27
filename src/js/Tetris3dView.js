@@ -6,7 +6,7 @@ import Tetris3dCONST from './Tetris3dCONST';
 
 const CONST = Tetris3dCONST;
 
-class Tetris3dView {
+export default class Tetris3dView {
   constructor() {
     this.framecount = 0;
     this.ZERO_VECTOR = new THREE.Vector3(0,0,0);
@@ -453,5 +453,3 @@ class Tetris3dView {
     cancelAnimationFrame(this.loopId);
   }
 }
-
-module.exports = Tetris3dView;
