@@ -16,8 +16,7 @@ class StickController extends EventEmitter2 {
     touch.setElement(this.$element.get(0));
     
     touch.on('touchmove', (evt) => {
-      console.log(evt);
-      this.movePosition({ x: evt.moveX, y: evt.moveY });
+      this.movePosition({ x: -evt.deltaX, y: -evt.deltaY });
     });
     touch.on('touchend', (evt) => {
       this.animatePosition({ x: 0, y: 0 });
@@ -41,22 +40,18 @@ class StickController extends EventEmitter2 {
   }
   
   animatePosition(target){
-    const x = target.x * this.radius;
-    const y = -target.y * this.radius;
     this.$element.animate({
-      'top': y + 'px',
-      'left': x + 'px',
+      'top': target.y + 'px',
+      'left': target.x + 'px',
     }, () => {
       this.emit('animateend');
     });
   }
   
   setPosition(target){
-    const x = target.x * this.radius;
-    const y = -target.y * this.radius;
     this.$element.css({
-      'top': y + 'px',
-      'left': x + 'px',
+      'top': target.y + 'px',
+      'left': target.x + 'px',
     });
   }
 }
