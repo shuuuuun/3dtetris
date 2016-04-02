@@ -3,7 +3,9 @@ import { EventEmitter2 } from 'eventemitter2';
 export default class TouchController extends EventEmitter2 {
   constructor() {
     super();
-
+    
+    this.doubleTapDelay = 500;
+    
     this.touchsupport = ('ontouchstart' in window);
     this.touchstart = (this.touchsupport) ? 'touchstart' : 'mousedown';
     this.touchmove  = (this.touchsupport) ? 'touchmove'  : 'mousemove';
@@ -43,6 +45,7 @@ export default class TouchController extends EventEmitter2 {
     this.onTouchStart = (evt) => {
       evt.preventDefault(); // enablePreventDefault
       
+      this.isDoubleTap = this.isTap;
       this.isDragging = true;
       this.isTap = true;
       this.touchStartTime = Date.now();
@@ -71,7 +74,7 @@ export default class TouchController extends EventEmitter2 {
       this.moveX  = this.touchX - this.touchStartX;
       this.moveY  = this.touchY - this.touchStartY;
       
-      this.isTap = false;
+      this.isTap = this.isDoubleTap = false;
       
       this.emit('touchmove', {
         'lasttouchX': this.lasttouchX,
@@ -102,10 +105,14 @@ export default class TouchController extends EventEmitter2 {
         'moveX'      : this.moveX,
         'moveY'      : this.moveY,
         'isTap'      : this.isTap,
+        'isDoubleTap': this.isDoubleTap,
       });
       
       this.touchX = this.touchY = null;
       this.moveX = this.moveY = 0;
+      setTimeout(() => {
+        this.isTap = this.isDoubleTap = false;
+      }, this.doubleTapDelay);
     };
   }
 }
