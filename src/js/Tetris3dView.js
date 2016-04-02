@@ -2,6 +2,8 @@
 // global.THREE = require('three.js'); // global === window
 // import OrbitControls from 'three.js/examples/js/controls/OrbitControls.js'; // これじゃだめ
 const OrbitControls = require('three.js/examples/js/controls/OrbitControls.js');
+// const EditorControls = require('three.js/examples/js/controls/EditorControls.js');
+import EditorControls2 from './lib/EditorControls2';
 import Tetris3dCONST from './Tetris3dCONST';
 
 const CONST = Tetris3dCONST;
@@ -15,6 +17,11 @@ export default class Tetris3dView {
     this.CAMERA_POSITION = new THREE.Vector3(CONST.CENTER_X, -100, this.CAMERA_DISTANCE_DEFAULT);
     this.CAMERA_NEAR = 1;
     this.CAMERA_FAR = 100000;
+    
+    // this.radius = 150;
+    // this.theta = 45;
+    // this.phi = 0;
+    // this.radiusStep = 10;
   }
   
   init() {
@@ -225,6 +232,8 @@ export default class Tetris3dView {
     this.controls.enableKeys = false;
     // this.controls.reset();
     this.controls.update();
+    // this.controls = new THREE.EditorControls(this.camera);
+    // this.controls.center = this.CENTER_VECTOR;
   }
   
   checkCameraDirection() {
@@ -241,6 +250,30 @@ export default class Tetris3dView {
     // console.log(cameraVector.toArray(), direction);
     return direction;
   };
+  
+  getCameraPositoin() {
+    return this.camera.position;
+  }
+  
+  setCameraPositoin(position) {
+    this.camera.position = position;
+  }
+  
+  moveCameraPositoin(distance) {
+    const distanceVector = new THREE.Vector3().add(distance);
+    const position = this.camera.position.sub(distanceVector);
+    console.log(distanceVector, position);
+    // this.setCameraPositoin(position);
+  }
+  
+  rotateCamera(distance) {
+  }
+  rotateCameraLeft(angle) {
+    this.thetaDelta -= angle;
+  }
+  rotateCameraUp(angle) {
+    this.phiDelta -= angle;
+  }
   
   tick() {
     this.framecount++;
