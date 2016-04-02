@@ -697,41 +697,33 @@ THREE.OrbitControls = function (object, domElement) {
 			offset.applyQuaternion(quat);
 
 			// angle from z-axis around y-axis
-
-			theta = Math.atan2(offset.x, offset.z);
-
-			// angle from y-axis
-
-			phi = Math.atan2(Math.sqrt(offset.x * offset.x + offset.z * offset.z), offset.y);
+			spherical.setFromVector3(offset);
 
 			if (scope.autoRotate && state === STATE.NONE) {
 
 				rotateLeft(getAutoRotationAngle());
 			}
 
-			theta += thetaDelta;
-			phi += phiDelta;
+			spherical.theta += sphericalDelta.theta;
+			spherical.phi += sphericalDelta.phi;
 
 			// restrict theta to be between desired limits
-			theta = Math.max(scope.minAzimuthAngle, Math.min(scope.maxAzimuthAngle, theta));
+			spherical.theta = Math.max(scope.minAzimuthAngle, Math.min(scope.maxAzimuthAngle, spherical.theta));
 
 			// restrict phi to be between desired limits
-			phi = Math.max(scope.minPolarAngle, Math.min(scope.maxPolarAngle, phi));
+			spherical.phi = Math.max(scope.minPolarAngle, Math.min(scope.maxPolarAngle, spherical.phi));
 
-			// restrict phi to be betwee EPS and PI-EPS
-			phi = Math.max(EPS, Math.min(Math.PI - EPS, phi));
+			spherical.makeSafe();
 
-			var radius = offset.length() * scale;
+			spherical.radius *= scale;
 
 			// restrict radius to be between desired limits
-			radius = Math.max(scope.minDistance, Math.min(scope.maxDistance, radius));
+			spherical.radius = Math.max(scope.minDistance, Math.min(scope.maxDistance, spherical.radius));
 
 			// move target to panned location
 			scope.target.add(panOffset);
 
-			offset.x = radius * Math.sin(phi) * Math.sin(theta);
-			offset.y = radius * Math.cos(phi);
-			offset.z = radius * Math.sin(phi) * Math.cos(theta);
+			offset.setFromSpherical(spherical);
 
 			// rotate offset back to "camera-up-vector-is-up" space
 			offset.applyQuaternion(quatInverse);
@@ -742,12 +734,11 @@ THREE.OrbitControls = function (object, domElement) {
 
 			if (scope.enableDamping === true) {
 
-				thetaDelta *= 1 - scope.dampingFactor;
-				phiDelta *= 1 - scope.dampingFactor;
+				sphericalDelta.theta *= 1 - scope.dampingFactor;
+				sphericalDelta.phi *= 1 - scope.dampingFactor;
 			} else {
 
-				thetaDelta = 0;
-				phiDelta = 0;
+				sphericalDelta.set(0, 0, 0);
 			}
 
 			scale = 1;
@@ -809,11 +800,9 @@ THREE.OrbitControls = function (object, domElement) {
 	var EPS = 0.000001;
 
 	// current position in spherical coordinates
-	var theta;
-	var phi;
+	var spherical = new THREE.Spherical();
+	var sphericalDelta = new THREE.Spherical();
 
-	var phiDelta = 0;
-	var thetaDelta = 0;
 	var scale = 1;
 	var panOffset = new THREE.Vector3();
 	var zoomChanged = false;
@@ -842,12 +831,12 @@ THREE.OrbitControls = function (object, domElement) {
 
 	function rotateLeft(angle) {
 
-		thetaDelta -= angle;
+		sphericalDelta.theta -= angle;
 	}
 
 	function rotateUp(angle) {
 
-		phiDelta -= angle;
+		sphericalDelta.phi -= angle;
 	}
 
 	var panLeft = function () {
@@ -856,11 +845,7 @@ THREE.OrbitControls = function (object, domElement) {
 
 		return function panLeft(distance, objectMatrix) {
 
-			var te = objectMatrix.elements;
-
-			// get X column of objectMatrix
-			v.set(te[0], te[1], te[2]);
-
+			v.setFromMatrixColumn(objectMatrix, 0); // get X column of objectMatrix
 			v.multiplyScalar(-distance);
 
 			panOffset.add(v);
@@ -873,11 +858,7 @@ THREE.OrbitControls = function (object, domElement) {
 
 		return function panUp(distance, objectMatrix) {
 
-			var te = objectMatrix.elements;
-
-			// get Y column of objectMatrix
-			v.set(te[4], te[5], te[6]);
-
+			v.setFromMatrixColumn(objectMatrix, 1); // get Y column of objectMatrix
 			v.multiplyScalar(distance);
 
 			panOffset.add(v);
@@ -909,8 +890,8 @@ THREE.OrbitControls = function (object, domElement) {
 			} else if (scope.object instanceof THREE.OrthographicCamera) {
 
 				// orthographic
-				panLeft(deltaX * (scope.object.right - scope.object.left) / element.clientWidth, scope.object.matrix);
-				panUp(deltaY * (scope.object.top - scope.object.bottom) / element.clientHeight, scope.object.matrix);
+				panLeft(deltaX * (scope.object.right - scope.object.left) / scope.object.zoom / element.clientWidth, scope.object.matrix);
+				panUp(deltaY * (scope.object.top - scope.object.bottom) / scope.object.zoom / element.clientHeight, scope.object.matrix);
 			} else {
 
 				// camera neither orthographic nor perspective
@@ -16502,13 +16483,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var StickController = function (_EventEmitter) {
   _inherits(StickController, _EventEmitter);
 
-  function StickController($element, radius) {
+  function StickController() {
+    var opts = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
     _classCallCheck(this, StickController);
 
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(StickController).call(this));
 
-    _this.$element = $element;
-    _this.radius = radius;
+    _this.$element = opts.$element;
+    _this.position = { x: 0, y: 0 };
 
     _this.setEvent();
     return _this;
@@ -16532,10 +16515,7 @@ var StickController = function (_EventEmitter) {
   }, {
     key: 'checkPosition',
     value: function checkPosition() {
-      return {
-        'top': this.$element.position().top,
-        'left': this.$element.position().left
-      };
+      return this.$element.position();
     }
   }, {
     key: 'movePosition',
@@ -16545,27 +16525,36 @@ var StickController = function (_EventEmitter) {
         x: before.left - distance.x,
         y: before.top - distance.y
       };
-      this.setPosition(target);
+      this.jumpPosition(target);
+      this.emit('moved', this.position);
     }
   }, {
     key: 'animatePosition',
     value: function animatePosition(target) {
       var _this3 = this;
 
+      this.setPosition(target);
       this.$element.animate({
         'top': target.y + 'px',
         'left': target.x + 'px'
       }, function () {
-        _this3.emit('animateend');
+        _this3.emit('animateend', _this3.position);
       });
     }
   }, {
-    key: 'setPosition',
-    value: function setPosition(target) {
+    key: 'jumpPosition',
+    value: function jumpPosition(target) {
+      this.setPosition(target);
       this.$element.css({
         'top': target.y + 'px',
         'left': target.x + 'px'
       });
+      this.emit('jumped', this.position);
+    }
+  }, {
+    key: 'setPosition',
+    value: function setPosition(target) {
+      this.position = target;
     }
   }]);
 
@@ -16740,9 +16729,12 @@ var Tetris3dController = function (_EventEmitter) {
     _this.view = view;
 
     _this.$root = $('#canvas-container');
-    _this.touch = new _TouchController2.default();
     _this.$stickContainer = $('.js-stick-container');
     _this.$stickToucharea = $('.js-stick-toucharea');
+    _this.touch = new _TouchController2.default();
+    _this.stick = new _StickController2.default({
+      $element: _this.$stickToucharea
+    });
 
     _this.setModelEvent();
     _this.setBlurEvent();
@@ -16895,8 +16887,14 @@ var Tetris3dController = function (_EventEmitter) {
   }, {
     key: 'setStickController',
     value: function setStickController() {
-      var radius = this.$stickContainer.width() / 2 + this.$stickToucharea.width() / 2;
-      var stick = new _StickController2.default(this.$stickToucharea, radius);
+      var _this6 = this;
+
+      this.stick.on('moved', function (evt) {
+        _this6.view.controls.rotate({
+          x: evt.x / -1000,
+          y: evt.y / -1000
+        });
+      });
     }
   }, {
     key: 'swithMode',
@@ -17538,7 +17536,15 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }(); // import THREE from 'three.js';
+// global.THREE = require('three.js'); // global === window
+
+// import 'three.js/examples/js/controls/EditorControls.js';
+
+
+require("./../../bower_components/three.js/examples/js/controls/OrbitControls.js");
+
+require('./lib/EditorControls2');
 
 var _Tetris3dCONST = require('./Tetris3dCONST');
 
@@ -17547,12 +17553,6 @@ var _Tetris3dCONST2 = _interopRequireDefault(_Tetris3dCONST);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-// import THREE from 'three.js';
-// global.THREE = require('three.js'); // global === window
-// import OrbitControls from 'three.js/examples/js/controls/OrbitControls.js'; // これじゃだめ
-var OrbitControls = require("./../../bower_components/three.js/examples/js/controls/OrbitControls.js");
-
 
 var CONST = _Tetris3dCONST2.default;
 
@@ -17588,46 +17588,12 @@ var Tetris3dView = function () {
 
       // camera ------------------------------
       this.perscamera = new THREE.PerspectiveCamera(45, CONST.WIDTH / CONST.HEIGHT, this.CAMERA_NEAR, this.CAMERA_FAR); // fov(視野角), aspect, near, far
-      // this.orthocamera = new THREE.OrthographicCamera( -CONST.WIDTH / 2, CONST.WIDTH / 2, CONST.HEIGHT / 2, -CONST.HEIGHT / 2, this.CAMERA_NEAR, this.CAMERA_FAR ); // left, right, top, bottom, near, far
       this.orthocamera = new THREE.OrthographicCamera(-window.innerWidth / 2, window.innerWidth / 2, window.innerHeight / 2, -window.innerHeight / 2, this.CAMERA_NEAR, this.CAMERA_FAR); // left, right, top, bottom, near, far
       this.cubecamera = new THREE.CubeCamera(this.CAMERA_NEAR, this.CAMERA_FAR, 128); // near, far, cubeResolution
       this.setCamera();
-      /*
-      this.camera = this.perscamera;
-      // this.camera = this.orthocamera;
-      // this.camera = new THREE.Camera();
-      // this.camera.clone(this.perscamera);
-      this.camera.position.set(2000, CONST.CENTER_Y, 2000);
-      // this.camera.position.set(this.CAMERA_POSITION);
-      // this.camera.position.add(this.CAMERA_POSITION);
-      // this.camera.position.copy(this.CAMERA_POSITION);
-      // this.camera.position.addVectors(this.ZERO_VECTOR, this.CAMERA_POSITION);
-      // this.camera.position = this.CAMERA_POSITION;
-      this.camera.up.set(0, -1, 0); // y down
-      // this.camera.lookAt(this.CENTER_VECTOR);
-      // this.camera.lookAt(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
-      // let lookatVector = new THREE.Vector3().subVectors(this.CENTER_VECTOR, this.camera.position);
-      // let lookatVector = new THREE.Vector3().addVectors(this.CENTER_VECTOR, this.camera.position);
-      // this.camera.lookAt(lookatVector);
-      // this.camera.lookAt(0,1,0);
-      // this.camera.lookAt(new THREE.Vector3(0,1,0));
-      // console.log(lookatVector, this.camera.getWorldDirection());
-      
-      
+
       // controls ------------------------------
-      this.controls = new THREE.OrbitControls(this.camera);
-      // this.controls.center.set(CONST.CENTER_X, 0, CONST.CENTER_Z);
-      // this.controls.center = this.CENTER_VECTOR;
-      // this.controls.center.set(this.CENTER_VECTOR);
-      // this.controls.center.set(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
-      // this.controls.target.set(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
-      // this.controls.target = new THREE.Vector3(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
-      this.controls.target = this.CENTER_VECTOR;
-      // this.controls.target.set(this.CENTER_VECTOR);
-      // this.controls.noKeys = true;
-      this.controls.enableKeys = false;
-      this.controls.update();
-      */
+      // this.startControls();
 
       // axis ------------------------------
       var axis = new THREE.AxisHelper(this.CAMERA_FAR);
@@ -17663,13 +17629,6 @@ var Tetris3dView = function () {
         // this.scene.add( line );
       }
 
-      // plane ------------------------------
-      // plane = new THREE.Mesh( new THREE.PlaneGeometry( 1000, 1000 ), new THREE.MeshBasicMaterial() );
-      // plane.rotation.x = - Math.PI / 2;
-      // plane.visible = false;
-      // this.scene.add( plane );
-      // objects.push( plane );
-
       // Lights ------------------------------
       var ambientLight = new THREE.AmbientLight(0x606060);
       this.scene.add(ambientLight);
@@ -17677,23 +17636,8 @@ var Tetris3dView = function () {
       directionalLight.position.set(0.5, -0.75, 1).normalize();
       this.scene.add(directionalLight);
 
-      // picking ------------------------------
-      // projector = new THREE.Projector();
-
       // mouse ------------------------------
       this.mouse2D = new THREE.Vector3(0, 10000, 0.5);
-
-      // roll-over helpers ------------------------------
-      // rollOverGeo = new THREE.BoxGeometry( CONST.VOXEL_SIZE, CONST.VOXEL_SIZE, CONST.VOXEL_SIZE );
-      // rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.5, transparent: true } );
-      // rollOverMesh = new THREE.Mesh( rollOverGeo, rollOverMaterial );
-      // this.scene.add( rollOverMesh );
-
-      // stats ------------------------------
-      // stats = new Stats();
-      // stats.domElement.style.position = 'absolute';
-      // stats.domElement.style.top = '0px';
-      // container.appendChild( stats.domElement );
 
       // cubes ------------------------------
       this.cubeGeo = new THREE.BoxGeometry(CONST.VOXEL_SIZE, CONST.VOXEL_SIZE, CONST.VOXEL_SIZE);
@@ -17715,7 +17659,6 @@ var Tetris3dView = function () {
     value: function setSize() {
       this.width = window.innerWidth || CONST.WIDTH;
       this.height = window.innerHeight || CONST.HEIGHT;
-      // alert(window.innerWidth + ',' + CONST.WIDTH);
       this.camera.aspect = this.width / this.height;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(this.width, this.height);
@@ -17726,28 +17669,25 @@ var Tetris3dView = function () {
       switch (code) {
         case 'ortho1':
           this.camera = this.orthocamera;
-          // this.camera.clone(this.orthocamera);
           this.camera.position.set(CONST.CENTER_X, CONST.CENTER_Y, this.CAMERA_DISTANCE_DEFAULT);
           break;
         case 'ortho2':
           this.camera = this.orthocamera;
-          // this.camera.clone(this.orthocamera);
           this.camera.position.set(this.CAMERA_DISTANCE_DEFAULT, CONST.CENTER_Y, CONST.CENTER_Z);
           break;
         case 'ortho3':
           this.camera = this.orthocamera;
-          // this.camera.clone(this.orthocamera);
           this.camera.position.set(CONST.CENTER_X, -1000, CONST.CENTER_Z);
           break;
         default:
           // 'pers'
           this.camera = this.perscamera;
-          // this.camera.clone(this.perscamera);
           this.camera.position.copy(this.CAMERA_POSITION);
           break;
       }
       this.camera.up.set(0, -1, 0); // y down
       this.camera.zoom = 1;
+      this.camera.lookAt(this.CENTER_VECTOR);
 
       this.stopControls();
       this.startControls();
@@ -17761,70 +17701,34 @@ var Tetris3dView = function () {
     key: 'startControls',
     value: function startControls() {
       if (this.controls) this.stopControls();
-      this.controls = new THREE.OrbitControls(this.camera);
-      this.controls.target = this.CENTER_VECTOR;
-      this.controls.enableKeys = false;
-      // this.controls.reset();
-      this.controls.update();
+      // this.controls = new THREE.OrbitControls(this.camera);
+      // this.controls.target = this.CENTER_VECTOR;
+      // this.controls.enableKeys = false;
+      // this.controls.update();
+      this.controls = new THREE.EditorControls(this.camera);
+      this.controls.center = this.CENTER_VECTOR;
     }
   }, {
     key: 'checkCameraDirection',
     value: function checkCameraDirection() {
-      // checkForward() {
-      // const pos = this.camera.position.clone().normalize();
-      // const cameraVector = new THREE.Vector3().subVectors(this.camera.position, this.CENTER_VECTOR);
-      // const cameraVector = this.camera.position.clone().sub(this.CENTER_VECTOR).normalize();
       var cameraVector = this.camera.position.clone().sub(this.CENTER_VECTOR);
       var direction = {
         x: Math.sign(Math.abs(cameraVector.x) > Math.abs(cameraVector.z) ? cameraVector.x : 0),
         y: Math.sign(-cameraVector.y),
         z: Math.sign(Math.abs(cameraVector.z) > Math.abs(cameraVector.x) ? cameraVector.z : 0)
       };
-      // console.log(cameraVector.toArray(), direction);
       return direction;
     }
   }, {
     key: 'tick',
     value: function tick() {
       this.framecount++;
-
-      // this.controls.update();
-
-      // this.radius += this.radiusStep;
-      // this.phi++;
-      // this.camera.position.x = this.radius * Math.sin(this.theta /180 * Math.PI) * Math.sin(this.phi /180 * Math.PI); // 極座標変換
-      // this.camera.position.y = this.radius * Math.sin(this.theta /180 * Math.PI) * Math.cos(this.phi /180 * Math.PI);
-      // this.camera.position.z = this.radius * Math.cos(this.theta /180 * Math.PI);
-      // this.camera.lookAt( this.scene.position );
-      // if (this.radius < this.MIN_RADIUS || this.radius > this.MAX_RADIUS) this.radiusStep *= -1;
-
-      // this.camera.position.x += ( this.mouseX - this.camera.position.x ) * 0.005;
-      // this.camera.position.y += ( - this.mouseY - this.camera.position.y ) * 0.005;
-      // this.camera.lookAt( this.scene.position );
-
-      // this.camera.position.z = this.r * Math.sin(this.theta /180 * Math.PI) * Math.cos(this.phi /180 * Math.PI);
-      // this.camera.position.x = this.r * Math.sin(this.theta /180 * Math.PI) * Math.sin(this.phi /180 * Math.PI);
-      // this.camera.position.y = this.r * Math.cos(this.theta /180 * Math.PI);
-      // this.camera.position.x = 1400 * Math.sin( THREE.Math.degToRad( this.theta ) );
-      // this.camera.position.y = 1400 * Math.tan( THREE.Math.degToRad( thetaY ) );
-      // this.camera.position.z = 1400 * Math.cos( THREE.Math.degToRad( this.theta ) );
-      // this.camera.position.set(0,100,-500);
-      // this.camera.lookAt( this.scene.position );
     }
   }, {
     key: 'render',
     value: function render() {
       this.renderer.render(this.scene, this.camera);
-
-      this.renderBoard();
-      this.renderCurrentBlock();
     }
-  }, {
-    key: 'renderBoard',
-    value: function renderBoard() {}
-  }, {
-    key: 'renderCurrentBlock',
-    value: function renderCurrentBlock() {}
   }, {
     key: 'drawCurrentBlock',
     value: function drawCurrentBlock(block) {
@@ -18015,7 +17919,7 @@ var Tetris3dView = function () {
 
 exports.default = Tetris3dView;
 
-},{"./../../bower_components/three.js/examples/js/controls/OrbitControls.js":2,"./Tetris3dCONST":5}],10:[function(require,module,exports){
+},{"./../../bower_components/three.js/examples/js/controls/OrbitControls.js":2,"./Tetris3dCONST":5,"./lib/EditorControls2":12}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -18276,6 +18180,305 @@ module.exports = Util;
 },{}],12:[function(require,module,exports){
 'use strict';
 
+/**
+ * @author qiao / https://github.com/qiao
+ * @author mrdoob / http://mrdoob.com
+ * @author alteredq / http://alteredqualia.com/
+ * @author WestLangley / http://github.com/WestLangley
+ */
+
+THREE.EditorControls = function (object, domElement) {
+
+	domElement = domElement !== undefined ? domElement : document;
+
+	// API
+
+	this.enabled = true;
+	this.center = new THREE.Vector3();
+
+	// internals
+
+	var scope = this;
+	var vector = new THREE.Vector3();
+
+	var STATE = { NONE: -1, ROTATE: 0, ZOOM: 1, PAN: 2 };
+	var state = STATE.NONE;
+
+	// var center = this.center;
+	var normalMatrix = new THREE.Matrix3();
+	var pointer = new THREE.Vector2();
+	var pointerOld = new THREE.Vector2();
+	var spherical = new THREE.Spherical();
+
+	// events
+
+	var changeEvent = { type: 'change' };
+
+	this.focus = function (target, frame) {
+
+		var scale = new THREE.Vector3();
+		target.matrixWorld.decompose(scope.center, new THREE.Quaternion(), scale);
+
+		if (frame && target.geometry) {
+
+			scale = (scale.x + scale.y + scale.z) / 3;
+			scope.center.add(target.geometry.boundingSphere.center.clone().multiplyScalar(scale));
+			var radius = target.geometry.boundingSphere.radius * scale;
+			var pos = object.position.clone().sub(scope.center).normalize().multiplyScalar(radius * 2);
+			object.position.copy(scope.center).add(pos);
+		}
+
+		object.lookAt(scope.center);
+
+		scope.dispatchEvent(changeEvent);
+	};
+
+	this.pan = function (delta) {
+
+		var distance = object.position.distanceTo(scope.center);
+
+		delta.multiplyScalar(distance * 0.001);
+		delta.applyMatrix3(normalMatrix.getNormalMatrix(object.matrix));
+
+		object.position.add(delta);
+		scope.center.add(delta);
+
+		scope.dispatchEvent(changeEvent);
+	};
+
+	this.zoom = function (delta) {
+
+		var distance = object.position.distanceTo(scope.center);
+
+		delta.multiplyScalar(distance * 0.001);
+
+		if (delta.length() > distance) return;
+
+		delta.applyMatrix3(normalMatrix.getNormalMatrix(object.matrix));
+
+		object.position.add(delta);
+
+		scope.dispatchEvent(changeEvent);
+	};
+
+	this.rotate = function (delta) {
+
+		vector.copy(object.position).sub(scope.center);
+
+		spherical.setFromVector3(vector);
+
+		spherical.theta += delta.x;
+		spherical.phi += delta.y;
+
+		spherical.makeSafe();
+
+		vector.setFromSpherical(spherical);
+
+		object.position.copy(scope.center).add(vector);
+
+		object.lookAt(scope.center);
+
+		scope.dispatchEvent(changeEvent);
+	};
+
+	// mouse
+
+	function onMouseDown(event) {
+
+		if (scope.enabled === false) return;
+
+		if (event.button === 0) {
+
+			state = STATE.ROTATE;
+		} else if (event.button === 1) {
+
+			state = STATE.ZOOM;
+		} else if (event.button === 2) {
+
+			state = STATE.PAN;
+		}
+
+		pointerOld.set(event.clientX, event.clientY);
+
+		domElement.addEventListener('mousemove', onMouseMove, false);
+		domElement.addEventListener('mouseup', onMouseUp, false);
+		domElement.addEventListener('mouseout', onMouseUp, false);
+		domElement.addEventListener('dblclick', onMouseUp, false);
+	}
+
+	function onMouseMove(event) {
+
+		if (scope.enabled === false) return;
+
+		pointer.set(event.clientX, event.clientY);
+
+		var movementX = pointer.x - pointerOld.x;
+		var movementY = pointer.y - pointerOld.y;
+
+		if (state === STATE.ROTATE) {
+
+			scope.rotate(new THREE.Vector3(-movementX * 0.005, -movementY * 0.005, 0));
+		} else if (state === STATE.ZOOM) {
+
+			scope.zoom(new THREE.Vector3(0, 0, movementY));
+		} else if (state === STATE.PAN) {
+
+			scope.pan(new THREE.Vector3(-movementX, movementY, 0));
+		}
+
+		pointerOld.set(event.clientX, event.clientY);
+	}
+
+	function onMouseUp(event) {
+
+		domElement.removeEventListener('mousemove', onMouseMove, false);
+		domElement.removeEventListener('mouseup', onMouseUp, false);
+		domElement.removeEventListener('mouseout', onMouseUp, false);
+		domElement.removeEventListener('dblclick', onMouseUp, false);
+
+		state = STATE.NONE;
+	}
+
+	function onMouseWheel(event) {
+
+		event.preventDefault();
+
+		// if ( scope.enabled === false ) return;
+
+		var delta = 0;
+
+		if (event.wheelDelta) {
+
+			// WebKit / Opera / Explorer 9
+
+			delta = -event.wheelDelta;
+		} else if (event.detail) {
+
+			// Firefox
+
+			delta = event.detail * 10;
+		}
+
+		scope.zoom(new THREE.Vector3(0, 0, delta));
+	}
+
+	function contextmenu(event) {
+
+		event.preventDefault();
+	}
+
+	this.dispose = function () {
+
+		domElement.removeEventListener('contextmenu', contextmenu, false);
+		domElement.removeEventListener('mousedown', onMouseDown, false);
+		domElement.removeEventListener('mousewheel', onMouseWheel, false);
+		domElement.removeEventListener('MozMousePixelScroll', onMouseWheel, false); // firefox
+
+		domElement.removeEventListener('mousemove', onMouseMove, false);
+		domElement.removeEventListener('mouseup', onMouseUp, false);
+		domElement.removeEventListener('mouseout', onMouseUp, false);
+		domElement.removeEventListener('dblclick', onMouseUp, false);
+
+		domElement.removeEventListener('touchstart', touchStart, false);
+		domElement.removeEventListener('touchmove', touchMove, false);
+	};
+
+	domElement.addEventListener('contextmenu', contextmenu, false);
+	domElement.addEventListener('mousedown', onMouseDown, false);
+	domElement.addEventListener('mousewheel', onMouseWheel, false);
+	domElement.addEventListener('MozMousePixelScroll', onMouseWheel, false); // firefox
+
+	// touch
+
+	var touch = new THREE.Vector3();
+
+	var touches = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
+	var prevTouches = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
+
+	var prevDistance = null;
+
+	function touchStart(event) {
+
+		if (scope.enabled === false) return;
+
+		switch (event.touches.length) {
+
+			case 1:
+				touches[0].set(event.touches[0].pageX, event.touches[0].pageY, 0);
+				touches[1].set(event.touches[0].pageX, event.touches[0].pageY, 0);
+				break;
+
+			case 2:
+				touches[0].set(event.touches[0].pageX, event.touches[0].pageY, 0);
+				touches[1].set(event.touches[1].pageX, event.touches[1].pageY, 0);
+				prevDistance = touches[0].distanceTo(touches[1]);
+				break;
+
+		}
+
+		prevTouches[0].copy(touches[0]);
+		prevTouches[1].copy(touches[1]);
+	}
+
+	function touchMove(event) {
+
+		if (scope.enabled === false) return;
+
+		event.preventDefault();
+		event.stopPropagation();
+
+		function getClosest(touch, touches) {
+
+			var closest = touches[0];
+
+			for (var i in touches) {
+
+				if (closest.distanceTo(touch) > touches[i].distanceTo(touch)) closest = touches[i];
+			}
+
+			return closest;
+		}
+
+		switch (event.touches.length) {
+
+			case 1:
+				touches[0].set(event.touches[0].pageX, event.touches[0].pageY, 0);
+				touches[1].set(event.touches[0].pageX, event.touches[0].pageY, 0);
+				scope.rotate(touches[0].sub(getClosest(touches[0], prevTouches)).multiplyScalar(-0.005));
+				break;
+
+			case 2:
+				touches[0].set(event.touches[0].pageX, event.touches[0].pageY, 0);
+				touches[1].set(event.touches[1].pageX, event.touches[1].pageY, 0);
+				distance = touches[0].distanceTo(touches[1]);
+				scope.zoom(new THREE.Vector3(0, 0, prevDistance - distance));
+				prevDistance = distance;
+
+				var offset0 = touches[0].clone().sub(getClosest(touches[0], prevTouches));
+				var offset1 = touches[1].clone().sub(getClosest(touches[1], prevTouches));
+				offset0.x = -offset0.x;
+				offset1.x = -offset1.x;
+
+				scope.pan(offset0.add(offset1).multiplyScalar(0.5));
+
+				break;
+
+		}
+
+		prevTouches[0].copy(touches[0]);
+		prevTouches[1].copy(touches[1]);
+	}
+
+	domElement.addEventListener('touchstart', touchStart, false);
+	domElement.addEventListener('touchmove', touchMove, false);
+};
+
+THREE.EditorControls.prototype = Object.create(THREE.EventDispatcher.prototype);
+THREE.EditorControls.prototype.constructor = THREE.EditorControls;
+
+},{}],13:[function(require,module,exports){
+'use strict';
+
 var _Util = require('./Util');
 
 var _Util2 = _interopRequireDefault(_Util);
@@ -18344,4 +18547,4 @@ if (query.debug) {
   })();
 }
 
-},{"./Tetris3dCONST":5,"./Tetris3dController":6,"./Tetris3dModel":7,"./Tetris3dUI":8,"./Tetris3dView":9,"./Util":11}]},{},[12]);
+},{"./Tetris3dCONST":5,"./Tetris3dController":6,"./Tetris3dModel":7,"./Tetris3dUI":8,"./Tetris3dView":9,"./Util":11}]},{},[13]);
