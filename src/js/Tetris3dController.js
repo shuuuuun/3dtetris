@@ -158,10 +158,10 @@ export default class Tetris3dController extends EventEmitter2 {
   
   setStickController() {
     this.stick.on('moved', (evt) => {
-      console.log(evt);
-      evt.z = 0;
-      // this.view.moveCameraPositoin(evt);
-      // console.log(this.view.getCameraPositoin());
+      this.view.controls.rotate({
+        x: evt.x / -1000,
+        y: evt.y / -1000,
+      });
     })
   }
   
