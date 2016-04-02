@@ -1,8 +1,7 @@
 // import THREE from 'three.js';
 // global.THREE = require('three.js'); // global === window
-// import 'three.js/examples/js/controls/OrbitControls.js'; // これじゃだめ
-require('three.js/examples/js/controls/OrbitControls.js');
-// require('three.js/examples/js/controls/EditorControls.js');
+import 'three.js/examples/js/controls/OrbitControls.js';
+// import 'three.js/examples/js/controls/EditorControls.js';
 import './lib/EditorControls2';
 import Tetris3dCONST from './Tetris3dCONST';
 
