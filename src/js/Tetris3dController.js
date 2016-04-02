@@ -15,9 +15,12 @@ export default class Tetris3dController extends EventEmitter2 {
     this.view = view;
     
     this.$root = $('#canvas-container');
-    this.touch = new TouchController();
     this.$stickContainer = $('.js-stick-container');
     this.$stickToucharea = $('.js-stick-toucharea');
+    this.touch = new TouchController();
+    this.stick = new StickController({
+      $element: this.$stickToucharea
+    });
     
     this.setModelEvent();
     this.setBlurEvent();
@@ -154,8 +157,9 @@ export default class Tetris3dController extends EventEmitter2 {
   };
   
   setStickController() {
-    const radius = this.$stickContainer.width() / 2 + this.$stickToucharea.width() / 2;
-    const stick = new StickController(this.$stickToucharea, radius);
+    this.stick.on('moved', (evt) => {
+      console.log(evt);
+    })
   }
   
   swithMode(code) {
