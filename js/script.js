@@ -17944,6 +17944,8 @@ var TouchController = function (_EventEmitter) {
 
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(TouchController).call(this));
 
+    _this.doubleTapDelay = 500;
+
     _this.touchsupport = 'ontouchstart' in window;
     _this.touchstart = _this.touchsupport ? 'touchstart' : 'mousedown';
     _this.touchmove = _this.touchsupport ? 'touchmove' : 'mousemove';
@@ -17991,6 +17993,7 @@ var TouchController = function (_EventEmitter) {
       this.onTouchStart = function (evt) {
         evt.preventDefault(); // enablePreventDefault
 
+        _this2.isDoubleTap = _this2.isTap;
         _this2.isDragging = true;
         _this2.isTap = true;
         _this2.touchStartTime = Date.now();
@@ -18019,7 +18022,7 @@ var TouchController = function (_EventEmitter) {
         _this2.moveX = _this2.touchX - _this2.touchStartX;
         _this2.moveY = _this2.touchY - _this2.touchStartY;
 
-        _this2.isTap = false;
+        _this2.isTap = _this2.isDoubleTap = false;
 
         _this2.emit('touchmove', {
           'lasttouchX': _this2.lasttouchX,
@@ -18049,11 +18052,15 @@ var TouchController = function (_EventEmitter) {
           'touchEndY': _this2.touchEndY,
           'moveX': _this2.moveX,
           'moveY': _this2.moveY,
-          'isTap': _this2.isTap
+          'isTap': _this2.isTap,
+          'isDoubleTap': _this2.isDoubleTap
         });
 
         _this2.touchX = _this2.touchY = null;
         _this2.moveX = _this2.moveY = 0;
+        setTimeout(function () {
+          _this2.isTap = _this2.isDoubleTap = false;
+        }, _this2.doubleTapDelay);
       };
     }
   }]);
