@@ -29,7 +29,7 @@ class Tetris3dCONST {
     this.GAMEOVER_BLOCK_ID = 15;
     
     this.RENDER_INTERVAL = 30;
-    this.TICK_INTERVAL = 250; // default tick interval
+    this.TICK_INTERVAL = 700; // default tick interval
     this.SPEEDUP_RATE = 10;
     
     this.KEYS_MODEL = {
