@@ -162,7 +162,10 @@ export default class Tetris3dController extends EventEmitter2 {
         x: evt.x / -1000,
         y: evt.y / -1000,
       });
-    })
+    });
+    this.stick.on('doubletapped', (evt) => {
+      this.view.setCamera(); // reset camera position
+    });
   }
   
   swithMode(code) {

@@ -16510,6 +16510,9 @@ var StickController = function (_EventEmitter) {
       });
       touch.on('touchend', function (evt) {
         _this2.animatePosition({ x: 0, y: 0 });
+        if (evt.isDoubleTap) {
+          _this2.emit('doubletapped');
+        }
       });
     }
   }, {
@@ -16894,6 +16897,9 @@ var Tetris3dController = function (_EventEmitter) {
           x: evt.x / -1000,
           y: evt.y / -1000
         });
+      });
+      this.stick.on('doubletapped', function (evt) {
+        _this6.view.setCamera(); // reset camera position
       });
     }
   }, {
