@@ -26,6 +26,7 @@ export default class Tetris3dView {
     // renderer ------------------------------
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setClearColor( 0xf0f0f0 ); // 背景色
+    this.renderer.setPixelRatio(window.devicePixelRatio || 1);
     this.renderer.setSize( CONST.WIDTH, CONST.HEIGHT );
     this.container.appendChild( this.renderer.domElement );
     
