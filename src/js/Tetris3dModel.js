@@ -166,15 +166,16 @@ export default class Tetris3dModel extends EventEmitter2 {
     let dfd = $.Deferred();
     dfd.resolve();
     
+    /*
     for ( let z = 0; z < CONST.COLS; ++z ) {
       for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
         let isRowFilled = this.board[z][y].every(val => val !== 0);
         if (!isRowFilled) continue;
-        console.log('isRowFilled', isRowFilled);
-        filledRowList.push(y);
+        filledRowList.push([z, y]);
         clearLineLength++;
         this.sumOfClearLines++;
         this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
+        console.log('isRowFilled z', isRowFilled, filledRowList);
         
         // clear line effect
         // for ( let x = 0; x < this.COLS; ++x ) {
@@ -185,26 +186,96 @@ export default class Tetris3dModel extends EventEmitter2 {
         // }
       }
     }
+    
+    let filledRowListX = [];
+    // let tmpBoard = this.board.slice();
+    let tmpBoard = this.rotateBoard(this.board);
+    for ( let x = 0; x < CONST.COLS; ++x ) {
+      for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
+        let isRowFilled = tmpBoard[x][y].every(val => val !== 0);
+        if (!isRowFilled) continue;
+        filledRowListX.push([x, y]);
+        clearLineLength++;
+        this.sumOfClearLines++;
+        this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
+        console.log('isRowFilled x', isRowFilled, filledRowListX);
+      }
+    }
+    */
+    for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
+      let isZRowFilledList = [];
+      let isXRowFilledList = [];
+      for ( let z = 0; z < CONST.COLS; ++z ) {
+        // let isRowFilled = this.board[z][y].every(val => val !== 0);
+        let isRowFilled = true;
+        for ( let x = 0; x < CONST.COLS; ++x ) {
+          isRowFilled = this.board[z][y][x] !== 0;
+          if (!isRowFilled) break;
+        }
+        isZRowFilledList.push(isRowFilled);
+        if (!isRowFilled) continue;
+        clearLineLength++;
+        this.sumOfClearLines++;
+        this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
+      }
+      for ( let x = 0; x < CONST.COLS; ++x ) {
+        // let isRowFilled = this.board[z][y].every(val => val !== 0);
+        let isRowFilled = true;
+        for ( let z = 0; z < CONST.COLS; ++z ) {
+          isRowFilled = this.board[z][y][x] !== 0;
+          if (!isRowFilled) break;
+        }
+        isXRowFilledList.push(isRowFilled);
+        if (!isRowFilled) continue;
+        clearLineLength++;
+        this.sumOfClearLines++;
+        this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
+      }
+      filledRowList.push([isXRowFilledList, isZRowFilledList]);
+    }
+    // console.log(filledRowList);
+    console.log(this.board);
+    
     // clear line drop
-    // dfd.then(dropRow(x, y));
+    // dfd.then(dropRow(filledRowList));
     
     // calc score
     this.score += (clearLineLength <= 1) ? clearLineLength : Math.pow(2, clearLineLength);
     
     if (clearLineLength > 0) this.emit('clearline', filledRowList);
     
-    function dropRow(x, y) {
-      return function(){
-        let dfd = $.Deferred();
-        if (!filledRowList.length) return;
-        filledRowList.reverse().forEach(function(row){
-          _this.board.splice(row, 1);
-          _this.board.unshift(blankRow);
-        });
-        dfd.resolve();
-        return dfd.promise();
-      };
+  };
+  
+  dropRow(filledRowList) {
+    return () => {
+      let dfd = $.Deferred();
+      if (!filledRowList.length) return;
+      console.log(filledRowList);
+      filledRowList.reverse().forEach((row) => {
+        // this.board.splice(row, 1);
+        // this.board.unshift(blankRow);
+        console.log(row);
+        // this.board[row[0]].splice(row[1], 1);
+        // this.board[row[0]].unshift(blankRow);
+      });
+      dfd.resolve();
+      return dfd.promise();
+    };
+  }
+  
+  rotateBoard(board) {
+    const last = CONST.COLS - 1;
+    const newBoard = [];
+    for ( let z = 0; z < CONST.COLS; ++z ) {
+      newBoard[z] = [];
+      for ( let y = 0; y < CONST.LOGICAL_ROWS; ++y ) {
+        newBoard[z][y] = [];
+        for ( let x = 0; x < CONST.COLS; ++x ) {
+          newBoard[z][y][x] = board[last - x][y][z];
+        }
+      }
     }
+    return newBoard;
   };
   
   moveBlockX(distance) { // sign: boolean
