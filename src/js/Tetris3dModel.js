@@ -205,6 +205,8 @@ export default class Tetris3dModel extends EventEmitter2 {
     for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
       let isZRowFilledList = [];
       let isXRowFilledList = [];
+      let filledRowListZ = [];
+      let filledRowListX = [];
       for ( let z = 0; z < CONST.COLS; ++z ) {
         // let isRowFilled = this.board[z][y].every(val => val !== 0);
         let isRowFilled = true;
@@ -212,8 +214,9 @@ export default class Tetris3dModel extends EventEmitter2 {
           isRowFilled = this.board[z][y][x] !== 0;
           if (!isRowFilled) break;
         }
-        isZRowFilledList.push(isRowFilled);
+        // isZRowFilledList.push(isRowFilled);
         if (!isRowFilled) continue;
+        filledRowListZ.push(z);
         clearLineLength++;
         this.sumOfClearLines++;
         this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
@@ -225,19 +228,19 @@ export default class Tetris3dModel extends EventEmitter2 {
           isRowFilled = this.board[z][y][x] !== 0;
           if (!isRowFilled) break;
         }
-        isXRowFilledList.push(isRowFilled);
+        // isXRowFilledList.push(isRowFilled);
         if (!isRowFilled) continue;
+        filledRowListX.push(x);
         clearLineLength++;
         this.sumOfClearLines++;
         this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
       }
-      filledRowList.push([isXRowFilledList, isZRowFilledList]);
+      // filledRowList.push([isXRowFilledList, isZRowFilledList]);
+      filledRowList.push([filledRowListX, filledRowListZ]);
     }
-    // console.log(filledRowList);
-    console.log(this.board);
     
     // clear line drop
-    // dfd.then(dropRow(filledRowList));
+    dfd.then(this.dropRow(filledRowList));
     
     // calc score
     this.score += (clearLineLength <= 1) ? clearLineLength : Math.pow(2, clearLineLength);
@@ -250,17 +253,53 @@ export default class Tetris3dModel extends EventEmitter2 {
     return () => {
       let dfd = $.Deferred();
       if (!filledRowList.length) return;
-      console.log(filledRowList);
-      filledRowList.reverse().forEach((row) => {
+      // filledRowList.reverse().forEach((row) => {
+      filledRowList.forEach((row) => {
         // this.board.splice(row, 1);
         // this.board.unshift(blankRow);
-        console.log(row);
-        // this.board[row[0]].splice(row[1], 1);
-        // this.board[row[0]].unshift(blankRow);
+        // let isXRowFilledList = row[0];
+        // let isZRowFilledList = row[1];
+        // $.each(isXRowFilledList, (index, isFilled) => {
+        //   if (!isFilled) return true;
+        //   this.dropRowX(index);
+        // });
+        let filledRowListX = row[0];
+        let filledRowListZ = row[1];
+        // console.log('row', filledRowListX.length, filledRowListZ.length);
+        if (!filledRowListX.length && !filledRowListZ.length) return;
+        filledRowListX.forEach((d) => {
+          this.dropRowX(d);
+        });
+        filledRowListZ.forEach((d) => {
+          this.dropRowZ(d);
+        });
+        console.log(this.board);
       });
       dfd.resolve();
       return dfd.promise();
     };
+  }
+  
+  dropRowX(x) {
+    let beforeList = Array.apply(null, Array(CONST.COLS)).map(() => 0); // => [0,0,0,0,0,...]
+    for ( let y = 0; y < CONST.LOGICAL_ROWS; ++y ) {
+      for ( let z = 0; z < CONST.COLS; ++z ) {
+        let current = this.board[z][y][x];
+        this.board[z][y][x] = beforeList[z];
+        beforeList[z] = current;
+      }
+    }
+  }
+  
+  dropRowZ(z) {
+    let beforeList = Array.apply(null, Array(CONST.COLS)).map(() => 0); // => [0,0,0,0,0,...]
+    for ( let y = 0; y < CONST.LOGICAL_ROWS; ++y ) {
+      for ( let x = 0; x < CONST.COLS; ++x ) {
+        let current = this.board[z][y][x];
+        this.board[z][y][x] = beforeList[z];
+        beforeList[z] = current;
+      }
+    }
   }
   
   rotateBoard(board) {
