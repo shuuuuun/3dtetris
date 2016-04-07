@@ -69,7 +69,11 @@ export default class Tetris3dController extends EventEmitter2 {
     this.model.on('freeze', () => {
       // viewのためにboardを整形する
       // CONST.HIDDEN_ROWSのぶんyを減らす
-      this.view.drawBoard(this.model.board);
+      let board = _.cloneDeep(this.model.board);
+      board.forEach((ary, z) => {
+        ary.splice(0, CONST.HIDDEN_ROWS);
+      });
+      this.view.drawBoard(board);
     });
     this.model.on('clearline', (filledRowList) => {});
   };
