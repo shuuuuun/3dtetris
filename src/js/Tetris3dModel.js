@@ -151,7 +151,9 @@ export default class Tetris3dModel extends EventEmitter2 {
           let boardY = y + this.currentBlock.y;
           let boardZ = z + this.currentBlock.z;
           if (!this.currentBlock.shape[z][y][x] || boardZ < 0) continue;
-          this.board[boardZ][boardY][boardX] = this.currentBlock.shape[z][y][x];
+          // this.board[boardZ][boardY][boardX] = this.currentBlock.shape[z][y][x];
+          this.board[boardZ][boardY][boardX] = this.currentBlock.shape[z][y][x] ? (this.currentBlock.id + 1) : 0;
+          console.log(boardY, this.currentBlock.shape[z][y][x], this.currentBlock.id, this.board[boardZ][boardY][boardX]);
         }
       }
     }

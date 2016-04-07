@@ -66,7 +66,11 @@ export default class Tetris3dController extends EventEmitter2 {
       }
     });
     this.model.on('gamequit', () => {});
-    this.model.on('freeze', () => {});
+    this.model.on('freeze', () => {
+      // viewのためにboardを整形する
+      // CONST.HIDDEN_ROWSのぶんyを減らす
+      this.view.drawBoard(this.model.board);
+    });
     this.model.on('clearline', (filledRowList) => {});
   };
   

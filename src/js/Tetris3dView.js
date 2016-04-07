@@ -186,7 +186,41 @@ export default class Tetris3dView {
     this.renderer.render( this.scene, this.camera );
   }
   
+  // renderBoard() {
+  drawBoard(board) {
+    this.boardVoxels = [];
+    for ( let z = 0; z < CONST.COLS; ++z ) {
+      // for ( let y = 0; y < CONST.LOGICAL_ROWS; ++y ) {
+      for ( let y = 0; y < CONST.ROWS; ++y ) {
+        for ( let x = 0; x < CONST.COLS; ++x ) {
+          const boardX = x;
+          // const boardY = y + CONST.HIDDEN_ROWS;
+          // const boardY = y - CONST.HIDDEN_ROWS;
+          const boardY = y;
+          const boardZ = z;
+          const id = board[boardZ][boardY][boardX] - 1; // 1始まりになってるため-1
+          if (!board[boardZ][boardY][boardX]) continue;
+          console.log(boardY, id);
+          // boardのyとdrawVoxelに渡すべきyが一致してない問題 -> controllerで整形する
+          const voxel = this.drawVoxel(boardX, boardY, boardZ, id);
+          this.boardVoxels.push(voxel);
+        }
+      }
+    }
+  }
+  
+  disposeBlock(block) {
+    block.voxels.forEach((mesh) => {
+      mesh.geometry.dispose();
+      mesh.material.dispose();
+      this.scene.remove(mesh);
+    });
+  }
+  
   drawCurrentBlock(block) {
+    if (this.currentBlock) {
+      this.disposeBlock(this.currentBlock);
+    }
     this.currentBlock = block;
     this.currentBlock.voxels = [];
     this.drawBlock(block, true);
@@ -194,11 +228,12 @@ export default class Tetris3dView {
   
   drawShadowBlock(block) {
     if (this.shadowBlock) {
-      this.shadowBlock.voxels.forEach((mesh) => {
-        mesh.geometry.dispose();
-        mesh.material.dispose();
-        this.scene.remove(mesh);
-      });
+      // this.shadowBlock.voxels.forEach((mesh) => {
+      //   mesh.geometry.dispose();
+      //   mesh.material.dispose();
+      //   this.scene.remove(mesh);
+      // });
+      this.disposeBlock(this.shadowBlock);
     }
     this.shadowBlock = block;
     this.shadowBlock.voxels = [];
