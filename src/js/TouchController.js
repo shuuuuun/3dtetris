@@ -44,6 +44,7 @@ export default class TouchController extends EventEmitter2 {
   defineEventListener() {
     this.onTouchStart = (evt) => {
       evt.preventDefault(); // enablePreventDefault
+      evt.stopPropagation(); // enableStopPropagation
       
       this.isDoubleTap = this.isTap;
       this.isDragging = true;
