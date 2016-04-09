@@ -37,6 +37,16 @@ export default class Tetris3dController extends EventEmitter2 {
     this.model.startGame();
   };
   
+  pauseGame() {
+    this.view.stop();
+    this.model.pauseGame();
+  }
+  
+  resumeGame() {
+    this.view.start();
+    this.model.resumeGame();
+  }
+  
   setModelEvent() {
     this.model.on('gamestart', () => {});
     this.model.on('newblockcreated', () => {});
@@ -77,11 +87,9 @@ export default class Tetris3dController extends EventEmitter2 {
   
   setBlurEvent() {
     $(window).on('blur', () => {
-        this.view.stop();
-        this.model.pauseGame();
+        this.pauseGame();
     }).on('focus', () => {
-        this.view.start();
-        this.model.resumeGame();
+        this.resumeGame();
     });
   };
   
