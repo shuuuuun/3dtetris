@@ -43,5 +43,8 @@ if (query.debug) {
   Tetris3dCONST.BLOCK_LIST.forEach(function(data){
     data.shape = shape;
   });
+  if (query.interval) {
+    tetris3dModel.tickInterval = +query.interval;
+  }
   // tetris3dController.newGame();
 }
