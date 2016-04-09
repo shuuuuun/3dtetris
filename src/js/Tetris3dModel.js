@@ -168,45 +168,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     let dfd = $.Deferred();
     dfd.resolve();
     
-    /*
-    for ( let z = 0; z < CONST.COLS; ++z ) {
-      for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
-        let isRowFilled = this.board[z][y].every(val => val !== 0);
-        if (!isRowFilled) continue;
-        filledRowList.push([z, y]);
-        clearLineLength++;
-        this.sumOfClearLines++;
-        this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
-        console.log('isRowFilled z', isRowFilled, filledRowList);
-        
-        // clear line effect
-        // for ( let x = 0; x < this.COLS; ++x ) {
-        //   if (!this.board[y][x]) continue;
-        //   dfd = dfd
-        //     .then(effect(x, y))
-        //     .then(util.sleep(10));
-        // }
-      }
-    }
-    
-    let filledRowListX = [];
-    // let tmpBoard = this.board.slice();
-    let tmpBoard = this.rotateBoard(this.board);
-    for ( let x = 0; x < CONST.COLS; ++x ) {
-      for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
-        let isRowFilled = tmpBoard[x][y].every(val => val !== 0);
-        if (!isRowFilled) continue;
-        filledRowListX.push([x, y]);
-        clearLineLength++;
-        this.sumOfClearLines++;
-        this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
-        console.log('isRowFilled x', isRowFilled, filledRowListX);
-      }
-    }
-    */
     for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
-      let isZRowFilledList = [];
-      let isXRowFilledList = [];
       let filledRowListZ = [];
       let filledRowListX = [];
       for ( let z = 0; z < CONST.COLS; ++z ) {
@@ -216,7 +178,6 @@ export default class Tetris3dModel extends EventEmitter2 {
           isRowFilled = this.board[z][y][x] !== 0;
           if (!isRowFilled) break;
         }
-        // isZRowFilledList.push(isRowFilled);
         if (!isRowFilled) continue;
         filledRowListZ.push(z);
         clearLineLength++;
@@ -230,14 +191,12 @@ export default class Tetris3dModel extends EventEmitter2 {
           isRowFilled = this.board[z][y][x] !== 0;
           if (!isRowFilled) break;
         }
-        // isXRowFilledList.push(isRowFilled);
         if (!isRowFilled) continue;
         filledRowListX.push(x);
         clearLineLength++;
         this.sumOfClearLines++;
         this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
       }
-      // filledRowList.push([isXRowFilledList, isZRowFilledList]);
       filledRowList.push([filledRowListX, filledRowListZ]);
     }
     
@@ -255,19 +214,9 @@ export default class Tetris3dModel extends EventEmitter2 {
     return () => {
       let dfd = $.Deferred();
       if (!filledRowList.length) return;
-      // filledRowList.reverse().forEach((row) => {
       filledRowList.forEach((row) => {
-        // this.board.splice(row, 1);
-        // this.board.unshift(blankRow);
-        // let isXRowFilledList = row[0];
-        // let isZRowFilledList = row[1];
-        // $.each(isXRowFilledList, (index, isFilled) => {
-        //   if (!isFilled) return true;
-        //   this.dropRowX(index);
-        // });
         let filledRowListX = row[0];
         let filledRowListZ = row[1];
-        // console.log('row', filledRowListX.length, filledRowListZ.length);
         if (!filledRowListX.length && !filledRowListZ.length) return;
         filledRowListX.forEach((d) => {
           this.dropRowX(d);
@@ -275,7 +224,6 @@ export default class Tetris3dModel extends EventEmitter2 {
         filledRowListZ.forEach((d) => {
           this.dropRowZ(d);
         });
-        console.log(filledRowListX.length, filledRowListZ.length, this.board);
       });
       dfd.resolve();
       return dfd.promise();
@@ -301,7 +249,6 @@ export default class Tetris3dModel extends EventEmitter2 {
         beforeList[y][x] = this.board[z][y][x];
         this.board[z][y][x] = y ? beforeList[y - 1][x] : 0;
       }
-      // console.log(this.board[z][y], beforeList[y]);
     }
   }
   

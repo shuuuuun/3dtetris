@@ -190,18 +190,13 @@ export default class Tetris3dView {
   drawBoard(board) {
     this.boardVoxels = [];
     for ( let z = 0; z < CONST.COLS; ++z ) {
-      // for ( let y = 0; y < CONST.LOGICAL_ROWS; ++y ) {
       for ( let y = 0; y < CONST.ROWS; ++y ) {
         for ( let x = 0; x < CONST.COLS; ++x ) {
           const boardX = x;
-          // const boardY = y + CONST.HIDDEN_ROWS;
-          // const boardY = y - CONST.HIDDEN_ROWS;
           const boardY = y;
           const boardZ = z;
           const id = board[boardZ][boardY][boardX] - 1; // 1始まりになってるため-1
           if (!board[boardZ][boardY][boardX]) continue;
-          // console.log(boardY, id);
-          // boardのyとdrawVoxelに渡すべきyが一致してない問題 -> controllerで整形する
           const voxel = this.drawVoxel(boardX, boardY, boardZ, id);
           this.boardVoxels.push(voxel);
         }
@@ -237,11 +232,6 @@ export default class Tetris3dView {
   
   drawShadowBlock(block) {
     if (this.shadowBlock) {
-      // this.shadowBlock.voxels.forEach((mesh) => {
-      //   mesh.geometry.dispose();
-      //   mesh.material.dispose();
-      //   this.scene.remove(mesh);
-      // });
       this.disposeBlock(this.shadowBlock);
     }
     this.shadowBlock = block;
