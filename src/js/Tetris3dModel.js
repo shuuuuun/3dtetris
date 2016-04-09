@@ -236,7 +236,7 @@ export default class Tetris3dModel extends EventEmitter2 {
       beforeList[y] = [];
       for ( let z = 0; z < CONST.COLS; ++z ) {
         beforeList[y][z] = this.board[z][y][x];
-        this.board[z][y][x] = z ? beforeList[z - 1] : 0;
+        this.board[z][y][x] = y ? beforeList[y - 1][z] : 0;
       }
     }
   }
