@@ -35,16 +35,19 @@ export default class Tetris3dController extends EventEmitter2 {
     this.view.start();
     this.model.initGame();
     this.model.startGame();
+    this.isPlayngGame = true;
   };
   
   pauseGame() {
     this.view.stop();
     this.model.pauseGame();
+    this.isPlayngGame = false;
   }
   
   resumeGame() {
     this.view.start();
     this.model.resumeGame();
+    this.isPlayngGame = true;
   }
   
   setModelEvent() {

@@ -20,6 +20,15 @@ tetris3dUI.on('switchBlockClick', () => {
 tetris3dUI.on('switchRotateClick', () => {
   tetris3dController.changeRotateDirection();
 });
+tetris3dUI.on('btnPauseClick', () => {
+  console.log(tetris3dController.isPlayngGame);
+  if (tetris3dController.isPlayngGame) {
+    tetris3dController.pauseGame();
+  }
+  else {
+    tetris3dController.resumeGame();
+  }
+});
 tetris3dController.on('switchModeCamera', () => {
   tetris3dUI.switchModeCamera();
 });
