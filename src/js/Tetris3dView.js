@@ -200,13 +200,22 @@ export default class Tetris3dView {
           const boardZ = z;
           const id = board[boardZ][boardY][boardX] - 1; // 1始まりになってるため-1
           if (!board[boardZ][boardY][boardX]) continue;
-          console.log(boardY, id);
+          // console.log(boardY, id);
           // boardのyとdrawVoxelに渡すべきyが一致してない問題 -> controllerで整形する
           const voxel = this.drawVoxel(boardX, boardY, boardZ, id);
           this.boardVoxels.push(voxel);
         }
       }
     }
+  }
+  
+  disposeBoard() {
+    if (!this.boardVoxels || !this.boardVoxels.length) return;
+    this.boardVoxels.forEach((mesh) => {
+      mesh.geometry.dispose();
+      mesh.material.dispose();
+      this.scene.remove(mesh);
+    });
   }
   
   disposeBlock(block) {

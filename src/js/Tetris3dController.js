@@ -67,15 +67,11 @@ export default class Tetris3dController extends EventEmitter2 {
     });
     this.model.on('gamequit', () => {});
     this.model.on('freeze', () => {
-      // viewのためにboardを整形する
-      // CONST.HIDDEN_ROWSのぶんyを減らす
-      let board = _.cloneDeep(this.model.board);
-      board.forEach((ary, z) => {
-        ary.splice(0, CONST.HIDDEN_ROWS);
-      });
-      this.view.drawBoard(board);
+      this.updateBoard();
     });
-    this.model.on('clearline', (filledRowList) => {});
+    this.model.on('clearline', (filledRowList) => {
+      this.updateBoard();
+    });
   };
   
   setBlurEvent() {
@@ -205,6 +201,16 @@ export default class Tetris3dController extends EventEmitter2 {
     console.log('changeRotateDirection');
     this.isVertical = !this.isVertical;
     this.emit('changeRotateDirection');
+  };
+  
+  updateBoard() {
+    // viewのためにboardを整形、CONST.HIDDEN_ROWSのぶんyを減らして渡す
+    let board = _.cloneDeep(this.model.board);
+    board.forEach((aryZ) => {
+      aryZ.splice(0, CONST.HIDDEN_ROWS);
+    });
+    this.view.disposeBoard();
+    this.view.drawBoard(board);
   };
   
   rotateBlock() {

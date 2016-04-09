@@ -153,7 +153,7 @@ export default class Tetris3dModel extends EventEmitter2 {
           if (!this.currentBlock.shape[z][y][x] || boardZ < 0) continue;
           // this.board[boardZ][boardY][boardX] = this.currentBlock.shape[z][y][x];
           this.board[boardZ][boardY][boardX] = this.currentBlock.shape[z][y][x] ? (this.currentBlock.id + 1) : 0;
-          console.log(boardY, this.currentBlock.shape[z][y][x], this.currentBlock.id, this.board[boardZ][boardY][boardX]);
+          // console.log(boardY, this.currentBlock.shape[z][y][x], this.currentBlock.id, this.board[boardZ][boardY][boardX]);
         }
       }
     }
@@ -275,7 +275,7 @@ export default class Tetris3dModel extends EventEmitter2 {
         filledRowListZ.forEach((d) => {
           this.dropRowZ(d);
         });
-        console.log(this.board);
+        console.log(filledRowListX.length, filledRowListZ.length, this.board);
       });
       dfd.resolve();
       return dfd.promise();
@@ -283,24 +283,25 @@ export default class Tetris3dModel extends EventEmitter2 {
   }
   
   dropRowX(x) {
-    let beforeList = Array.apply(null, Array(CONST.COLS)).map(() => 0); // => [0,0,0,0,0,...]
+    let beforeList = [];
     for ( let y = 0; y < CONST.LOGICAL_ROWS; ++y ) {
+      beforeList[y] = [];
       for ( let z = 0; z < CONST.COLS; ++z ) {
-        let current = this.board[z][y][x];
-        this.board[z][y][x] = beforeList[z];
-        beforeList[z] = current;
+        beforeList[y][z] = this.board[z][y][x];
+        this.board[z][y][x] = z ? beforeList[z - 1] : 0;
       }
     }
   }
   
   dropRowZ(z) {
-    let beforeList = Array.apply(null, Array(CONST.COLS)).map(() => 0); // => [0,0,0,0,0,...]
+    let beforeList = [];
     for ( let y = 0; y < CONST.LOGICAL_ROWS; ++y ) {
+      beforeList[y] = [];
       for ( let x = 0; x < CONST.COLS; ++x ) {
-        let current = this.board[z][y][x];
-        this.board[z][y][x] = beforeList[z];
-        beforeList[z] = current;
+        beforeList[y][x] = this.board[z][y][x];
+        this.board[z][y][x] = y ? beforeList[y - 1][x] : 0;
       }
+      // console.log(this.board[z][y], beforeList[y]);
     }
   }
   
