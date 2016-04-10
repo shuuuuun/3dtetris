@@ -16,32 +16,26 @@ export default class Tetris3dUI extends EventEmitter2 {
   }
   
   setEvent() {
-    this.$switchCamera.on('click', (evt) => {
+    this.$switchRotate.add(this.$btnPause).on('touchstart', (evt) => {
+      // touch event bug fix
+      // cf. http://jsdo.it/shuuuuun/WLX1
       evt.stopPropagation();
+    });
+    this.$switchCamera.on('click', (evt) => {
       this.switchModeCamera();
       this.controller.switchModeCamera();
     });
     this.$switchBlock.on('click', (evt) => {
-      evt.stopPropagation();
       this.switchModeBlock();
       this.controller.switchModeBlock();
     });
     this.$switchRotate.on('click', (evt) => {
-      evt.stopPropagation();
       this.$switchRotate.toggleClass('is-active');
       this.controller.changeRotateDirection();
     });
-    this.$btnPause.on('touchstart', (evt) => {
-      console.log('touchstart', evt);
-    });
     this.$btnPause.on('click', (evt) => {
-      // 親要素のtouchstart殺すとclick発火しないのか？
-      // pcだと動くけどspにするとだめ
-      console.log('click', evt);
-      evt.stopPropagation();
       this.$btnPause.toggleClass('is-active');
       
-      console.log(this.controller.isPlayngGame);
       if (this.controller.isPlayngGame) {
         this.controller.pauseGame();
       }
