@@ -10,6 +10,7 @@ const CONST = Tetris3dCONST;
 export default class Tetris3dView {
   constructor() {
     this.framecount = 0;
+    this.CONTAINER_ID = 'js-game-view';
     this.ZERO_VECTOR = new THREE.Vector3(0,0,0);
     this.CAMERA_DISTANCE_DEFAULT = 1500;
     this.CENTER_VECTOR = new THREE.Vector3(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
@@ -20,7 +21,7 @@ export default class Tetris3dView {
   
   init() {
     // container ------------------------------
-    this.container = document.getElementById('canvas-container');
+    this.container = document.getElementById(this.CONTAINER_ID);
     
     
     // renderer ------------------------------

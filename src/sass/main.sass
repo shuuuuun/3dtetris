@@ -22,6 +22,8 @@ h1
 .game-container
   position: relative
 
+.game__view
+
 .game__controller
   position: absolute
   left: 0
@@ -45,7 +47,7 @@ h1
     float: left
 
 $stick-container-size: 150px
-.stick-container
+.game__controller__stick
   $size: $stick-container-size
   position: absolute
   left: 0
@@ -65,12 +67,12 @@ $stick-container-size: 150px
     border-radius: $size
     border: solid 2px #fff
 
-.stick-toucharea
+.game__controller__stick__toucharea
   $size: 100px
   +absolute-center
   margin: ($stick-container-size - $size) / 2
 
-.stick-dot
+.game__controller__stick__dot
   $size: 100px
   +absolute-center
   width: $size
@@ -80,7 +82,7 @@ $stick-container-size: 150px
   border: solid 6px #fff
   pointer-events: none
 
-.btn-rotate
+.game__controller__rotate-btn
   $size: 100px
   width: $stick-container-size
   height: $stick-container-size
@@ -95,7 +97,7 @@ $stick-container-size: 150px
     background-color: rgba(255,255,255,0.5)
     border: solid 6px #fff
 
-.btn-pause
+.game__controller__pause-btn
   $size: 60px
   width: $size
   height: $size

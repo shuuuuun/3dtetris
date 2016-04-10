@@ -14,7 +14,6 @@ export default class Tetris3dController extends EventEmitter2 {
     this.model = model;
     this.view = view;
     
-    // this.$root = $('#canvas-container');
     this.$root = $('.js-game-controller');
     this.$stickContainer = $('.js-stick-container');
     this.$stickToucharea = $('.js-stick-toucharea');
