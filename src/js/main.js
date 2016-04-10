@@ -8,33 +8,9 @@ import Tetris3dUI from './Tetris3dUI';
 const tetris3dModel = new Tetris3dModel();
 const tetris3dView = new Tetris3dView();
 const tetris3dController = new Tetris3dController(tetris3dModel, tetris3dView);
-const tetris3dUI = new Tetris3dUI();
+const tetris3dUI = new Tetris3dUI(tetris3dController);
 
 // event
-tetris3dUI.on('switchCameraClick', () => {
-  tetris3dController.switchModeCamera();
-});
-tetris3dUI.on('switchBlockClick', () => {
-  tetris3dController.switchModeBlock();
-});
-tetris3dUI.on('switchRotateClick', () => {
-  tetris3dController.changeRotateDirection();
-});
-tetris3dUI.on('btnPauseClick', () => {
-  console.log(tetris3dController.isPlayngGame);
-  if (tetris3dController.isPlayngGame) {
-    tetris3dController.pauseGame();
-  }
-  else {
-    tetris3dController.resumeGame();
-  }
-});
-tetris3dController.on('switchModeCamera', () => {
-  tetris3dUI.switchModeCamera();
-});
-tetris3dController.on('switchModeBlock', () => {
-  tetris3dUI.switchModeBlock();
-});
 
 // start
 tetris3dController.newGame();

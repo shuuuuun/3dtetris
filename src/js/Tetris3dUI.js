@@ -1,9 +1,10 @@
 import { EventEmitter2 } from 'eventemitter2';
 
 export default class Tetris3dUI extends EventEmitter2 {
-  constructor() {
+  constructor(controller) {
     super();
     
+    this.controller = controller;
     this.$btnPause = $('.js-btn-pause');
     this.$switchCamera = $('.js-switch-camera');
     this.$switchBlock = $('.js-switch-block');
@@ -11,23 +12,24 @@ export default class Tetris3dUI extends EventEmitter2 {
     this.$btns = this.$switchCamera.add(this.$switchBlock);
     
     this.setEvent();
+    this.setControllerEvent();
   }
   
   setEvent() {
     this.$switchCamera.on('click', (evt) => {
       evt.stopPropagation();
       this.switchModeCamera();
-      this.emit('switchCameraClick');
+      this.controller.switchModeCamera();
     });
     this.$switchBlock.on('click', (evt) => {
       evt.stopPropagation();
       this.switchModeBlock();
-      this.emit('switchBlockClick');
+      this.controller.switchModeBlock();
     });
     this.$switchRotate.on('click', (evt) => {
       evt.stopPropagation();
       this.$switchRotate.toggleClass('is-active');
-      this.emit('switchRotateClick');
+      this.controller.changeRotateDirection();
     });
     this.$btnPause.on('touchstart', (evt) => {
       console.log('touchstart', evt);
@@ -38,19 +40,33 @@ export default class Tetris3dUI extends EventEmitter2 {
       console.log('click', evt);
       evt.stopPropagation();
       this.$btnPause.toggleClass('is-active');
-      this.emit('btnPauseClick');
+      
+      console.log(this.controller.isPlayngGame);
+      if (this.controller.isPlayngGame) {
+        this.controller.pauseGame();
+      }
+      else {
+        this.controller.resumeGame();
+      }
+    });
+  }
+  
+  setControllerEvent() {
+    this.controller.on('switchModeCamera', () => {
+      this.switchModeCamera();
+    });
+    this.controller.on('switchModeBlock', () => {
+      this.switchModeBlock();
     });
   }
   
   switchModeCamera() {
     this.$btns.removeClass('is-active');
     this.$switchCamera.addClass('is-active');
-    this.emit('switchModeCamera');
   }
   
   switchModeBlock() {
     this.$btns.removeClass('is-active');
     this.$switchBlock.addClass('is-active');
-    this.emit('switchModeBlock');
   }
 }
