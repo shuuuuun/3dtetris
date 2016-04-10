@@ -9,6 +9,8 @@ export default class Tetris3dUI extends EventEmitter2 {
     this.$switchCamera = $('.js-switch-camera');
     this.$switchBlock = $('.js-switch-block');
     this.$switchRotate = $('.js-switch-rotate');
+    this.$btnRotateVertical = $('.js-btn-rotate-vertical');
+    this.$btnRotateHorizontal = $('.js-btn-rotate-horizontal');
     this.$btns = this.$switchCamera.add(this.$switchBlock);
     
     this.setEvent();
@@ -42,6 +44,12 @@ export default class Tetris3dUI extends EventEmitter2 {
       else {
         this.controller.resumeGame();
       }
+    });
+    this.$btnRotateVertical.on('click', (evt) => {
+      this.controller.rotateBlockVertical();
+    });
+    this.$btnRotateHorizontal.on('click', (evt) => {
+      this.controller.rotateBlockHorizontal();
     });
   }
   
