@@ -240,10 +240,10 @@ export default class Tetris3dController extends EventEmitter2 {
   rotateBlockVertical() {
     let direction = this.view.checkCameraDirection();
     if (direction.x !== 0) {
-      this.model.rotateBlockZY();
+      this.model.rotateBlockXY(direction.x < 0);
     }
     if (direction.z !== 0) {
-      this.model.rotateBlockXY();
+      this.model.rotateBlockZY(direction.z < 0);
     }
   };
   

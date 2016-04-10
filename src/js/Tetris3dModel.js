@@ -324,31 +324,31 @@ export default class Tetris3dModel extends EventEmitter2 {
     }
   };
   
-  rotateBlockXZ() {
+  rotateBlockXZ(sign = true) {
     const rotatedBlock = Object.assign(this.currentBlock);
-    rotatedBlock.shape = this.rotateXZ(this.currentBlock.shape);
+    rotatedBlock.shape = this.rotateXZ(this.currentBlock.shape, sign);
     const isValid = this.valid(0, 0, 0, rotatedBlock);
     if (isValid) this.currentBlock = rotatedBlock;
     return isValid;
   };
   
-  rotateBlockXY() {
+  rotateBlockXY(sign = true) {
     const rotatedBlock = Object.assign(this.currentBlock);
-    rotatedBlock.shape = this.rotateXY(this.currentBlock.shape);
+    rotatedBlock.shape = this.rotateXY(this.currentBlock.shape, sign);
     const isValid = this.valid(0, 0, 0, rotatedBlock);
     if (isValid) this.currentBlock = rotatedBlock;
     return isValid;
   };
   
-  rotateBlockZY() {
+  rotateBlockZY(sign = true) {
     const rotatedBlock = Object.assign(this.currentBlock);
-    rotatedBlock.shape = this.rotateZY(this.currentBlock.shape);
+    rotatedBlock.shape = this.rotateZY(this.currentBlock.shape, sign);
     const isValid = this.valid(0, 0, 0, rotatedBlock);
     if (isValid) this.currentBlock = rotatedBlock;
     return isValid;
   };
   
-  rotateXZ(shape) { // x軸→z軸方向
+  rotateXZ(shape, sign) { // x軸→z軸方向
     const last = CONST.VOXEL_LENGTH - 1;
     const newBlockShape = [];
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
@@ -356,14 +356,15 @@ export default class Tetris3dModel extends EventEmitter2 {
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
         newBlockShape[z][y] = [];
         for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
-          newBlockShape[z][y][x] = shape[last - x][y][z];
+          if (sign) newBlockShape[z][y][x] = shape[last - x][y][z];
+          else newBlockShape[z][y][x] = shape[x][y][last - z];
         }
       }
     }
     return newBlockShape;
   };
   
-  rotateXY(shape) { // x軸→y軸方向
+  rotateXY(shape, sign) { // x軸→y軸方向
     const last = CONST.VOXEL_LENGTH - 1;
     const newBlockShape = [];
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
@@ -371,14 +372,15 @@ export default class Tetris3dModel extends EventEmitter2 {
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
         newBlockShape[z][y] = [];
         for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
-          newBlockShape[z][y][x] = shape[z][last - x][y];
+          if (sign) newBlockShape[z][y][x] = shape[z][last - x][y];
+          else newBlockShape[z][y][x] = shape[z][x][last - y];
         }
       }
     }
     return newBlockShape;
   };
   
-  rotateZY(shape) { // z軸→y軸方向
+  rotateZY(shape, sign) { // z軸→y軸方向
     const last = CONST.VOXEL_LENGTH - 1;
     const newBlockShape = [];
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
@@ -386,7 +388,8 @@ export default class Tetris3dModel extends EventEmitter2 {
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
         newBlockShape[z][y] = [];
         for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
-          newBlockShape[z][y][x] = shape[y][last - z][x];
+          if (sign) newBlockShape[z][y][x] = shape[y][last - z][x];
+          else newBlockShape[z][y][x] = shape[last - y][z][x];
         }
       }
     }
