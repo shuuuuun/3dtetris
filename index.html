@@ -7,7 +7,7 @@
     <meta name="description" content="3Dtetris">
     <meta name="keywords" content="3Dtetris,tetris">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge">
-    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/app.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r75/three.min.js"></script>
     <script>
@@ -23,18 +23,19 @@
   <body>
     <div class="wrapper">
       <div class="game-container">
-        <div id="canvas-container"></div>
+        <div id="js-game-view" class="game__view"></div>
         <div class="game__controller js-game-controller">
-          <div class="btn-pause">
+          <div class="game__controller__pause-btn">
             <button type="button" class="js-btn-pause">pause</button>
           </div>
-          <div class="stick-container js-stick-container">
-            <div class="stick-toucharea js-stick-toucharea">
-              <div class="stick-dot"></div>
+          <div class="game__controller__stick js-stick-container">
+            <div class="game__controller__stick__toucharea js-stick-toucharea">
+              <div class="game__controller__stick__dot"></div>
             </div>
           </div>
-          <div class="btn-rotate">
-            <button type="button" class="js-switch-rotate">rotate direction</button>
+          <div class="game__controller__rotate-btn">
+            <button type="button" class="js-btn-rotate-vertical">↑</button>
+            <button type="button" class="js-btn-rotate-horizontal">→</button>
           </div>
         </div>
       </div>
