@@ -18,7 +18,7 @@ export default class Tetris3dUI extends EventEmitter2 {
   }
   
   setEvent() {
-    this.$switchRotate.add(this.$btnPause).on('touchstart', (evt) => {
+    $('button').on('touchstart', (evt) => {
       // touch event bug fix
       // cf. http://jsdo.it/shuuuuun/WLX1
       evt.stopPropagation();
