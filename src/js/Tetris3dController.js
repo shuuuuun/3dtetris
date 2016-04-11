@@ -71,12 +71,8 @@ export default class Tetris3dController extends EventEmitter2 {
       // let shadowBlock = Object.assign(this.model.currentBlock);
       let shadowBlock = _.clone(this.model.currentBlock);
       shadowBlock.id = CONST.SHADOW_BLOCK.id;
-      let isValid = this.model.valid(0, 1, 0, shadowBlock);
-      while (isValid) {
-        shadowBlock.y++;
-        this.view.moveShadowBlock(shadowBlock);
-        isValid = this.model.valid(0, 1, 0, shadowBlock);
-      }
+      this.model.dropBlockY(shadowBlock);
+      this.view.moveShadowBlock(shadowBlock);
     });
     this.model.on('gamequit', () => {});
     this.model.on('freeze', () => {
