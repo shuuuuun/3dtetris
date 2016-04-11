@@ -267,6 +267,15 @@ export default class Tetris3dModel extends EventEmitter2 {
     return newBoard;
   };
   
+  dropBlockY(block = this.currentBlock) {
+    let isValid = this.valid(0, 1, 0, block);
+    while (isValid) {
+      block.y++;
+      isValid = this.valid(0, 1, 0, block);
+    }
+    return isValid;
+  };
+  
   moveBlockX(distance) { // sign: boolean
     // const sign = sign; // 1 or -1
     const isValid = this.valid(distance, 0, 0);

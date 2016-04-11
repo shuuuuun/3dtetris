@@ -167,7 +167,11 @@ export default class Tetris3dController extends EventEmitter2 {
       }
     });
     this.touch.on('touchend', (evt) => {
-      if (!!evt.isTap) this.rotateBlock();
+      // if (!!evt.isTap) this.rotateBlock();
+      if (evt.isDoubleTap) {
+        this.model.dropBlockY();
+        this.view.moveCurrentBlock(this.model.currentBlock);
+      }
     });
   };
   
