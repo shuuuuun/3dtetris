@@ -28,8 +28,44 @@ if (query.debug) {
   Tetris3dCONST.BLOCK_LIST.forEach(function(data){
     data.shape = shape;
   });
+  const resetCONST = () => {
+    Tetris3dCONST.START_X = Math.floor((Tetris3dCONST.COLS - Tetris3dCONST.VOXEL_LENGTH) / 2);
+    Tetris3dCONST.START_Y = 0;
+    Tetris3dCONST.START_Z = Math.floor((Tetris3dCONST.COLS - Tetris3dCONST.VOXEL_LENGTH) / 2);
+    
+    Tetris3dCONST.HIDDEN_ROWS = Tetris3dCONST.VOXEL_LENGTH;
+    Tetris3dCONST.LOGICAL_ROWS = Tetris3dCONST.ROWS + Tetris3dCONST.HIDDEN_ROWS;
+    
+    Tetris3dCONST.WIDTH = Tetris3dCONST.VOXEL_SIZE * Tetris3dCONST.COLS;
+    Tetris3dCONST.HEIGHT = Tetris3dCONST.VOXEL_SIZE * Tetris3dCONST.ROWS;
+    
+    Tetris3dCONST.CENTER_X = Tetris3dCONST.WIDTH / 2;
+    Tetris3dCONST.CENTER_Y = Tetris3dCONST.HEIGHT / 2;
+    Tetris3dCONST.CENTER_Z = Tetris3dCONST.WIDTH / 2;
+  };
   if (query.interval) {
     tetris3dModel.tickInterval = +query.interval;
+  }
+  if (query.cols) {
+    Tetris3dCONST.COLS = +query.cols;
+    resetCONST();
+  }
+  if (query.rows) {
+    Tetris3dCONST.ROWS = +query.rows;
+    resetCONST();
+  }
+  if (query.voxel_size) {
+    Tetris3dCONST.VOXEL_SIZE = +query.voxel_size;
+    resetCONST();
+  }
+  if (query.render_interval) {
+    Tetris3dCONST.RENDER_INTERVAL = +query.render_interval;
+  }
+  if (query.tick_interval) {
+    Tetris3dCONST.TICK_INTERVAL = +query.tick_interval;
+  }
+  if (query.speedup_rate) {
+    Tetris3dCONST.SPEEDUP_RATE = +query.speedup_rate;
   }
   tetris3dController.newGame();
 }
