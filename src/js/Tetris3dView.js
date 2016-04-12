@@ -108,10 +108,6 @@ export default class Tetris3dView {
     this.scene.add( directionalLight );
     
     
-    // mouse ------------------------------
-    this.mouse2D = new THREE.Vector3( 0, 10000, 0.5 );
-    
-    
     // cubes ------------------------------
     this.cubeGeo = new THREE.BoxGeometry( CONST.VOXEL_SIZE, CONST.VOXEL_SIZE, CONST.VOXEL_SIZE );
     this.cubeMaterial = [];
