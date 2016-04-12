@@ -15,6 +15,9 @@ export default class Tetris3dController extends EventEmitter2 {
     this.view = view;
     
     this.$root = $('.js-game-controller');
+    this.$infoLevel = $('.js-info-level');
+    this.$infoScore = $('.js-info-score');
+    this.$infoLines = $('.js-info-lines');
     this.$stickContainer = $('.js-stick-container');
     this.$stickToucharea = $('.js-stick-toucharea');
     this.touch = new TouchController();
@@ -80,6 +83,9 @@ export default class Tetris3dController extends EventEmitter2 {
     });
     this.model.on('clearline', (filledRowList) => {
       this.updateBoard();
+      this.$infoLevel.text(this.model.level);
+      this.$infoScore.text(this.model.score);
+      this.$infoLines.text(this.model.sumOfClearLines);
     });
   };
   
