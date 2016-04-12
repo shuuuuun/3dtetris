@@ -19,6 +19,13 @@ export default class Tetris3dView {
     this.CAMERA_FAR = 100000;
   }
   
+  dispose() {
+    if (this.container) this.container.innerHTML = '';
+    if (this.renderer) this.renderer.dispose();
+    if (this.scene) this.scene = undefined;
+    if (this.camera) this.camera = undefined;
+  }
+  
   init() {
     // container ------------------------------
     this.container = document.getElementById(this.CONTAINER_ID);

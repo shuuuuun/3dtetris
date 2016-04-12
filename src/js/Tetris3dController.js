@@ -33,6 +33,7 @@ export default class Tetris3dController extends EventEmitter2 {
   }
   
   newGame() {
+    this.view.dispose();
     this.view.init();
     this.view.start();
     this.model.initGame();

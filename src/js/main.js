@@ -31,5 +31,5 @@ if (query.debug) {
   if (query.interval) {
     tetris3dModel.tickInterval = +query.interval;
   }
-  // tetris3dController.newGame();
+  tetris3dController.newGame();
 }
