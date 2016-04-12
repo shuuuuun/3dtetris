@@ -177,7 +177,7 @@ export default class Tetris3dView {
       z: Math.sign(Math.abs(cameraVector.z) > Math.abs(cameraVector.x) ? cameraVector.z : 0),
     };
     return direction;
-  };
+  }
   
   tick() {
     this.framecount++;

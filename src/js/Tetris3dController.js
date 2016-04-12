@@ -30,7 +30,7 @@ export default class Tetris3dController extends EventEmitter2 {
     this.setKeyEvent();
     this.setTouchEvent(this.$root);
     this.setStickController();
-  };
+  }
   
   newGame() {
     this.view.init();
@@ -38,7 +38,7 @@ export default class Tetris3dController extends EventEmitter2 {
     this.model.initGame();
     this.model.startGame();
     this.isPlayngGame = true;
-  };
+  }
   
   pauseGame() {
     this.view.stop();
@@ -87,7 +87,7 @@ export default class Tetris3dController extends EventEmitter2 {
       this.$infoScore.text(this.model.score);
       this.$infoLines.text(this.model.sumOfClearLines);
     });
-  };
+  }
   
   setBlurEvent() {
     $(window).on('blur', () => {
@@ -95,7 +95,7 @@ export default class Tetris3dController extends EventEmitter2 {
     }).on('focus', () => {
         this.resumeGame();
     });
-  };
+  }
   
   setKeyEvent() {
     $(document).on('keydown', (evt) => {
@@ -129,7 +129,7 @@ export default class Tetris3dController extends EventEmitter2 {
       //     break;
       // }
     });
-  };
+  }
   
   setTouchEvent($element) {
     this.touch.setElement($element.get(0));
@@ -175,7 +175,7 @@ export default class Tetris3dController extends EventEmitter2 {
         this.view.moveCurrentBlock(this.model.currentBlock);
       }
     });
-  };
+  }
   
   setStickController() {
     this.stick.on('moved', (evt) => {
@@ -198,27 +198,27 @@ export default class Tetris3dController extends EventEmitter2 {
         this.switchModeBlock();
         break;
     }
-  };
+  }
   
   switchModeCamera() {
     console.log('switchModeCamera');
     this.touch.dispose();
     this.view.startControls();
     this.emit('switchModeCamera');
-  };
+  }
   
   switchModeBlock() {
     console.log('switchModeBlock');
     this.touch.setEvent();
     this.view.stopControls();
     this.emit('switchModeBlock');
-  };
+  }
   
   changeRotateDirection() {
     console.log('changeRotateDirection');
     this.isVertical = !this.isVertical;
     this.emit('changeRotateDirection');
-  };
+  }
   
   updateBoard() {
     // viewのためにboardを整形、CONST.HIDDEN_ROWSのぶんyを減らして渡す
@@ -228,7 +228,7 @@ export default class Tetris3dController extends EventEmitter2 {
     });
     this.view.disposeBoard();
     this.view.drawBoard(board);
-  };
+  }
   
   rotateBlock() {
     if (this.isVertical) {
@@ -237,11 +237,11 @@ export default class Tetris3dController extends EventEmitter2 {
     else {
       this.rotateBlockHorizontal();
     }
-  };
+  }
   
   rotateBlockHorizontal() {
     this.model.rotateBlockXZ();
-  };
+  }
   
   rotateBlockVertical() {
     let direction = this.view.checkCameraDirection();
@@ -251,7 +251,7 @@ export default class Tetris3dController extends EventEmitter2 {
     if (direction.z !== 0) {
       this.model.rotateBlockZY(direction.z < 0);
     }
-  };
+  }
   
   moveBlockRightAndLeft(distance) {
     let direction = this.view.checkCameraDirection();
@@ -261,7 +261,7 @@ export default class Tetris3dController extends EventEmitter2 {
     if (direction.z !== 0) {
       this.model.moveBlockX(distance * -direction.z);
     }
-  };
+  }
   
   moveBlockBackAndForward(distance) {
     let direction = this.view.checkCameraDirection();
@@ -271,6 +271,6 @@ export default class Tetris3dController extends EventEmitter2 {
     if (direction.z !== 0) {
       this.model.moveBlockZ(distance * direction.z);
     }
-  };
+  }
   
 }

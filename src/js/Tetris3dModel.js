@@ -7,12 +7,12 @@ const CONST = Tetris3dCONST;
 export default class Tetris3dModel extends EventEmitter2 {
   constructor() {
     super();
-  };
+  }
   
   newGame() {
     this.initGame();
     this.startGame();
-  };
+  }
   
   initGame() {
     clearTimeout(this.tickId);
@@ -27,7 +27,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     this.initBlock();
     this.createNextBlock();
     // this.render();
-  };
+  }
   
   startGame() {
     this.isPlayng = true;
@@ -36,7 +36,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     this.tick();
     // this.renderId = setInterval(() => { this.render(); }, this.RENDER_INTERVAL);
     this.emit('gamestart');
-  };
+  }
   
   initBoad() {
     this.board = [];
@@ -49,7 +49,7 @@ export default class Tetris3dModel extends EventEmitter2 {
         }
       }
     }
-  };
+  }
   
   initBlock() {
     this.nextBlock = this.createBlock(0);
@@ -57,7 +57,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     this.currentBlock.x = CONST.START_X;
     this.currentBlock.y = CONST.START_Y;
     this.currentBlock.z = CONST.START_Z;
-  };
+  }
   
   createBlock(id) {
     // id = id || 0;
@@ -85,7 +85,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     }
     this.emit('newblockcreated');
     return block;
-  };
+  }
   
   createCurrentBlock() {
     if (!this.nextBlock) this.createNextBlock();
@@ -94,13 +94,13 @@ export default class Tetris3dModel extends EventEmitter2 {
     this.currentBlock.y = CONST.START_Y;
     this.currentBlock.z = CONST.START_Z;
     this.emit('currentblockcreated');
-  };
+  }
   
   createNextBlock() {
     const id = Math.floor(Math.random() * CONST.BLOCK_LIST.length);
     this.nextBlock = this.createBlock(id);
     this.emit('nextblockcreated');
-  };
+  }
   
   // メインでループする関数
   tick() {
@@ -121,7 +121,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     }
     this.tickId = setTimeout(() => { this.tick(); }, this.tickInterval);
     this.emit('tick', !isMoveDown);
-  };
+  }
   
   quitGame() {
     let dfd = $.Deferred();
@@ -131,17 +131,17 @@ export default class Tetris3dModel extends EventEmitter2 {
     //   dfd.resolve();
     // });
     return dfd.promise();
-  };
-  stopGame() { this.quitGame() }; // alias
+  }
+  stopGame() { this.quitGame() } // alias
   
   pauseGame() {
     clearTimeout(this.tickId);
-  };
+  }
   
   resumeGame() {
     if (!this.isPlayng) return;
     this.tickId = setTimeout(() => { this.tick(); }, this.tickInterval);
-  };
+  }
   
   freeze() {
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
@@ -158,7 +158,7 @@ export default class Tetris3dModel extends EventEmitter2 {
       }
     }
     this.emit('freeze');
-  };
+  }
   
   clearLines() {
     let _this = this;
@@ -208,7 +208,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     
     if (clearLineLength > 0) this.emit('clearline', filledRowList);
     
-  };
+  }
   
   dropRow(filledRowList) {
     return () => {
@@ -265,7 +265,7 @@ export default class Tetris3dModel extends EventEmitter2 {
       }
     }
     return newBoard;
-  };
+  }
   
   dropBlockY(block = this.currentBlock) {
     let isValid = this.valid(0, 1, 0, block);
@@ -274,26 +274,26 @@ export default class Tetris3dModel extends EventEmitter2 {
       isValid = this.valid(0, 1, 0, block);
     }
     return isValid;
-  };
+  }
   
   moveBlockX(distance) { // sign: boolean
     // const sign = sign; // 1 or -1
     const isValid = this.valid(distance, 0, 0);
     if (isValid) this.currentBlock.x += distance;
     return isValid;
-  };
+  }
   
   moveBlockY(distance) {
     const isValid = this.valid(0, distance, 0);
     if (isValid) this.currentBlock.y += distance;
     return isValid;
-  };
+  }
   
   moveBlockZ(distance) {
     const isValid = this.valid(0, 0, distance);
     if (isValid) this.currentBlock.z += distance;
     return isValid;
-  };
+  }
   
   moveBlock(code) {
     let isValid;
@@ -331,7 +331,7 @@ export default class Tetris3dModel extends EventEmitter2 {
         return isValid;
         break;
     }
-  };
+  }
   
   rotateBlockXZ(sign = true) {
     const rotatedBlock = Object.assign(this.currentBlock);
@@ -339,7 +339,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     const isValid = this.valid(0, 0, 0, rotatedBlock);
     if (isValid) this.currentBlock = rotatedBlock;
     return isValid;
-  };
+  }
   
   rotateBlockXY(sign = true) {
     const rotatedBlock = Object.assign(this.currentBlock);
@@ -347,7 +347,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     const isValid = this.valid(0, 0, 0, rotatedBlock);
     if (isValid) this.currentBlock = rotatedBlock;
     return isValid;
-  };
+  }
   
   rotateBlockZY(sign = true) {
     const rotatedBlock = Object.assign(this.currentBlock);
@@ -355,7 +355,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     const isValid = this.valid(0, 0, 0, rotatedBlock);
     if (isValid) this.currentBlock = rotatedBlock;
     return isValid;
-  };
+  }
   
   rotateXZ(shape, sign) { // x軸→z軸方向
     const last = CONST.VOXEL_LENGTH - 1;
@@ -371,7 +371,7 @@ export default class Tetris3dModel extends EventEmitter2 {
       }
     }
     return newBlockShape;
-  };
+  }
   
   rotateXY(shape, sign) { // x軸→y軸方向
     const last = CONST.VOXEL_LENGTH - 1;
@@ -387,7 +387,7 @@ export default class Tetris3dModel extends EventEmitter2 {
       }
     }
     return newBlockShape;
-  };
+  }
   
   rotateZY(shape, sign) { // z軸→y軸方向
     const last = CONST.VOXEL_LENGTH - 1;
@@ -403,7 +403,7 @@ export default class Tetris3dModel extends EventEmitter2 {
       }
     }
     return newBlockShape;
-  };
+  }
   
   valid(offsetX = 0, offsetY = 0, offsetZ = 0, block = this.currentBlock) {
     const nextX = block.x + offsetX;
@@ -433,7 +433,7 @@ export default class Tetris3dModel extends EventEmitter2 {
       }
     }
     return true;
-  };
+  }
   
   checkGameOver() {
     // ブロックの全てが画面外ならゲームオーバー
@@ -452,5 +452,5 @@ export default class Tetris3dModel extends EventEmitter2 {
       }
     }
     return isGameOver;
-  };
+  }
 }
