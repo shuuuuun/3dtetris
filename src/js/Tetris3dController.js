@@ -78,6 +78,9 @@ export default class Tetris3dController extends EventEmitter2 {
       this.model.dropBlockY(shadowBlock);
       this.view.moveShadowBlock(shadowBlock);
     });
+    this.model.on('blockmoved', () => {
+      this.view.moveCurrentBlock(this.model.currentBlock);
+    });
     this.model.on('gamequit', () => {});
     this.model.on('freeze', () => {
       this.updateBoard();

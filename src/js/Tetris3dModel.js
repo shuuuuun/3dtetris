@@ -279,23 +279,33 @@ export default class Tetris3dModel extends EventEmitter2 {
   moveBlockX(distance) { // sign: boolean
     // const sign = sign; // 1 or -1
     const isValid = this.valid(distance, 0, 0);
-    if (isValid) this.currentBlock.x += distance;
+    if (isValid) {
+      this.currentBlock.x += distance;
+      this.emit('blockmoved');
+    }
     return isValid;
   }
   
   moveBlockY(distance) {
     const isValid = this.valid(0, distance, 0);
-    if (isValid) this.currentBlock.y += distance;
+    if (isValid) {
+      this.currentBlock.y += distance;
+      this.emit('blockmoved');
+    }
     return isValid;
   }
   
   moveBlockZ(distance) {
     const isValid = this.valid(0, 0, distance);
-    if (isValid) this.currentBlock.z += distance;
+    if (isValid) {
+      this.currentBlock.z += distance;
+      this.emit('blockmoved');
+    }
     return isValid;
   }
   
   moveBlock(code) {
+    // TODO: このメソッド消すor整理する
     let isValid;
     switch (code) {
       case 'left':
