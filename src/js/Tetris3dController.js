@@ -102,61 +102,75 @@ export default class Tetris3dController extends EventEmitter2 {
   }
   
   setKeyEvent() {
+    // TODO: pause, dropとかも入れる
+    const mapArray = [
+      [37, 'left'], // ←
+      [39, 'right'], // →
+      [40, 'forward'], // ↓
+      [38, 'backward'], // ↑
+      [32, 'rotate'], // space
+      [16, 'rotateX'], // shift
+      [17, 'rotateY'], // control
+      [48, 'pers'], // 0
+      [49, 'ortho1'], // 1
+      [50, 'ortho2'], // 2
+      [51, 'ortho3'], // 3
+      [67, 'camera'], // c
+      [66, 'block'], // b
+    ];
+    const keyMap = new Map(mapArray);
+    
     $(document).on('keydown', (evt) => {
-      // TODO: ここもう少し整理する
-      switch (evt.keyCode) {
-        case 37: // ←
-           // left
-           this.moveBlockRightAndLeft(-1);
-          break;
-        case 39: // →
-           // right
-           this.moveBlockRightAndLeft(1);
-          break;
-        case 40: // ↓
-           // forward
-           this.moveBlockBackAndForward(1);
-          break;
-        case 38: // ↑
-           // backward
-           this.moveBlockBackAndForward(-1);
-          break;
-        case 32: // space
-           // rotate
-          this.rotateBlock();
-          break;
-        case 16: // shift
-           // rotateX
-          this.rotateBlockHorizontal();
-          break;
-        case 17: // control
-          this.rotateBlockVertical();
-           // rotateY
-          break;
-          
-        case 48: // 0
-           // pers
-          break;
-        case 49: // 1
-           // ortho1
-          break;
-        case 50: // 2
-           // ortho2
-          break;
-        case 51: // 3
-           // ortho3
-          break;
-          
-        case 67: // c
-           // camera
-          break;
-        case 66: // b
-           // block
-          break;
-        default:
-          break;
+      const methodName = keyMap.get(evt.keyCode);
+      if (!methodName) {
+        return;
       }
+      evt.preventDefault();
+      this.handleMethod(methodName);
     });
+  }
+  
+  handleMethod(methodName) { // helper
+    switch (methodName) {
+      case 'left':
+        this.moveBlockRightAndLeft(-1);
+        break;
+      case 'right':
+        this.moveBlockRightAndLeft(1);
+        break;
+      case 'forward':
+        this.moveBlockBackAndForward(1);
+        break;
+      case 'backward':
+        this.moveBlockBackAndForward(-1);
+        break;
+      case 'rotate':
+        this.rotateBlock();
+        break;
+      case 'rotateX':
+        this.rotateBlockHorizontal();
+        break;
+      case 'rotateY':
+        this.rotateBlockVertical();
+        break;
+        
+      case 'pers':
+        break;
+      case 'ortho1':
+        break;
+      case 'ortho2':
+        break;
+      case 'ortho3':
+        break;
+        
+      case 'camera':
+        break;
+      case 'block':
+        break;
+        
+      default:
+        break;
+    }
   }
   
   setTouchEvent($element) {
