@@ -30,28 +30,6 @@ class Tetris3dCONST {
     this.TICK_INTERVAL = 700; // default tick interval
     this.SPEEDUP_RATE = 10;
     
-    this.KEYS_MODEL = {
-      37: 'left', // ←
-      39: 'right', // →
-      40: 'forward', // ↓
-      38: 'backward', // ↑
-      32: 'rotate', // space
-      16: 'rotateX', // shift
-      17: 'rotateY', // control
-    };
-    
-    this.KEYS_VIEW = {
-      48: 'pers', // 0
-      49: 'ortho1', // 1
-      50: 'ortho2', // 2
-      51: 'ortho3', // 3
-    };
-    
-    this.KEYS_CONTROLLER = {
-      67: 'camera', // c
-      66: 'block', // b
-    };
-    
     this.SHADOW_BLOCK = {
       id: 8,
       color: '#000',

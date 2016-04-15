@@ -103,35 +103,59 @@ export default class Tetris3dController extends EventEmitter2 {
   
   setKeyEvent() {
     $(document).on('keydown', (evt) => {
-      // console.log(evt.keyCode, CONST.KEYS_MODEL[evt.keyCode], CONST.KEYS_VIEW[evt.keyCode], CONST.KEYS_CONTROLLER[evt.keyCode]);
-      if (typeof CONST.KEYS_MODEL[evt.keyCode] !== 'undefined') {
-        evt.preventDefault();
-        this.model.moveBlock(CONST.KEYS_MODEL[evt.keyCode]);
+      // TODO: ここもう少し整理する
+      switch (evt.keyCode) {
+        case 37: // ←
+           // left
+           this.moveBlockRightAndLeft(-1);
+          break;
+        case 39: // →
+           // right
+           this.moveBlockRightAndLeft(1);
+          break;
+        case 40: // ↓
+           // forward
+           this.moveBlockBackAndForward(1);
+          break;
+        case 38: // ↑
+           // backward
+           this.moveBlockBackAndForward(-1);
+          break;
+        case 32: // space
+           // rotate
+          this.rotateBlock();
+          break;
+        case 16: // shift
+           // rotateX
+          this.rotateBlockHorizontal();
+          break;
+        case 17: // control
+          this.rotateBlockVertical();
+           // rotateY
+          break;
+          
+        case 48: // 0
+           // pers
+          break;
+        case 49: // 1
+           // ortho1
+          break;
+        case 50: // 2
+           // ortho2
+          break;
+        case 51: // 3
+           // ortho3
+          break;
+          
+        case 67: // c
+           // camera
+          break;
+        case 66: // b
+           // block
+          break;
+        default:
+          break;
       }
-      if (typeof CONST.KEYS_VIEW[evt.keyCode] !== 'undefined') {
-        evt.preventDefault();
-        this.view.setCamera(CONST.KEYS_VIEW[evt.keyCode]);
-      }
-      if (typeof CONST.KEYS_CONTROLLER[evt.keyCode] !== 'undefined') {
-        evt.preventDefault();
-        this.swithMode(CONST.KEYS_CONTROLLER[evt.keyCode]);
-      }
-      // switch (code) {
-      //   case 'left':
-      //     break;
-      //   case 'right':
-      //     break;
-      //   case 'down':
-      //     break;
-      //   case 'forward':
-      //     break;
-      //   case 'backward':
-      //     break;
-      //   case 'rotate':
-      //     break;
-      //   default:
-      //     break;
-      // }
     });
   }
   
