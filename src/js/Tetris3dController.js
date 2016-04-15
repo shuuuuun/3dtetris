@@ -59,9 +59,7 @@ export default class Tetris3dController extends EventEmitter2 {
     this.model.on('currentblockcreated', () => {
       this.view.drawCurrentBlock(this.model.currentBlock);
       
-      let shadowBlock = _.clone(this.model.currentBlock);
-      shadowBlock.y = CONST.ROWS + 1;
-      shadowBlock.id = CONST.SHADOW_BLOCK.id;
+      let shadowBlock = this.getShadowBlock();
       this.view.drawShadowBlock(shadowBlock);
     });
     this.model.on('nextblockcreated', () => {});
@@ -71,16 +69,14 @@ export default class Tetris3dController extends EventEmitter2 {
     this.model.on('tick', (isNewBlock) => {
       this.view.moveCurrentBlock(this.model.currentBlock);
       
-      // let shadowBlock = _.cloneDeep(this.model.currentBlock);
-      // let shadowBlock = Object.assign(this.model.currentBlock);
-      let shadowBlock = _.clone(this.model.currentBlock);
-      shadowBlock.id = CONST.SHADOW_BLOCK.id;
-      this.model.dropBlockY(shadowBlock);
+      let shadowBlock = this.getShadowBlock();
       this.view.moveShadowBlock(shadowBlock);
     });
     this.model.on('blockmoved', () => {
-      // TODO: shadowも更新する
       this.view.moveCurrentBlock(this.model.currentBlock);
+      
+      let shadowBlock = this.getShadowBlock();
+      this.view.moveShadowBlock(shadowBlock);
     });
     this.model.on('gamequit', () => {});
     this.model.on('freeze', () => {
@@ -92,6 +88,13 @@ export default class Tetris3dController extends EventEmitter2 {
       this.$infoScore.text(this.model.score);
       this.$infoLines.text(this.model.sumOfClearLines);
     });
+  }
+  
+  getShadowBlock() {
+    let shadowBlock = _.clone(this.model.currentBlock);
+    shadowBlock.id = CONST.SHADOW_BLOCK.id;
+    this.model.dropBlockY(shadowBlock);
+    return shadowBlock;
   }
   
   setBlurEvent() {
