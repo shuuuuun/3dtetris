@@ -105,8 +105,7 @@ export default class Tetris3dModel extends EventEmitter2 {
   // メインでループする関数
   tick() {
     clearTimeout(this.tickId);
-    let isMoveDown = this.moveBlock('down');
-    // console.log("tick", isMoveDown);
+    let isMoveDown = this.moveBlockY(1);
     if (!isMoveDown) {
       this.freeze();
       this.clearLines();
@@ -302,45 +301,6 @@ export default class Tetris3dModel extends EventEmitter2 {
       this.emit('blockmoved');
     }
     return isValid;
-  }
-  
-  moveBlock(code) {
-    // TODO: このメソッド消すor整理する
-    let isValid;
-    switch (code) {
-      case 'left':
-        isValid = this.valid(1, 0, 0);
-        if (isValid) ++this.currentBlock.x;
-        return isValid;
-        break;
-      case 'right':
-        isValid = this.valid(-1, 0, 0);
-        if (isValid) --this.currentBlock.x;
-        return isValid;
-        break;
-      case 'down':
-        isValid = this.valid(0, 1, 0);
-        if (isValid) ++this.currentBlock.y;
-        return isValid;
-        break;
-      case 'forward':
-        isValid = this.valid(0, 0, 1);
-        if (isValid) ++this.currentBlock.z;
-        return isValid;
-        break;
-      case 'backward':
-        isValid = this.valid(0, 0, -1);
-        if (isValid) --this.currentBlock.z;
-        return isValid;
-        break;
-      case 'rotate':
-        const rotatedBlock = Object.assign(this.currentBlock);
-        rotatedBlock.shape = this.rotateXZ(this.currentBlock.shape);
-        isValid = this.valid(0, 0, 0, rotatedBlock);
-        if (isValid) this.currentBlock = rotatedBlock;
-        return isValid;
-        break;
-    }
   }
   
   rotateBlockXZ(sign = true) {
