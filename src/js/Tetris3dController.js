@@ -79,6 +79,7 @@ export default class Tetris3dController extends EventEmitter2 {
       this.view.moveShadowBlock(shadowBlock);
     });
     this.model.on('blockmoved', () => {
+      // TODO: shadowも更新する
       this.view.moveCurrentBlock(this.model.currentBlock);
     });
     this.model.on('gamequit', () => {});
