@@ -1,4 +1,6 @@
 .game-container
+  font-family: $font_futura
+  color: #555
   position: relative
 
 .game__view
@@ -15,15 +17,7 @@
   
   button
     +reset-btn-style
-    font-size: 2.0rem
-    font-family: $font_futura
-    width: 100px
-    height: 100px
-    margin: 10px
-    color: #555
-    transition: all 0.3s
-    position: relative
-    float: left
+    font-size: 1.6rem
 
 $stick-container-size: 150px
 .game__controller__stick
@@ -67,23 +61,40 @@ $stick-container-size: 150px
   right: 0
   bottom: 0
   button
+    margin: 10px
     width: $size
     height: $size
     border-radius: $size
     background-color: rgba(255,255,255,0.5)
     border: solid 6px #fff
 
-.game__controller__pause-btn
-  $size: 60px
-  width: $size
-  height: $size
-  margin: 10px
+.game__controller__btns--top-right
+  display: flex
   position: absolute
   top: 0
   right: 0
+
+.game__controller__howto-btn
+  $size: 60px
+  margin: 10px
   button
-    +absolute-center
-    font-size: 1.6rem
+    width: $size
+    height: $size
+    border-radius: $size
+    background-color: rgba(255,255,255,0.5)
+    border: solid 6px #fff
+    &:before
+      content: '\f128'
+      font-family: FontAwesome
+      color: #fff
+      font-size: 130%
+    span
+      display: none
+
+.game__controller__pause-btn
+  $size: 60px
+  margin: 10px
+  button
     width: $size
     height: $size
     border-radius: $size
