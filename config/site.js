@@ -28,5 +28,5 @@ module.exports = {
   // fb_appid: "",
   
   // favicon_url: domain + "/favicon.ico",
-  // apple_touch_icon_url: domain + "/favicon.ico",
+  apple_touch_icon_url: domain,
 };

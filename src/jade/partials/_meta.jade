@@ -44,5 +44,9 @@ if favicon_url
   link(rel="icon" href=favicon_url)
 
 if apple_touch_icon_url
+  meta(name="apple-mobile-web-app-capable" content="yes")
+  //- meta(name="apple-mobile-web-app-status-bar-style" content="default")
+  //- meta(name="apple-mobile-web-app-status-bar-style" content="black")
+  //- meta(name="apple-mobile-web-app-status-bar-style" content="black-translucent")
   link(rel="apple-touch-icon-precomposed" href=apple_touch_icon_url)
   link(rel="apple-touch-icon" href=apple_touch_icon_url)
