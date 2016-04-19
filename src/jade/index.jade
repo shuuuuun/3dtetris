@@ -44,26 +44,30 @@ html(lang="ja")
         div.modal__inner
           div.modal__bg
           div.modal__content
-            button.modal__close(type="button") x
             h2.modal__title PAUSE!!
+            p.modal__button
+              button.js-btn-modal-close(type="button") Resume
       div.start-container.modal.js-modal-start
         div.modal__inner
           div.modal__bg
           div.modal__content
-            button.modal__close(type="button") x
-            h2.modal__title START!!
+            h2.modal__title 3D TETRIS!!
+            p.modal__button
+              button.js-btn-modal-close(type="button") Start
       div.howto-container.modal.js-modal-howto
         div.modal__inner
           div.modal__bg
           div.modal__content
-            button.modal__close(type="button") x
             h2.modal__title HOWTO!!
+            p.modal__button
+              button.js-btn-modal-close(type="button") Back
       div.result-container.modal.js-modal-result
         div.modal__inner
           div.modal__bg
           div.modal__content
-            button.modal__close(type="button") x
             h2.modal__title RESULT!!
+            p.modal__button
+              button.js-btn-modal-close(type="button") Restart
       div.splash-container
     
     script(src="./js/script.js")
