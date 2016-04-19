@@ -5,6 +5,10 @@ export default class Tetris3dUI extends EventEmitter2 {
     super();
     
     this.controller = controller;
+    this.$modalPause = $('.js-modal-pause');
+    this.$modalStart = $('.js-modal-start');
+    this.$modalHowto = $('.js-modal-howto');
+    this.$modalResult = $('.js-modal-result');
     this.$btnPause = $('.js-btn-pause');
     this.$switchCamera = $('.js-switch-camera');
     this.$switchBlock = $('.js-switch-block');
@@ -59,6 +63,12 @@ export default class Tetris3dUI extends EventEmitter2 {
     });
     this.controller.on('switchModeBlock', () => {
       this.switchModeBlock();
+    });
+    this.controller.on('pauseGame', () => {
+      this.$modalPause.show();
+    });
+    this.controller.on('resumeGame', () => {
+      this.$modalPause.hide();
     });
   }
   
