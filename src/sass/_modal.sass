@@ -1,0 +1,55 @@
+// modal ------------------------------
+$modal_content_width: 300px
+$modal_content_height: 300px
+
+.modal
+  display: none
+  width: 100%
+  height: 100%
+  //position: absolute
+  position: fixed
+  top: 0
+  left: 0
+  z-index: 9
+  //overflow: scroll
+  overflow: hidden
+
+.modal__inner
+  width: 100%
+  height: 100%
+  // overflow: scroll
+
+.modal__bg
+  // background-image: image-url("bg_trans07.png")
+  // background-color: rgba(0, 0, 0, 0.7)
+  background-color: rgba(255, 255, 255, 0.7)
+  width: 100%
+  height: 100%
+  position: absolute
+  top: 0
+  left: 0
+
+.modal__content
+  text-align: center
+  background-color: rgba(255, 255, 255, 0.7)
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1)
+  border: solid 10px #fff
+  border-radius: 10px
+  padding: 20px
+  width: $modal_content_width
+  height: $modal_content_height
+  margin: auto
+  position: absolute
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+
+.modal__close
+  cursor: pointer
+  position: absolute
+  top: 0
+  right: 0
+
+.modal__title
+  font-size: 2.5rem
