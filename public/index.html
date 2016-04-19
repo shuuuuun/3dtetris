@@ -10,6 +10,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon-precomposed" href="http://localhost">
     <link rel="apple-touch-icon" href="http://localhost">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
     <link rel="stylesheet" href="./css/app.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r75/three.min.js"></script>
@@ -33,20 +34,74 @@
             <p>score <span class="js-info-score">0</span></p>
             <p>lines <span class="js-info-lines">0</span></p>
           </div>
-          <div class="game__controller__pause-btn">
-            <button type="button" class="js-btn-pause">pause</button>
+          <div class="game__controller__btns--top-right">
+            <div class="game__controller__btn--howto">
+              <button type="button"><span>howto</span></button>
+            </div>
+            <div class="game__controller__btn--pause">
+              <button type="button" class="js-btn-pause"><span>pause</span></button>
+            </div>
           </div>
           <div class="game__controller__stick js-stick-container">
             <div class="game__controller__stick__toucharea js-stick-toucharea">
               <div class="game__controller__stick__dot"></div>
             </div>
           </div>
-          <div class="game__controller__rotate-btn">
-            <button type="button" class="js-btn-rotate-vertical">↑</button>
-            <button type="button" class="js-btn-rotate-horizontal">→</button>
+          <div class="game__controller__btns--right-bottom">
+            <div class="game__controller__btn--rotate-vertical">
+              <button type="button" class="js-btn-rotate-vertical"><span>↑</span></button>
+            </div>
+            <div class="game__controller__btn--rotate-horizontal">
+              <button type="button" class="js-btn-rotate-horizontal"><span>→</span></button>
+            </div>
           </div>
         </div>
       </div>
+      <div class="pause-container modal js-modal-pause">
+        <div class="modal__inner">
+          <div class="modal__bg"></div>
+          <div class="modal__content">
+            <h2 class="modal__title">PAUSE!!</h2>
+            <p class="modal__button">
+              <button type="button" class="js-btn-modal-close">Resume</button>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="start-container modal js-modal-start">
+        <div class="modal__inner">
+          <div class="modal__bg"></div>
+          <div class="modal__content">
+            <h2 class="modal__title">3D TETRIS!!</h2>
+            <p class="modal__button">
+              <button type="button" class="js-btn-modal-close">Start</button>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="howto-container modal js-modal-howto">
+        <div class="modal__inner">
+          <div class="modal__bg"></div>
+          <div class="modal__content">
+            <h2 class="modal__title">HOWTO!!</h2>
+            <p class="modal__button">
+              <button type="button" class="js-btn-modal-close">Back</button>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="result-container modal js-modal-result">
+        <div class="modal__inner">
+          <div class="modal__bg"></div>
+          <div class="modal__content">
+            <h2 class="modal__title">RESULT!!</h2>
+            <p class="modal__button">
+              <button type="button" class="js-btn-modal-close">Restart</button>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="splash-container"></div>
     </div>
     <script src="./js/script.js"></script>
   </body>
