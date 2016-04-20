@@ -6,6 +6,7 @@ export default class Tetris3dUI extends EventEmitter2 {
     
     this.controller = controller;
     this.$modalPause = $('.js-modal-pause');
+    this.$modalGameover = $('.js-modal-gameover');
     this.$modalStart = $('.js-modal-start');
     this.$modalHowto = $('.js-modal-howto');
     this.$modalResult = $('.js-modal-result');
