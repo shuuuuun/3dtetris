@@ -66,7 +66,8 @@ export default class Tetris3dController extends EventEmitter2 {
     });
     this.model.on('nextblockcreated', () => {});
     this.model.on('gameover', () => {
-      alert('gameover!!');
+      // alert('gameover!!');
+      this.emit('gameover');
     });
     this.model.on('tick', (isNewBlock) => {
       this.view.moveCurrentBlock(this.model.currentBlock);
