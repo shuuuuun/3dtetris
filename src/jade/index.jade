@@ -48,35 +48,37 @@ html(lang="ja")
           div.modal__content
             h2.modal__title PAUSE!!
             p.modal__button
-              button.js-btn-modal-close(type="button") Resume
+              button.js-btn-modal-close.js-btn-resume(type="button") Resume
       div.gameover-container.modal.js-modal-gameover
         div.modal__inner
           div.modal__bg
           div.modal__content
             h2.modal__title GAME OVER!!
             p.modal__button
-              button.js-btn-modal-close(type="button") Result
+              button(type="button") Result
       div.start-container.modal.js-modal-start
         div.modal__inner
           div.modal__bg
           div.modal__content
             h2.modal__title 3D TETRIS!!
             p.modal__button
-              button.js-btn-modal-close(type="button") Start
+              button.js-btn-modal-close.js-btn-start(type="button") Start
+            p.modal__button
+              button(type="button") How To ?
       div.howto-container.modal.js-modal-howto
         div.modal__inner
           div.modal__bg
           div.modal__content
             h2.modal__title HOWTO!!
             p.modal__button
-              button.js-btn-modal-close(type="button") Back
+              button(type="button") Back
       div.result-container.modal.js-modal-result
         div.modal__inner
           div.modal__bg
           div.modal__content
             h2.modal__title RESULT!!
             p.modal__button
-              button.js-btn-modal-close(type="button") Restart
+              button.js-btn-modal-close.js-btn-start(type="button") Restart
       div.splash-container
     
     script(src="./js/script.js")

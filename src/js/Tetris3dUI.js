@@ -12,6 +12,8 @@ export default class Tetris3dUI extends EventEmitter2 {
     this.$modalResult = $('.js-modal-result');
     this.$modals = this.$modalPause.add(this.$modalGameover).add(this.$modalStart).add(this.$modalHowto).add(this.$modalResult);
     this.$btnModalClose = $('.js-btn-modal-close');
+    this.$btnResume = $('.js-btn-resume');
+    this.$btnStart = $('.js-btn-start');
     this.$btnPause = $('.js-btn-pause');
     this.$switchCamera = $('.js-switch-camera');
     this.$switchBlock = $('.js-switch-block');
@@ -60,7 +62,12 @@ export default class Tetris3dUI extends EventEmitter2 {
     });
     this.$btnModalClose.on('click', (evt) => {
       this.$modals.hide();
+    });
+    this.$btnResume.on('click', (evt) => {
       this.controller.resumeGame();
+    });
+    this.$btnStart.on('click', (evt) => {
+      this.controller.newGame();
     });
   }
   
@@ -90,5 +97,9 @@ export default class Tetris3dUI extends EventEmitter2 {
   switchModeBlock() {
     this.$btns.removeClass('is-active');
     this.$switchBlock.addClass('is-active');
+  }
+  
+  showStartModal() {
+    this.$modalStart.show();
   }
 }
