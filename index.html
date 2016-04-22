@@ -36,7 +36,7 @@
           </div>
           <div class="game__controller__btns--top-right">
             <div class="game__controller__btn--howto">
-              <button type="button"><span>howto</span></button>
+              <button type="button" class="js-btn-to-howto"><span>howto</span></button>
             </div>
             <div class="game__controller__btn--pause">
               <button type="button" class="js-btn-pause"><span>pause</span></button>
@@ -63,7 +63,18 @@
           <div class="modal__content">
             <h2 class="modal__title">PAUSE!!</h2>
             <p class="modal__button">
-              <button type="button" class="js-btn-modal-close">Resume</button>
+              <button type="button" class="js-btn-modal-close js-btn-resume">Resume</button>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="gameover-container modal js-modal-gameover">
+        <div class="modal__inner">
+          <div class="modal__bg"></div>
+          <div class="modal__content">
+            <h2 class="modal__title">GAME OVER!!</h2>
+            <p class="modal__button">
+              <button type="button" class="js-btn-to-result">Result</button>
             </p>
           </div>
         </div>
@@ -74,7 +85,10 @@
           <div class="modal__content">
             <h2 class="modal__title">3D TETRIS!!</h2>
             <p class="modal__button">
-              <button type="button" class="js-btn-modal-close">Start</button>
+              <button type="button" class="js-btn-modal-close js-btn-start">Start</button>
+            </p>
+            <p class="modal__button">
+              <button type="button" class="js-btn-to-howto">How To ?</button>
             </p>
           </div>
         </div>
@@ -85,7 +99,7 @@
           <div class="modal__content">
             <h2 class="modal__title">HOWTO!!</h2>
             <p class="modal__button">
-              <button type="button" class="js-btn-modal-close">Back</button>
+              <button type="button" class="js-btn-to-back">Back</button>
             </p>
           </div>
         </div>
@@ -96,7 +110,7 @@
           <div class="modal__content">
             <h2 class="modal__title">RESULT!!</h2>
             <p class="modal__button">
-              <button type="button" class="js-btn-modal-close">Restart</button>
+              <button type="button" class="js-btn-modal-close js-btn-start">Restart</button>
             </p>
           </div>
         </div>
