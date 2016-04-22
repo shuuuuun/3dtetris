@@ -15,6 +15,9 @@ export default class Tetris3dUI extends EventEmitter2 {
     this.$btnResume = $('.js-btn-resume');
     this.$btnStart = $('.js-btn-start');
     this.$btnPause = $('.js-btn-pause');
+    this.$btnToResult = $('.js-btn-to-result');
+    this.$btnToHowto = $('.js-btn-to-howto');
+    this.$btnToBack = $('.js-btn-to-back');
     this.$switchCamera = $('.js-switch-camera');
     this.$switchBlock = $('.js-switch-block');
     this.$switchRotate = $('.js-switch-rotate');
@@ -46,6 +49,7 @@ export default class Tetris3dUI extends EventEmitter2 {
     });
     this.$btnPause.on('click', (evt) => {
       this.$btnPause.toggleClass('is-active');
+      this.$modalPause.show();
       
       if (this.controller.isPlayngGame) {
         this.controller.pauseGame();
@@ -69,6 +73,26 @@ export default class Tetris3dUI extends EventEmitter2 {
     this.$btnStart.on('click', (evt) => {
       this.controller.newGame();
     });
+    this.$btnToResult.on('click', (evt) => {
+      this.$modals.hide();
+      this.$modalResult.show();
+    });
+    this.$btnToHowto.on('click', (evt) => {
+      this.$modals.hide();
+      this.$modalHowto.show();
+      if (this.controller.isPlayngGame) {
+        this.controller.pauseGame();
+      }
+    });
+    this.$btnToBack.on('click', (evt) => {
+      this.$modals.hide();
+      if (!this.controller.isPausingGame) {
+        this.$modalStart.show();
+      }
+      else {
+        this.controller.resumeGame();
+      }
+    });
   }
   
   setControllerEvent() {
@@ -79,10 +103,10 @@ export default class Tetris3dUI extends EventEmitter2 {
       this.switchModeBlock();
     });
     this.controller.on('pauseGame', () => {
-      this.$modalPause.show();
+      // this.$modalPause.show();
     });
     this.controller.on('resumeGame', () => {
-      this.$modalPause.hide();
+      this.$modals.hide();
     });
     this.controller.on('gameover', () => {
       this.$modalGameover.show();
