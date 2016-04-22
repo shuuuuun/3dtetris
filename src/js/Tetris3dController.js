@@ -25,6 +25,9 @@ export default class Tetris3dController extends EventEmitter2 {
       $element: this.$stickToucharea
     });
     
+    this.isPlayngGame = false;
+    this.isPausingGame = false;
+    
     this.setModelEvent();
     this.setBlurEvent();
     this.setKeyEvent();
@@ -39,12 +42,14 @@ export default class Tetris3dController extends EventEmitter2 {
     this.model.initGame();
     this.model.startGame();
     this.isPlayngGame = true;
+    this.isPausingGame = false;
   }
   
   pauseGame() {
     this.view.stop();
     this.model.pauseGame();
     this.isPlayngGame = false;
+    this.isPausingGame = true;
     this.emit('pauseGame');
   }
   
@@ -52,6 +57,7 @@ export default class Tetris3dController extends EventEmitter2 {
     this.view.start();
     this.model.resumeGame();
     this.isPlayngGame = true;
+    this.isPausingGame = false;
     this.emit('resumeGame');
   }
   
