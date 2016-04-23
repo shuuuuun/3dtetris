@@ -171,23 +171,13 @@ export default class Tetris3dModel extends EventEmitter2 {
       let filledRowListZ = [];
       let filledRowListX = [];
       for ( let z = 0; z < CONST.COLS; ++z ) {
-        // let isRowFilled = this.board[z][y].every(val => val !== 0);
-        let isRowFilled = true;
-        for ( let x = 0; x < CONST.COLS; ++x ) {
-          isRowFilled = this.board[z][y][x] !== 0;
-          if (!isRowFilled) break;
-        }
+        let isRowFilled = this.board[z][y].every(val => val !== 0);
         if (!isRowFilled) continue;
         filledRowListZ.push(z);
         clearLineLength++;
       }
       for ( let x = 0; x < CONST.COLS; ++x ) {
-        // let isRowFilled = this.board[z][y].every(val => val !== 0);
-        let isRowFilled = true;
-        for ( let z = 0; z < CONST.COLS; ++z ) {
-          isRowFilled = this.board[z][y][x] !== 0;
-          if (!isRowFilled) break;
-        }
+        let isRowFilled = this.board.every(val => val[y][x] !== 0);
         if (!isRowFilled) continue;
         filledRowListX.push(x);
         clearLineLength++;
