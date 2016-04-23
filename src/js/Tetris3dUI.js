@@ -71,6 +71,7 @@ export default class Tetris3dUI extends EventEmitter2 {
       this.controller.resumeGame();
     });
     this.$btnStart.on('click', (evt) => {
+      this.controller.isAutoMode = false;
       this.controller.newGame();
     });
     this.$btnToResult.on('click', (evt) => {
@@ -109,6 +110,9 @@ export default class Tetris3dUI extends EventEmitter2 {
       this.$modals.hide();
     });
     this.controller.on('gameover', () => {
+      if (this.controller.isAutoMode) {
+        return;
+      }
       this.$modalGameover.show();
     });
   }

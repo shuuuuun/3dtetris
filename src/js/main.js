@@ -14,7 +14,8 @@ const tetris3dUI = new Tetris3dUI(tetris3dController);
 
 // start
 tetris3dUI.showStartModal();
-// tetris3dController.newGame();
+tetris3dController.isAutoMode = true;
+tetris3dController.newGame();
 
 // default mode
 tetris3dUI.switchModeBlock();

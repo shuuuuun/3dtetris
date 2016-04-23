@@ -25,6 +25,7 @@ export default class Tetris3dController extends EventEmitter2 {
       $element: this.$stickToucharea
     });
     
+    this.isAutoMode = false;
     this.isPlayngGame = false;
     this.isPausingGame = false;
     
@@ -72,6 +73,9 @@ export default class Tetris3dController extends EventEmitter2 {
     });
     this.model.on('nextblockcreated', () => {});
     this.model.on('gameover', () => {
+      if (this.isAutoMode) {
+        this.newGame();
+      }
       // alert('gameover!!');
       this.emit('gameover');
     });
