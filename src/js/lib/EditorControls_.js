@@ -3,6 +3,10 @@
  * @author mrdoob / http://mrdoob.com
  * @author alteredq / http://alteredqualia.com/
  * @author WestLangley / http://github.com/WestLangley
+ * 
+ * fixed center API
+ * centerを外部から使えるように修正した
+ * 
  */
 
 THREE.EditorControls = function ( object, domElement ) {
