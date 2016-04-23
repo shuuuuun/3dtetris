@@ -18,12 +18,8 @@ export default class Tetris3dUI extends EventEmitter2 {
     this.$btnToResult = $('.js-btn-to-result');
     this.$btnToHowto = $('.js-btn-to-howto');
     this.$btnToBack = $('.js-btn-to-back');
-    this.$switchCamera = $('.js-switch-camera');
-    this.$switchBlock = $('.js-switch-block');
-    this.$switchRotate = $('.js-switch-rotate');
     this.$btnRotateVertical = $('.js-btn-rotate-vertical');
     this.$btnRotateHorizontal = $('.js-btn-rotate-horizontal');
-    this.$btns = this.$switchCamera.add(this.$switchBlock);
     
     this.setEvent();
     this.setControllerEvent();
@@ -34,18 +30,6 @@ export default class Tetris3dUI extends EventEmitter2 {
       // touch event bug fix
       // cf. http://jsdo.it/shuuuuun/WLX1
       evt.stopPropagation();
-    });
-    this.$switchCamera.on('click', (evt) => {
-      this.switchModeCamera();
-      this.controller.switchModeCamera();
-    });
-    this.$switchBlock.on('click', (evt) => {
-      this.switchModeBlock();
-      this.controller.switchModeBlock();
-    });
-    this.$switchRotate.on('click', (evt) => {
-      this.$switchRotate.toggleClass('is-active');
-      this.controller.changeRotateDirection();
     });
     this.$btnPause.on('click', (evt) => {
       this.$btnPause.toggleClass('is-active');
@@ -97,12 +81,6 @@ export default class Tetris3dUI extends EventEmitter2 {
   }
   
   setControllerEvent() {
-    this.controller.on('switchModeCamera', () => {
-      this.switchModeCamera();
-    });
-    this.controller.on('switchModeBlock', () => {
-      this.switchModeBlock();
-    });
     this.controller.on('pauseGame', () => {
       const isModalShown = this.$modals.get().some(modal => $(modal).is(':visible'));
       if (isModalShown) {
@@ -120,16 +98,6 @@ export default class Tetris3dUI extends EventEmitter2 {
       }
       this.$modalGameover.show();
     });
-  }
-  
-  switchModeCamera() {
-    this.$btns.removeClass('is-active');
-    this.$switchCamera.addClass('is-active');
-  }
-  
-  switchModeBlock() {
-    this.$btns.removeClass('is-active');
-    this.$switchBlock.addClass('is-active');
   }
   
   showStartModal() {

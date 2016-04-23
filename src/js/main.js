@@ -17,10 +17,6 @@ tetris3dUI.showStartModal();
 tetris3dController.isAutoMode = true;
 tetris3dController.newGame();
 
-// default mode
-tetris3dUI.switchModeBlock();
-tetris3dController.switchModeBlock();
-
 
 // debug mode
 const query = Util.getQueryString();
