@@ -104,7 +104,12 @@ export default class Tetris3dUI extends EventEmitter2 {
       this.switchModeBlock();
     });
     this.controller.on('pauseGame', () => {
-      // this.$modalPause.show();
+      const isModalShown = this.$modals.get().some(modal => $(modal).is(':visible'));
+      if (isModalShown) {
+        // なにかしらmodalが既に表示されてたらreturn
+        return;
+      }
+      this.$modalPause.show();
     });
     this.controller.on('resumeGame', () => {
       this.$modals.hide();
