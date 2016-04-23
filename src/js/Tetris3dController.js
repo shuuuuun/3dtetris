@@ -119,7 +119,6 @@ export default class Tetris3dController extends EventEmitter2 {
   }
   
   setKeyEvent() {
-    // TODO: pause, dropとかも入れる
     const mapArray = [
       [37, 'left'], // ←
       [39, 'right'], // →
@@ -128,6 +127,8 @@ export default class Tetris3dController extends EventEmitter2 {
       [32, 'rotate'], // space
       [16, 'rotateX'], // shift
       [17, 'rotateY'], // control
+      [13, 'drop'], // enter
+      [27, 'pause'], // esc
       [48, 'pers'], // 0
       [49, 'ortho1'], // 1
       [50, 'ortho2'], // 2
@@ -138,6 +139,7 @@ export default class Tetris3dController extends EventEmitter2 {
     const keyMap = new Map(mapArray);
     
     $(document).on('keydown', (evt) => {
+      // console.log(evt.keyCode);
       const methodName = keyMap.get(evt.keyCode);
       if (!methodName) {
         return;
@@ -169,6 +171,12 @@ export default class Tetris3dController extends EventEmitter2 {
         break;
       case 'rotateY':
         this.rotateBlockVertical();
+        break;
+      case 'drop':
+        this.dropBlock();
+        break;
+      case 'pause':
+        this.pauseGame();
         break;
         
       case 'pers':
@@ -230,8 +238,8 @@ export default class Tetris3dController extends EventEmitter2 {
     this.touch.on('touchend', (evt) => {
       // if (!!evt.isTap) this.rotateBlock();
       if (evt.isDoubleTap) {
-        this.model.dropBlockY();
-        this.view.moveCurrentBlock(this.model.currentBlock);
+        // console.log(evt.isDoubleTap);
+        this.dropBlock();
       }
     });
   }
@@ -336,4 +344,8 @@ export default class Tetris3dController extends EventEmitter2 {
     }
   }
   
+  dropBlock() {
+    this.model.dropBlockY();
+    this.view.moveCurrentBlock(this.model.currentBlock);
+  }
 }
