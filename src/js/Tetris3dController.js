@@ -192,8 +192,10 @@ export default class Tetris3dController extends EventEmitter2 {
         break;
         
       case 'camera':
+        this.switchModeCamera();
         break;
       case 'block':
+        this.switchModeBlock();
         break;
         
       default:
@@ -263,28 +265,17 @@ export default class Tetris3dController extends EventEmitter2 {
     });
   }
   
-  swithMode(code) {
-    switch (code) {
-      case 'camera':
-        this.switchModeCamera();
-        break;
-      case 'block':
-        this.switchModeBlock();
-        break;
-    }
-  }
-  
   switchModeCamera() {
     console.log('switchModeCamera');
     this.touch.dispose();
-    this.view.startControls();
+    this.view.enableControls();
     this.emit('switchModeCamera');
   }
   
   switchModeBlock() {
     console.log('switchModeBlock');
     this.touch.setEvent();
-    this.view.stopControls();
+    this.view.disableControls();
     this.emit('switchModeBlock');
   }
   

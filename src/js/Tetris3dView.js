@@ -51,7 +51,12 @@ export default class Tetris3dView {
     
     
     // controls ------------------------------
-    // this.startControls();
+    // this.controls = new THREE.OrbitControls(this.camera);
+    // this.controls.target = this.CENTER_VECTOR;
+    // this.controls.enableKeys = false;
+    this.controls = new THREE.EditorControls(this.camera);
+    this.controls.center = this.CENTER_VECTOR;
+    this.disableControls();
     
     
     // axis ------------------------------
@@ -153,23 +158,16 @@ export default class Tetris3dView {
     this.camera.up.set(0, -1, 0); // y down
     this.camera.zoom = 1;
     this.camera.lookAt(this.CENTER_VECTOR);
-    
-    this.stopControls();
-    this.startControls();
   }
   
-  stopControls() {
-    if (this.controls) this.controls.dispose();
+  disableControls() {
+    if (!this.controls) return;
+    this.controls.enabled = false;
   }
   
-  startControls() {
-    if (this.controls) this.stopControls();
-    // this.controls = new THREE.OrbitControls(this.camera);
-    // this.controls.target = this.CENTER_VECTOR;
-    // this.controls.enableKeys = false;
-    // this.controls.update();
-    this.controls = new THREE.EditorControls(this.camera);
-    this.controls.center = this.CENTER_VECTOR;
+  enableControls() {
+    if (!this.controls) return;
+    this.controls.enabled = true;
   }
   
   checkCameraDirection() {
