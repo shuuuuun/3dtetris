@@ -140,6 +140,9 @@ export default class Tetris3dController extends EventEmitter2 {
     
     $(document).on('keydown', (evt) => {
       // console.log(evt.keyCode);
+      if (!this.isPlayngGame) { // プレイ中以外はキー操作無効
+        return;
+      }
       const methodName = keyMap.get(evt.keyCode);
       if (!methodName) {
         return;
