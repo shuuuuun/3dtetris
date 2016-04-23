@@ -180,8 +180,6 @@ export default class Tetris3dModel extends EventEmitter2 {
         if (!isRowFilled) continue;
         filledRowListZ.push(z);
         clearLineLength++;
-        this.sumOfClearLines++;
-        this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
       }
       for ( let x = 0; x < CONST.COLS; ++x ) {
         // let isRowFilled = this.board[z][y].every(val => val !== 0);
@@ -193,11 +191,12 @@ export default class Tetris3dModel extends EventEmitter2 {
         if (!isRowFilled) continue;
         filledRowListX.push(x);
         clearLineLength++;
-        this.sumOfClearLines++;
-        this.tickInterval -= CONST.SPEEDUP_RATE; // 1行消去で速度を上げる
       }
       filledRowList.push([filledRowListX, filledRowListZ]);
     }
+    
+    this.sumOfClearLines += clearLineLength;
+    this.tickInterval -= CONST.SPEEDUP_RATE * clearLineLength; // 消去列ぶん速度を上げる
     
     // clear line drop
     dfd.then(this.dropRow(filledRowList));
