@@ -20,10 +20,24 @@ export default class Tetris3dView {
   }
   
   dispose() {
-    if (this.container) this.container.innerHTML = '';
-    if (this.renderer) this.renderer.dispose();
-    if (this.scene) this.scene = undefined;
-    if (this.camera) this.camera = undefined;
+    this.stop();
+    if (this.container) {
+      this.container.innerHTML = '';
+    }
+    if (this.renderer) {
+      this.renderer.dispose();
+      delete this.renderer;
+    }
+    if (this.scene) {
+      delete this.scene;
+    }
+    if (this.camera) {
+      delete this.camera;
+    }
+    if (this.controls) {
+      this.controls.dispose();
+      delete this.controls;
+    }
   }
   
   init() {
