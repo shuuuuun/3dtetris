@@ -40,6 +40,8 @@ if (query.debug) {
     Tetris3dCONST.CENTER_X = Tetris3dCONST.WIDTH / 2;
     Tetris3dCONST.CENTER_Y = Tetris3dCONST.HEIGHT / 2;
     Tetris3dCONST.CENTER_Z = Tetris3dCONST.WIDTH / 2;
+    
+    tetris3dView.constructor();
   };
   if (query.interval) {
     tetris3dModel.tickInterval = +query.interval;
