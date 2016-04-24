@@ -43,6 +43,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     this.isPlayng = false;
     this.isPausing = true;
     clearTimeout(this.tickId);
+    delete this.tickId;
   }
   
   resumeGame() {
@@ -66,6 +67,7 @@ export default class Tetris3dModel extends EventEmitter2 {
   // メインでループする関数
   tick() {
     clearTimeout(this.tickId);
+    if (!this.isPlayng || this.isPausing) return;
     let isMoveDown = this.moveBlockY(1);
     if (!isMoveDown) {
       this.freeze();
@@ -170,7 +172,6 @@ export default class Tetris3dModel extends EventEmitter2 {
     let filledRowList = [];
     let blankRow = Array.apply(null, Array(CONST.COLS)).map(() => 0); // => [0,0,0,0,0,...]
     let dfd = $.Deferred();
-    dfd.resolve();
     
     for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
       let filledRowListZ = [];
@@ -194,7 +195,15 @@ export default class Tetris3dModel extends EventEmitter2 {
     this.tickInterval -= CONST.SPEEDUP_RATE * clearLineLength; // 消去列ぶん速度を上げる
     
     // clear line drop
-    dfd.then(this.dropRow(filledRowList));
+    dfd
+      .resolve()
+      .then(() => {
+        this.emit('beforeDropClearLines');
+      })
+      .then(this.dropRow(filledRowList))
+      .then(() => {
+        this.emit('afterDropClearLines');
+      });
     
     // calc score
     this.score += (clearLineLength <= 1) ? clearLineLength : Math.pow(2, clearLineLength);

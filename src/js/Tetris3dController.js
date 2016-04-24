@@ -101,6 +101,12 @@ export default class Tetris3dController extends EventEmitter2 {
       this.$infoScore.text(this.model.score);
       this.$infoLines.text(this.model.sumOfClearLines);
     });
+    this.model.on('beforeDropClearLines', () => {
+      this.model.pauseGame();
+    });
+    this.model.on('afterDropClearLines', () => {
+      this.model.resumeGame();
+    });
   }
   
   getShadowBlock() {
