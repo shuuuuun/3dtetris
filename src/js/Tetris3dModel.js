@@ -38,6 +38,46 @@ export default class Tetris3dModel extends EventEmitter2 {
     this.emit('gamestart');
   }
   
+  pauseGame() {
+    clearTimeout(this.tickId);
+  }
+  
+  resumeGame() {
+    if (!this.isPlayng) return;
+    this.tickId = setTimeout(() => { this.tick(); }, this.tickInterval);
+  }
+  
+  quitGame() {
+    let dfd = $.Deferred();
+    // this.gameOverEffect().then(() => {
+    //   this.isPlayng = false;
+    //   this.emit('gamequit');
+    //   dfd.resolve();
+    // });
+    return dfd.promise();
+  }
+  stopGame() { this.quitGame() } // alias
+  
+  // メインでループする関数
+  tick() {
+    clearTimeout(this.tickId);
+    let isMoveDown = this.moveBlockY(1);
+    if (!isMoveDown) {
+      this.freeze();
+      this.clearLines();
+      if (this.checkGameOver()) {
+        this.emit('gameover');
+        // this.quitGame().then(function(){});
+        return false;
+      }
+      this.frameCount++;
+      this.createCurrentBlock();
+      this.createNextBlock();
+    }
+    this.tickId = setTimeout(() => { this.tick(); }, this.tickInterval);
+    this.emit('tick', !isMoveDown);
+  }
+  
   initBoad() {
     this.board = [];
     for ( let z = 0; z < CONST.COLS; ++z ) {
@@ -100,46 +140,6 @@ export default class Tetris3dModel extends EventEmitter2 {
     const id = Math.floor(Math.random() * CONST.BLOCK_LIST.length);
     this.nextBlock = this.createBlock(id);
     this.emit('nextblockcreated');
-  }
-  
-  // メインでループする関数
-  tick() {
-    clearTimeout(this.tickId);
-    let isMoveDown = this.moveBlockY(1);
-    if (!isMoveDown) {
-      this.freeze();
-      this.clearLines();
-      if (this.checkGameOver()) {
-        this.emit('gameover');
-        // this.quitGame().then(function(){});
-        return false;
-      }
-      this.frameCount++;
-      this.createCurrentBlock();
-      this.createNextBlock();
-    }
-    this.tickId = setTimeout(() => { this.tick(); }, this.tickInterval);
-    this.emit('tick', !isMoveDown);
-  }
-  
-  quitGame() {
-    let dfd = $.Deferred();
-    // this.gameOverEffect().then(() => {
-    //   this.isPlayng = false;
-    //   this.emit('gamequit');
-    //   dfd.resolve();
-    // });
-    return dfd.promise();
-  }
-  stopGame() { this.quitGame() } // alias
-  
-  pauseGame() {
-    clearTimeout(this.tickId);
-  }
-  
-  resumeGame() {
-    if (!this.isPlayng) return;
-    this.tickId = setTimeout(() => { this.tick(); }, this.tickInterval);
   }
   
   freeze() {
