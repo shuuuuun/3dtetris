@@ -18,6 +18,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     clearTimeout(this.tickId);
     clearInterval(this.renderId);
     this.isPlayng = false;
+    this.isPausing = false;
     this.lose = false;
     this.tickInterval = CONST.TICK_INTERVAL;
     this.sumOfClearLines = 0;
@@ -31,19 +32,23 @@ export default class Tetris3dModel extends EventEmitter2 {
   
   startGame() {
     this.isPlayng = true;
+    this.isPausing = false;
     this.createCurrentBlock();
     this.createNextBlock();
     this.tick();
-    // this.renderId = setInterval(() => { this.render(); }, this.RENDER_INTERVAL);
     this.emit('gamestart');
   }
   
   pauseGame() {
+    this.isPlayng = false;
+    this.isPausing = true;
     clearTimeout(this.tickId);
   }
   
   resumeGame() {
-    if (!this.isPlayng) return;
+    if (this.isPlayng || !this.isPausing) return;
+    this.isPlayng = true;
+    this.isPausing = false;
     this.tickId = setTimeout(() => { this.tick(); }, this.tickInterval);
   }
   
