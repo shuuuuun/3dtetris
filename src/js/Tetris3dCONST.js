@@ -23,9 +23,6 @@ class Tetris3dCONST {
     this.CENTER_Y = this.HEIGHT / 2;
     this.CENTER_Z = this.WIDTH / 2;
     
-    this.CLEARLINE_BLOCK_ID = 14;
-    this.GAMEOVER_BLOCK_ID = 15;
-    
     this.RENDER_INTERVAL = 30;
     this.TICK_INTERVAL = 700; // default tick interval
     this.SPEEDUP_RATE = 100;
@@ -34,6 +31,16 @@ class Tetris3dCONST {
       id: 8,
       color: '#000',
       opacity: 0.3,
+    };
+    
+    this.CLEARLINE_BLOCK = {
+      id: 9,
+      color: '#CC66FF',
+    };
+    
+    this.GAMEOVER_BLOCK = {
+      id: 10,
+      color: '#FF66FF',
     };
     
     // shape: 4 x 4 x 4
