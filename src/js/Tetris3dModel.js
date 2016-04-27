@@ -24,11 +24,9 @@ export default class Tetris3dModel extends EventEmitter2 {
     this.sumOfClearLines = 0;
     this.score = 0;
     this.frameCount = 0;
-    this.onBeforeDropClearLines = () => {};
     this.initBoad();
     this.initBlock();
     this.createNextBlock();
-    // this.render();
   }
   
   startGame() {
@@ -194,11 +192,6 @@ export default class Tetris3dModel extends EventEmitter2 {
     this.sumOfClearLines += clearLineLength;
     this.tickInterval -= CONST.SPEEDUP_RATE * clearLineLength; // 消去列ぶん速度を上げる
     
-    // let onBeforeDropClearLines = this.onBeforeDropClearLines || () => {
-    //   this.emit('beforeDropClearLines', filledRowList);
-    // })
-    // console.log(this.onBeforeDropClearLines)
-    
     // clear line drop
     dfd
       .resolve()
@@ -209,14 +202,9 @@ export default class Tetris3dModel extends EventEmitter2 {
           dfd: dfd,
         };
         this.emit('beforeDropClearLines', evt);
-        // this.onBeforeDropClearLines();
         return dfd.promise();
       })
-      .then(this.onBeforeDropClearLines(filledRowList))
-      .then(this.dropRow(filledRowList))
-      .then(() => {
-        // this.emit('afterDropClearLines', filledRowList);
-      });
+      .then(this.dropRow(filledRowList));
     
     // calc score
     this.score += (clearLineLength <= 1) ? clearLineLength : Math.pow(2, clearLineLength);
