@@ -1,6 +1,7 @@
 // import $ from 'jquery';
 import _ from 'lodash';
 import { EventEmitter2 } from 'eventemitter2';
+import Util from './Util';
 import TouchController from './TouchController';
 import StickController from './StickController';
 import Tetris3dCONST from './Tetris3dCONST';
@@ -101,12 +102,154 @@ export default class Tetris3dController extends EventEmitter2 {
       this.$infoScore.text(this.model.score);
       this.$infoLines.text(this.model.sumOfClearLines);
     });
-    this.model.on('beforeDropClearLines', () => {
+    this.model.on('beforeDropClearLines', (evt) => {
+      // this.model.pauseGame();
+      // console.log(evt.dfd);
+      // evt.dfd
+      //   .resolve()
+      //   .done(() => {
+      //     this.model.resumeGame();
+      //   });
+      // const clearLineRow = Array.apply(null, Array(CONST.COLS)).map(() => CONST.CLEARLINE_BLOCK);
+      const dfd = $.Deferred();
+      dfd
+        .resolve()
+        .then(() => {
+          this.model.pauseGame();
+        })
+        .then(this.effectClearLine(evt))
+        .then(() => {
+          this.model.resumeGame();
+          evt.dfd.resolve();
+        });
+    });
+    /*
+    this.model.on('afterDropClearLines', (filledRowList) => {
+      // console.log(filledRowList);
+      // this.model.resumeGame();
+      let clearLineRow = Array.apply(null, Array(CONST.COLS)).map(() => CONST.CLEARLINE_BLOCK);
+      let dfd = $.Deferred();
+      dfd
+        .resolve()
+        .then(() => {
+          this.model.pauseGame();
+        })
+        .then(() => {
+          let dfd2 = $.Deferred();
+          
+          filledRowList.forEach((row, y) => {
+            let filledRowListX = row[0];
+            let filledRowListZ = row[1];
+            if (!filledRowListX.length && !filledRowListZ.length) return;
+            console.log(row, y)
+            filledRowListX.forEach((d, z) => {
+              // this.effectClearLineX(d);
+              let board = _.cloneDeep(this.model.board);
+              board[z][y] = clearLineRow;
+              this.updateBoard(board);
+            });
+            filledRowListZ.forEach((d, x) => {
+              // this.effectClearLineZ(d);
+              let board = _.cloneDeep(this.model.board);
+              board[z][y] = clearLineRow;
+              this.updateBoard();
+            });
+            // return dfd.reject()
+            return dfd2.reject()
+          });
+          dfd2.resolve()
+          dfd2.done(() => {
+            this.model.resumeGame();
+          })
+        })
+        .then(() => {
+          // this.model.resumeGame();
+        })
+    });
+    // console.log('hoge')
+    this.model.onBeforeDropClearLines = (filledRowList) => {
+      // あれ、動かない
+      console.log('aa', this)
+      let dfd = $.Deferred();
       this.model.pauseGame();
-    });
-    this.model.on('afterDropClearLines', () => {
-      this.model.resumeGame();
-    });
+      return () => {
+        console.log('bb')
+        filledRowList.forEach((row, y) => {
+          let filledRowListX = row[0];
+          let filledRowListZ = row[1];
+          if (!filledRowListX.length && !filledRowListZ.length) return;
+          console.log(row, y)
+          filledRowListX.forEach((d, z) => {
+            // this.effectClearLineX(d);
+            let board = _.cloneDeep(this.model.board);
+            board[z][y] = clearLineRow;
+            this.updateBoard(board);
+          });
+          filledRowListZ.forEach((d, x) => {
+            // this.effectClearLineZ(d);
+            let board = _.cloneDeep(this.model.board);
+            board[z][y] = clearLineRow;
+            this.updateBoard();
+          });
+          dfd.reject()
+        });
+        this.model.resumeGame();
+        
+        return dfd.resolve()
+      };
+    };
+    */
+  }
+  
+  effectClearLine(evt) {
+    const effect = (board) => {
+      return () => {
+        const dfd = $.Deferred();
+        this.updateBoard(board);
+        dfd.resolve();
+        return dfd.promise();
+      };
+    };
+    return () => {
+      let dfd = $.Deferred();
+      let dfd2 = $.Deferred();
+      dfd2.resolve();
+      
+      // evt.filledRowList.forEach((row, y) => {
+      evt.filledRowList.reverse().forEach((row, y) => {
+        let filledRowListX = row[0];
+        let filledRowListZ = row[1];
+        if (!filledRowListX.length && !filledRowListZ.length) return;
+        
+        filledRowListX.forEach((x) => {
+          // this.effectClearLineX(z);
+          let board = _.cloneDeep(this.model.board);
+          // board[z][y] = clearLineRow;
+          // this.updateBoard(board);
+        });
+        filledRowListZ.forEach((z) => {
+          // this.effectClearLineZ(d);
+          let board = _.cloneDeep(this.model.board);
+          // board[z][y] = clearLineRow;
+          // this.updateBoard(board);
+          console.log(z, y, board[z][y]);
+          
+          for ( var x = 0; x < CONST.COLS; ++x ) {
+            // console.log(z, y, x, board[z][y][x]);
+            if (!board[z][y][x]) continue;
+            board[z][y][x] = CONST.CLEARLINE_BLOCK.id;
+            dfd2 = dfd2
+              .then(effect(board))
+              .then(Util.sleep(100));
+          }
+        });
+      });
+      
+      dfd2.then(() => {
+        dfd.resolve()
+      });
+      return dfd.promise()
+    };
   }
   
   getShadowBlock() {
@@ -291,9 +434,10 @@ export default class Tetris3dController extends EventEmitter2 {
     this.emit('changeRotateDirection');
   }
   
-  updateBoard() {
+  updateBoard(board = this.model.board) {
     // viewのためにboardを整形、CONST.HIDDEN_ROWSのぶんyを減らして渡す
-    let board = _.cloneDeep(this.model.board);
+    // let board = _.cloneDeep(this.model.board);
+    board = _.cloneDeep(board);
     board.forEach((aryZ) => {
       aryZ.splice(0, CONST.HIDDEN_ROWS);
     });
