@@ -1,0 +1,40 @@
+doctype html
+html(lang="ja")
+  head
+    include partials/_meta
+    
+    link(rel="stylesheet" href="/reveal/css/reveal.css")
+    link(rel="stylesheet" href="/reveal/css/theme/solarized.css" id="theme")
+    link(rel="stylesheet" href="/reveal/lib/css/zenburn.css")
+    
+    link(rel="stylesheet" href="./css/app.css")
+    
+    //- include partials/_ga
+    
+  body
+    div.wrapper
+      div.reveal
+        div.slides
+          section(data-markdown="presentation.md" data-separator="---$")
+    
+    script(src="/reveal/lib/js/head.min.js")
+    script(src="/reveal/js/reveal.js")
+    script.
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '/reveal/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '/reveal/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '/reveal/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '/reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: '/reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: '/reveal/plugin/notes/notes.js', async: true }
+        ]
+      });
