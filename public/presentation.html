@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0">
+    <title>3Dtetris</title>
+    <meta name="description" content="3Dtetris">
+    <meta name="keywords" content="3Dtetris,tetris">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon-precomposed" href="http://localhost">
+    <link rel="apple-touch-icon" href="http://localhost">
+    <link rel="stylesheet" href="/reveal/css/reveal.css">
+    <link rel="stylesheet" href="/reveal/css/theme/solarized.css" id="theme">
+    <link rel="stylesheet" href="/reveal/lib/css/zenburn.css">
+    <link rel="stylesheet" href="./css/app.css">
+  </head>
+  <body>
+    <div class="wrapper">
+      <div class="reveal">
+        <div class="slides">
+          <section data-markdown="presentation.md" data-separator="---$"></section>
+        </div>
+      </div>
+    </div>
+    <script src="/reveal/lib/js/head.min.js"></script>
+    <script src="/reveal/js/reveal.js"></script>
+    <script>
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: '/reveal/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: '/reveal/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '/reveal/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: '/reveal/plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: '/reveal/plugin/zoom-js/zoom.js', async: true },
+          { src: '/reveal/plugin/notes/notes.js', async: true }
+        ]
+      });
+    </script>
+  </body>
+</html>
