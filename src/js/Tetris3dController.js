@@ -138,12 +138,15 @@ export default class Tetris3dController extends EventEmitter2 {
         
         filledRowListX.forEach((x) => {
           let board = _.cloneDeep(this.model.board);
+          
+          // TODO: こっちも
         });
         filledRowListZ.forEach((z) => {
           let board = _.cloneDeep(this.model.board);
           
           for ( var x = 0; x < CONST.COLS; ++x ) {
             if (!board[z][y][x]) continue;
+            // TODO: これではViewで表示できないのでいろいろ調整
             board[z][y][x] = CONST.CLEARLINE_BLOCK.id;
             dfd2 = dfd2
               .then(effect(board))

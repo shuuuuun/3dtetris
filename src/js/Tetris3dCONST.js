@@ -27,6 +27,8 @@ class Tetris3dCONST {
     this.TICK_INTERVAL = 700; // default tick interval
     this.SPEEDUP_RATE = 100;
     
+    // TODO: BLOCK_LISTに全部統合しよう
+    // フラグ立てて普通のblockと区別する
     this.SHADOW_BLOCK = {
       id: 8,
       color: '#000',
