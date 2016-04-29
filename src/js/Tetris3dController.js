@@ -156,9 +156,9 @@ export default class Tetris3dController extends EventEmitter2 {
       });
       
       dfd2.then(() => {
-        dfd.resolve()
+        dfd.resolve();
       });
-      return dfd.promise()
+      return dfd.promise();
     };
   }
   

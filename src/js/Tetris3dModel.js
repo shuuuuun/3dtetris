@@ -61,7 +61,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     // });
     return dfd.promise();
   }
-  stopGame() { this.quitGame() } // alias
+  stopGame() { this.quitGame(); } // alias
   
   // メインでループする関数
   tick() {

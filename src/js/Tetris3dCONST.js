@@ -288,7 +288,7 @@ class Tetris3dCONST {
         ],
       },
     ];
-  };
-};
+  }
+}
 
 module.exports = new Tetris3dCONST();
