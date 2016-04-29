@@ -3,15 +3,19 @@
   "parser": "babel-eslint",
   "env": {
     "browser": true,
-    "node": true
+    "node": true,
+    "es6": true
   },
   "rules": {
     // cf. http://eslint.org/docs/rules/
     "comma-dangle": "off", // ケツカンマはok
-    "semi": 1
+    "no-unused-vars": "warn",
+    "no-console": "warn",
+    "semi": "warn"
   },
   "globals": {
-    "jQuery": false,
-    "$": true
+    "jQuery": true,
+    "$": true,
+    "THREE": true
   }
 }
