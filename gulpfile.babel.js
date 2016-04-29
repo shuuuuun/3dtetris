@@ -26,6 +26,7 @@ const config = {
   jsCopy: require(`${CONFIG_PATH}js-copy.js`),
   browserify: require(`${CONFIG_PATH}browserify.js`),
   pleeease: require(`${CONFIG_PATH}pleeease.js`),
+  eslintrcPath: `${CONFIG_PATH}eslintrc.json`,
 };
 
 
@@ -48,6 +49,7 @@ import babelify from 'babelify';
 import gulpif from 'gulp-if';
 import gulpIgnore from 'gulp-ignore';
 import notify from 'gulp-notify';
+import eslint from 'gulp-eslint';
 
 
 // tasks
@@ -55,7 +57,7 @@ gulp.task('default',['build', 'server', 'watch']);
 gulp.task('build', ['html', 'css', 'js']);
 gulp.task('html', ['jade']);
 gulp.task('css', ['sass']);
-gulp.task('js', ['browserify', 'js-copy']);
+gulp.task('js', ['lint', 'browserify', 'js-copy']);
 
 gulp.task('watch', () => {
   watch(GLOB_JADE, () => {
@@ -134,4 +136,12 @@ gulp.task('browserify', () => {
   .pipe(buffer())
   .pipe(gulpif(!gutil.env.develop, uglify({ preserveComments: 'some' }))) // developモードではminifyしない
   .pipe(gulp.dest(DEST_JS));
+});
+
+gulp.task('lint', () => {
+  gulp.src([GLOB_JS, GLOB_UNBUILD])
+    .pipe(plumber({ errorHandler: notify.onError('<%= error.message %>') }))
+    .pipe(eslint(config.eslintrcPath))
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
 });

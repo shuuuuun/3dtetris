@@ -1,0 +1,17 @@
+{
+  "extends": "eslint:recommended",
+  "parser": "babel-eslint",
+  "env": {
+    "browser": true,
+    "node": true
+  },
+  "rules": {
+    // cf. http://eslint.org/docs/rules/
+    "comma-dangle": "off", // ケツカンマはok
+    "semi": 1
+  },
+  "globals": {
+    "jQuery": false,
+    "$": true
+  }
+}
