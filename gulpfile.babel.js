@@ -26,7 +26,7 @@ const config = {
   site: require(`${CONFIG_PATH}site.js`),
   jsCopy: require(`${CONFIG_PATH}js-copy.js`),
   browserify: require(`${CONFIG_PATH}browserify.js`),
-  autoprefixer: require(`${CONFIG_PATH}autoprefixer.js`),
+  pleeease: require(`${CONFIG_PATH}pleeease.js`),
 };
 
 
@@ -34,6 +34,7 @@ const config = {
 import gulp from 'gulp';
 import plumber from 'gulp-plumber';
 import compass from 'gulp-compass';
+import pleeease from 'gulp-pleeease';
 import jade from 'gulp-jade';
 import watch from 'gulp-watch';
 import webserver from 'gulp-webserver';
@@ -45,11 +46,9 @@ import debowerify from 'debowerify';
 import source from 'vinyl-source-stream';
 import buffer from 'vinyl-buffer';
 import babelify from 'babelify';
-import minifyCss from 'gulp-minify-css';
 import gulpif from 'gulp-if';
 import gulpIgnore from 'gulp-ignore';
 import notify from 'gulp-notify';
-import autoprefixer from 'gulp-autoprefixer';
 
 
 // tasks
@@ -117,8 +116,7 @@ gulp.task('compass', () => {
       css: DEST_CSS,
       sass: SRC_SASS,
     }))
-    .pipe(autoprefixer(config.autoprefixer))
-    .pipe(gulpif(!gutil.env.develop, minifyCss({ advanced: false }))) // developモードではminifyしない
+    .pipe(pleeease(config.pleeease))
     .pipe(gulp.dest(DEST_CSS));
 });
 
