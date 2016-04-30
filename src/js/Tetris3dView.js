@@ -17,6 +17,7 @@ export default class Tetris3dView {
     this.CAMERA_POSITION = new THREE.Vector3(CONST.CENTER_X, -100, this.CAMERA_DISTANCE_DEFAULT);
     this.CAMERA_NEAR = 1;
     this.CAMERA_FAR = 100000;
+    this.VIEW_BLOCK_LIST = CONST.BLOCK_LIST.concat([CONST.SHADOW_BLOCK, CONST.CLEARLINE_BLOCK, CONST.GAMEOVER_BLOCK]);
   }
   
   dispose() {
@@ -130,14 +131,14 @@ export default class Tetris3dView {
     // cubes ------------------------------
     this.cubeGeo = new THREE.BoxGeometry( CONST.VOXEL_SIZE, CONST.VOXEL_SIZE, CONST.VOXEL_SIZE );
     this.cubeMaterial = [];
-    CONST.BLOCK_LIST.forEach((block) => {
+    this.VIEW_BLOCK_LIST.forEach((block) => {
       const material = new THREE.MeshLambertMaterial({ color: block.color });
+      if (block.opacity >= 0) {
+        material.transparent = true;
+        material.opacity = 0.3;
+      }
       this.cubeMaterial.push(material);
     });
-    { // shadow block color
-      const material = new THREE.MeshLambertMaterial({ color: CONST.SHADOW_BLOCK.color, transparent: true, opacity: CONST.SHADOW_BLOCK.opacity });
-      this.cubeMaterial.push(material);
-    }
     
     this.setSize();
   }
