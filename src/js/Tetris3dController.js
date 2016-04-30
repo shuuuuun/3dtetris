@@ -115,17 +115,12 @@ export default class Tetris3dController extends EventEmitter2 {
           evt.dfd.resolve();
         });
     });
+    this.model.on('afterDropClearLines', () => {
+      this.updateBoard();
+    });
   }
   
   effectClearLine(evt) {
-    const effect = (board) => {
-      return () => {
-        const dfd = $.Deferred();
-        this.updateBoard(board);
-        dfd.resolve();
-        return dfd.promise();
-      };
-    };
     return () => {
       let dfd = $.Deferred();
       let dfd2 = $.Deferred();
@@ -146,11 +141,14 @@ export default class Tetris3dController extends EventEmitter2 {
           
           for ( var x = 0; x < CONST.COLS; ++x ) {
             if (!board[z][y][x]) continue;
-            // TODO: これではViewで表示できないのでいろいろ調整
-            board[z][y][x] = CONST.CLEARLINE_BLOCK.id;
             dfd2 = dfd2
-              .then(effect(board))
-              .then(Util.sleep(100));
+              .then(Util.sleep(50))
+              .then(((x, y, z) => {
+                return () => {
+                  board[z][y][x] = CONST.CLEARLINE_BLOCK.id + 1;
+                  this.updateBoard(board);
+                };
+              })(x, y, z));
           }
         });
       });

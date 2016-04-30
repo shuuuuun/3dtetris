@@ -204,7 +204,10 @@ export default class Tetris3dModel extends EventEmitter2 {
         this.emit('beforeDropClearLines', evt);
         return dfd.promise();
       })
-      .then(this.dropRow(filledRowList));
+      .then(this.dropRow(filledRowList))
+      .then(() => {
+        this.emit('afterDropClearLines');
+      });
     
     // calc score
     this.score += (clearLineLength <= 1) ? clearLineLength : Math.pow(2, clearLineLength);
