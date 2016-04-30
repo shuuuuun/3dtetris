@@ -96,7 +96,7 @@ export default class Tetris3dController extends EventEmitter2 {
     this.model.on('freeze', () => {
       this.updateBoard();
     });
-    this.model.on('clearline', (filledRowList) => {
+    this.model.on('clearline', () => {
       this.updateBoard();
       this.$infoLevel.text(this.model.level);
       this.$infoScore.text(this.model.score);

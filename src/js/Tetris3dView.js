@@ -376,14 +376,13 @@ export default class Tetris3dView {
   }
   
   start() {
-    let _this = this;
     let startTime = Date.now();
     let previousTime = startTime;
     let previousRenderTime = previousTime;
     let previousTickTime = previousTime;
     this.loopId = null;
     
-    (function loop(timestamp) {
+    let loop = (timestamp) => {
       let nowTime = Date.now();
       let elapsedTime = nowTime - startTime;
       let deltaTime = nowTime - previousTime;
@@ -392,16 +391,18 @@ export default class Tetris3dView {
       
       if (deltaRenderTime > CONST.RENDER_INTERVAL) {
         previousRenderTime = nowTime;
-        _this.render();
+        this.render();
       }
       if (deltaTickTime > CONST.TICK_INTERVAL) {
         previousTickTime = nowTime;
-        _this.tick();
+        this.tick();
       }
       
       previousTime = nowTime;
-      _this.loopId = requestAnimationFrame(loop);
-    })();
+      this.loopId = requestAnimationFrame(loop);
+    };
+    
+    loop();
   }
   
   stop() {

@@ -168,7 +168,6 @@ export default class Tetris3dModel extends EventEmitter2 {
   clearLines() {
     let clearLineLength = 0; // 同時消去ライン数
     let filledRowList = [];
-    let blankRow = Array.apply(null, Array(CONST.COLS)).map(() => 0); // => [0,0,0,0,0,...]
     let dfd = $.Deferred();
     
     for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
@@ -189,9 +188,6 @@ export default class Tetris3dModel extends EventEmitter2 {
       filledRowList.push([filledRowListX, filledRowListZ]);
     }
     
-    this.sumOfClearLines += clearLineLength;
-    this.tickInterval -= CONST.SPEEDUP_RATE * clearLineLength; // 消去列ぶん速度を上げる
-    
     // clear line drop
     dfd
       .resolve()
@@ -207,13 +203,17 @@ export default class Tetris3dModel extends EventEmitter2 {
       .then(this.dropRow(filledRowList))
       .then(() => {
         this.emit('afterDropClearLines');
+        
+        this.sumOfClearLines += clearLineLength;
+        
+        // 消去列ぶん速度を上げる
+        this.tickInterval -= CONST.SPEEDUP_RATE * clearLineLength;
+        
+        // calc score
+        this.score += (clearLineLength <= 1) ? clearLineLength : Math.pow(2, clearLineLength);
+        
+        if (clearLineLength > 0) this.emit('clearline');
       });
-    
-    // calc score
-    this.score += (clearLineLength <= 1) ? clearLineLength : Math.pow(2, clearLineLength);
-    
-    if (clearLineLength > 0) this.emit('clearline', filledRowList);
-    
   }
   
   dropRow(filledRowList) {
