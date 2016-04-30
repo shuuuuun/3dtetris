@@ -247,16 +247,7 @@ export default class Tetris3dView {
     this.drawBlock(block, true);
   }
   
-  drawShadowBlock(block) {
-    if (this.shadowBlock) {
-      this.disposeBlock(this.shadowBlock);
-    }
-    this.shadowBlock = block;
-    this.shadowBlock.voxels = [];
-    this.drawBlock(block, false, true);
-  }
-  
-  drawBlock(block, isCurrent, isShadow) {
+  drawBlock(block, isCurrent) {
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
         for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
@@ -266,9 +257,6 @@ export default class Tetris3dView {
           let drawZ = z + block.z;
           if (isCurrent) {
             this.drawCurrentVoxel(drawX, drawY, drawZ, block.id);
-          }
-          else if (isShadow) {
-            this.drawShadowVoxel(drawX, drawY, drawZ, block.id);
           }
           else {
             this.drawVoxel(drawX, drawY, drawZ, block.id);
@@ -281,11 +269,6 @@ export default class Tetris3dView {
   drawCurrentVoxel(x, y, z, id) {
     const voxel = this.drawVoxel(x, y, z, id);
     this.currentBlock.voxels.push(voxel);
-  }
-  
-  drawShadowVoxel(x, y, z, id) {
-    const voxel = this.drawVoxel(x, y, z, id);
-    this.shadowBlock.voxels.push(voxel);
   }
   
   drawVoxel(x, y, z, id) {
@@ -307,12 +290,7 @@ export default class Tetris3dView {
     this.moveBlock(block, true);
   }
   
-  moveShadowBlock(block) {
-    if (!this.shadowBlock) return;
-    this.moveBlock(block, false, true);
-  }
-  
-  moveBlock(block, isCurrent, isShadow) {
+  moveBlock(block, isCurrent) {
     let index = 0;
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
@@ -323,9 +301,6 @@ export default class Tetris3dView {
           let drawZ = z + block.z;
           if (isCurrent) {
             this.moveCurrentVoxel(drawX, drawY, drawZ, index);
-          }
-          else if (isShadow) {
-            this.moveShadowVoxel(drawX, drawY, drawZ, index);
           }
           else {
             this.moveVoxel(drawX, drawY, drawZ, index);
@@ -344,19 +319,6 @@ export default class Tetris3dView {
     const blockZ = z * CONST.VOXEL_SIZE;
     
     const voxel = this.currentBlock.voxels[index];
-    voxel.position.set(blockX, blockY, blockZ);
-    voxel.position.addScalar( CONST.VOXEL_SIZE / 2 ); // グリッドに合わせる。
-    this.scene.add( voxel );
-  }
-  
-  moveShadowVoxel(x, y, z, index) {
-    if (y < 0) return; // 盤面外は描画しない
-    
-    const blockX = x * CONST.VOXEL_SIZE;
-    const blockY = y * CONST.VOXEL_SIZE;
-    const blockZ = z * CONST.VOXEL_SIZE;
-    
-    const voxel = this.shadowBlock.voxels[index];
     voxel.position.set(blockX, blockY, blockZ);
     voxel.position.addScalar( CONST.VOXEL_SIZE / 2 ); // グリッドに合わせる。
     this.scene.add( voxel );

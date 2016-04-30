@@ -70,7 +70,8 @@ export default class Tetris3dController extends EventEmitter2 {
       this.view.drawCurrentBlock(this.model.currentBlock);
       
       let shadowBlock = this.getShadowBlock();
-      this.view.drawShadowBlock(shadowBlock);
+      let board = this.setBlockToBoard(shadowBlock);
+      this.updateBoard(board);
     });
     this.model.on('nextblockcreated', () => {});
     this.model.on('gameover', () => {
@@ -84,13 +85,15 @@ export default class Tetris3dController extends EventEmitter2 {
       this.view.moveCurrentBlock(this.model.currentBlock);
       
       let shadowBlock = this.getShadowBlock();
-      this.view.moveShadowBlock(shadowBlock);
+      let board = this.setBlockToBoard(shadowBlock);
+      this.updateBoard(board);
     });
     this.model.on('blockmoved', () => {
       this.view.moveCurrentBlock(this.model.currentBlock);
       
       let shadowBlock = this.getShadowBlock();
-      this.view.moveShadowBlock(shadowBlock);
+      let board = this.setBlockToBoard(shadowBlock);
+      this.updateBoard(board);
     });
     this.model.on('gamequit', () => {});
     this.model.on('freeze', () => {
@@ -169,6 +172,23 @@ export default class Tetris3dController extends EventEmitter2 {
     shadowBlock.id = CONST.SHADOW_BLOCK.id;
     this.model.dropBlockY(shadowBlock);
     return shadowBlock;
+  }
+  
+  setBlockToBoard(block) {
+    let board = _.cloneDeep(this.model.board);
+    // freeze
+    for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
+      for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
+        for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
+          let boardX = x + block.x;
+          let boardY = y + block.y;
+          let boardZ = z + block.z;
+          if (!block.shape[z][y][x] || boardZ < 0) continue;
+          board[boardZ][boardY][boardX] = block.shape[z][y][x] ? (block.id + 1) : 0;
+        }
+      }
+    }
+    return board;
   }
   
   setBlurEvent() {
