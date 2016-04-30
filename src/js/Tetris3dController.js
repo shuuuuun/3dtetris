@@ -126,6 +126,14 @@ export default class Tetris3dController extends EventEmitter2 {
       let dfd2 = $.Deferred();
       dfd2.resolve();
       
+      const setEffect = (board, x, y, z) => {
+        dfd2 = dfd2
+          .then(Util.sleep(CONST.CLEARLINE_EFFECT_INTERVAL))
+          .then(() => {
+            board[z][y][x] = CONST.CLEARLINE_BLOCK.id + 1;
+            this.updateBoard(board);
+          });
+      };
       evt.filledRowList.reverse().forEach((row, y) => {
         let filledRowListX = row[0];
         let filledRowListZ = row[1];
@@ -134,21 +142,17 @@ export default class Tetris3dController extends EventEmitter2 {
         filledRowListX.forEach((x) => {
           let board = _.cloneDeep(this.model.board);
           
-          // TODO: こっちも
+          for ( var z = 0; z < CONST.COLS; ++z ) {
+            if (!board[z][y][x]) continue;
+            setEffect(board, x, y, z);
+          }
         });
         filledRowListZ.forEach((z) => {
           let board = _.cloneDeep(this.model.board);
           
           for ( var x = 0; x < CONST.COLS; ++x ) {
             if (!board[z][y][x]) continue;
-            dfd2 = dfd2
-              .then(Util.sleep(50))
-              .then(((x, y, z) => {
-                return () => {
-                  board[z][y][x] = CONST.CLEARLINE_BLOCK.id + 1;
-                  this.updateBoard(board);
-                };
-              })(x, y, z));
+            setEffect(board, x, y, z);
           }
         });
       });
