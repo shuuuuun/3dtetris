@@ -308,7 +308,7 @@ export default class Tetris3dModel extends EventEmitter2 {
   }
   
   rotateBlockXZ(sign = true) {
-    const rotatedBlock = Object.assign(this.currentBlock);
+    const rotatedBlock = Object.assign({}, this.currentBlock);
     rotatedBlock.shape = this.rotateXZ(this.currentBlock.shape, sign);
     const isValid = this.valid(0, 0, 0, rotatedBlock);
     if (isValid) this.currentBlock = rotatedBlock;
@@ -316,7 +316,7 @@ export default class Tetris3dModel extends EventEmitter2 {
   }
   
   rotateBlockXY(sign = true) {
-    const rotatedBlock = Object.assign(this.currentBlock);
+    const rotatedBlock = Object.assign({}, this.currentBlock);
     rotatedBlock.shape = this.rotateXY(this.currentBlock.shape, sign);
     const isValid = this.valid(0, 0, 0, rotatedBlock);
     if (isValid) this.currentBlock = rotatedBlock;
@@ -324,7 +324,7 @@ export default class Tetris3dModel extends EventEmitter2 {
   }
   
   rotateBlockZY(sign = true) {
-    const rotatedBlock = Object.assign(this.currentBlock);
+    const rotatedBlock = Object.assign({}, this.currentBlock);
     rotatedBlock.shape = this.rotateZY(this.currentBlock.shape, sign);
     const isValid = this.valid(0, 0, 0, rotatedBlock);
     if (isValid) this.currentBlock = rotatedBlock;
