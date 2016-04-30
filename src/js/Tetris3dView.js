@@ -223,15 +223,15 @@ export default class Tetris3dView {
   
   disposeBoard() {
     if (!this.boardVoxels || !this.boardVoxels.length) return;
-    this.boardVoxels.forEach((mesh) => {
-      mesh.geometry.dispose();
-      mesh.material.dispose();
-      this.scene.remove(mesh);
-    });
+    this.disposeVoxels(this.boardVoxels);
   }
   
   disposeBlock(block) {
-    block.voxels.forEach((mesh) => {
+    this.disposeVoxels(block.voxels);
+  }
+  
+  disposeVoxels(voxels) {
+    voxels.forEach((mesh) => {
       mesh.geometry.dispose();
       mesh.material.dispose();
       this.scene.remove(mesh);
