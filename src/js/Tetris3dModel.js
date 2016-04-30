@@ -217,9 +217,8 @@ export default class Tetris3dModel extends EventEmitter2 {
   }
   
   dropRow(filledRowList) {
+    if (!filledRowList.length) return;
     return () => {
-      let dfd = $.Deferred();
-      if (!filledRowList.length) return;
       filledRowList.forEach((row) => {
         let filledRowListX = row[0];
         let filledRowListZ = row[1];
@@ -231,8 +230,6 @@ export default class Tetris3dModel extends EventEmitter2 {
           this.dropRowZ(d);
         });
       });
-      dfd.resolve();
-      return dfd.promise();
     };
   }
   
