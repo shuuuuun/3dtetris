@@ -105,11 +105,10 @@ export default class Tetris3dModel extends EventEmitter2 {
     this.currentBlock.z = CONST.START_Z;
   }
   
-  createBlock(id) {
-    // id = id || 0;
-    // const block = {};
-    // Object.assign(block, CONST.BLOCK_LIST[id]); // オブジェクトの複製（シャローコピー）
+  createBlock(id = 0) {
+    // ディープコピー
     const blockCONST = CONST.BLOCK_LIST[id] || {};
+    const shape = blockCONST.shape;
     const block = {
       id: id,
       color: blockCONST.color,
@@ -118,8 +117,6 @@ export default class Tetris3dModel extends EventEmitter2 {
       y: 0,
       z: 0,
     };
-    const shape = blockCONST.shape;
-    block.shape = [];
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
       block.shape[z] = [];
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
@@ -152,13 +149,11 @@ export default class Tetris3dModel extends EventEmitter2 {
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
         for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
-          let boardX = x + this.currentBlock.x;
-          let boardY = y + this.currentBlock.y;
-          let boardZ = z + this.currentBlock.z;
+          const boardX = x + this.currentBlock.x;
+          const boardY = y + this.currentBlock.y;
+          const boardZ = z + this.currentBlock.z;
           if (!this.currentBlock.shape[z][y][x] || boardZ < 0) continue;
-          // this.board[boardZ][boardY][boardX] = this.currentBlock.shape[z][y][x];
           this.board[boardZ][boardY][boardX] = this.currentBlock.shape[z][y][x] ? (this.currentBlock.id + 1) : 0;
-          // console.log(boardY, this.currentBlock.shape[z][y][x], this.currentBlock.id, this.board[boardZ][boardY][boardX]);
         }
       }
     }
@@ -279,8 +274,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     return isValid;
   }
   
-  moveBlockX(distance) { // sign: boolean
-    // const sign = sign; // 1 or -1
+  moveBlockX(distance) {
     const isValid = this.valid(distance, 0, 0);
     if (isValid) {
       this.currentBlock.x += distance;
