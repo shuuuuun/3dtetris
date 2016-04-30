@@ -203,7 +203,6 @@ export default class Tetris3dView {
     this.renderer.render( this.scene, this.camera );
   }
   
-  // renderBoard() {
   drawBoard(board) {
     this.boardVoxels = [];
     for ( let z = 0; z < CONST.COLS; ++z ) {
@@ -242,33 +241,25 @@ export default class Tetris3dView {
     if (this.currentBlock) {
       this.disposeBlock(this.currentBlock);
     }
-    this.currentBlock = block;
-    this.currentBlock.voxels = [];
-    this.drawBlock(block, true);
+    this.currentBlock = Object.assign({}, block);
+    this.drawBlock(this.currentBlock);
   }
   
-  drawBlock(block, isCurrent) {
+  drawBlock(block) {
+    if (!block) return;
+    block.voxels = [];
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
         for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
-          if (!block || !block.shape[z][y][x]) continue;
-          let drawX = x + block.x;
-          let drawY = y + block.y - CONST.HIDDEN_ROWS;
-          let drawZ = z + block.z;
-          if (isCurrent) {
-            this.drawCurrentVoxel(drawX, drawY, drawZ, block.id);
-          }
-          else {
-            this.drawVoxel(drawX, drawY, drawZ, block.id);
-          }
+          if (!block.shape[z][y][x]) continue;
+          const drawX = x + block.x;
+          const drawY = y + block.y - CONST.HIDDEN_ROWS;
+          const drawZ = z + block.z;
+          const voxel = this.drawVoxel(drawX, drawY, drawZ, block.id);
+          block.voxels.push(voxel);
         }
       }
     }
-  }
-  
-  drawCurrentVoxel(x, y, z, id) {
-    const voxel = this.drawVoxel(x, y, z, id);
-    this.currentBlock.voxels.push(voxel);
   }
   
   drawVoxel(x, y, z, id) {
@@ -287,51 +278,35 @@ export default class Tetris3dView {
   
   moveCurrentBlock(block) {
     if (!this.currentBlock) return;
-    this.moveBlock(block, true);
+    Object.assign(this.currentBlock, block);
+    this.moveBlock(this.currentBlock);
   }
   
-  moveBlock(block, isCurrent) {
+  moveBlock(block) {
+    if (!block) return;
     let index = 0;
     for ( let z = 0; z < CONST.VOXEL_LENGTH; ++z ) {
       for ( let y = 0; y < CONST.VOXEL_LENGTH; ++y ) {
         for ( let x = 0; x < CONST.VOXEL_LENGTH; ++x ) {
-          if (!block || !block.shape[z][y][x]) continue;
-          let drawX = x + block.x;
-          let drawY = y + block.y - CONST.HIDDEN_ROWS;
-          let drawZ = z + block.z;
-          if (isCurrent) {
-            this.moveCurrentVoxel(drawX, drawY, drawZ, index);
-          }
-          else {
-            this.moveVoxel(drawX, drawY, drawZ, index);
-          }
+          if (!block.shape[z][y][x]) continue;
+          const drawX = x + block.x;
+          const drawY = y + block.y - CONST.HIDDEN_ROWS;
+          const drawZ = z + block.z;
+          const voxel = block.voxels[index];
+          this.moveVoxel(drawX, drawY, drawZ, voxel);
           index++;
         }
       }
     }
   }
   
-  moveCurrentVoxel(x, y, z, index) {
+  moveVoxel(x, y, z, voxel) {
     if (y < 0) return; // 盤面外は描画しない
     
     const blockX = x * CONST.VOXEL_SIZE;
     const blockY = y * CONST.VOXEL_SIZE;
     const blockZ = z * CONST.VOXEL_SIZE;
     
-    const voxel = this.currentBlock.voxels[index];
-    voxel.position.set(blockX, blockY, blockZ);
-    voxel.position.addScalar( CONST.VOXEL_SIZE / 2 ); // グリッドに合わせる。
-    this.scene.add( voxel );
-  }
-  
-  moveVoxel(x, y, z, index) {
-    if (y < 0) return; // 盤面外は描画しない
-    
-    const blockX = x * CONST.VOXEL_SIZE;
-    const blockY = y * CONST.VOXEL_SIZE;
-    const blockZ = z * CONST.VOXEL_SIZE;
-    
-    const voxel = this.currentBlock.voxels[index];
     voxel.position.set(blockX, blockY, blockZ);
     voxel.position.addScalar( CONST.VOXEL_SIZE / 2 ); // グリッドに合わせる。
     this.scene.add( voxel );
