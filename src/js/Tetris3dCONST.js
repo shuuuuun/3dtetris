@@ -29,6 +29,8 @@ class Tetris3dCONST {
     
     this.CLEARLINE_EFFECT_INTERVAL = 50;
     
+    this.AUTO_ROTATE_SPEED = 0.02;
+    
     this.SHADOW_BLOCK = {
       id: 8,
       color: '#000',

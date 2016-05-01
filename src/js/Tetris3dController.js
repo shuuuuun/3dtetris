@@ -64,7 +64,9 @@ export default class Tetris3dController extends EventEmitter2 {
   }
   
   setModelEvent() {
-    this.model.on('gamestart', () => {});
+    this.model.on('gamestart', () => {
+      this.view.isAutoRotate = this.isAutoMode;
+    });
     this.model.on('newblockcreated', () => {});
     this.model.on('currentblockcreated', () => {
       this.view.drawCurrentBlock(this.model.currentBlock);
@@ -77,6 +79,9 @@ export default class Tetris3dController extends EventEmitter2 {
     this.model.on('gameover', () => {
       if (this.isAutoMode) {
         this.newGame();
+      }
+      else {
+        this.view.isAutoRotate = true;
       }
       // alert('gameover!!');
       this.emit('gameover');

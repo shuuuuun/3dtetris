@@ -11,6 +11,7 @@ const CONST = Tetris3dCONST;
 export default class Tetris3dView {
   constructor() {
     this.framecount = 0;
+    this.isAutoRotate = false;
     this.CONTAINER_ID = 'js-game-view';
     this.ZERO_VECTOR = new THREE.Vector3(0,0,0);
     this.CAMERA_DISTANCE_DEFAULT = 1500;
@@ -196,11 +197,22 @@ export default class Tetris3dView {
     return direction;
   }
   
+  rotateCamera() {
+    this.controls.rotate({
+      x: CONST.AUTO_ROTATE_SPEED,
+      y: 0,
+    });
+  }
+  
   tick() {
     this.framecount++;
   }
   
   render() {
+    if (this.isAutoRotate) {
+      this.rotateCamera();
+    }
+    
     this.renderer.render( this.scene, this.camera );
   }
   
