@@ -352,21 +352,18 @@ export default class Tetris3dController extends EventEmitter2 {
   }
   
   switchModeCamera() {
-    console.log('switchModeCamera');
     this.touch.dispose();
     this.view.enableControls();
     this.emit('switchModeCamera');
   }
   
   switchModeBlock() {
-    console.log('switchModeBlock');
     this.touch.setEvent();
     this.view.disableControls();
     this.emit('switchModeBlock');
   }
   
   changeRotateDirection() {
-    console.log('changeRotateDirection');
     this.isVertical = !this.isVertical;
     this.emit('changeRotateDirection');
   }
