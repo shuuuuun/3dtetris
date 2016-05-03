@@ -339,8 +339,8 @@ export default class Tetris3dController extends EventEmitter2 {
     this.stick.on('moved', (evt) => {
       this.model.pauseGame(); // カメラ動かしてる間は一時停止
       this.view.controls.rotate({
-        x: evt.x / -1000,
-        y: evt.y / -1000,
+        x: evt.x / -CONST.STICK_WEIGHT,
+        y: evt.y / -CONST.STICK_WEIGHT,
       });
       setTimeout(() => {
         this.model.resumeGame(); // カメラ止まると再開
