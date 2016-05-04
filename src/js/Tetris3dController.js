@@ -337,10 +337,16 @@ export default class Tetris3dController extends EventEmitter2 {
   
   setStickController() {
     this.stick.on('moved', (evt) => {
+      let controlsDeltaX = evt.x / -CONST.STICK_WEIGHT;
+      let controlsDeltaY = evt.y / -CONST.STICK_WEIGHT;
+      if (this.view.camera.position.y > CONST.HEIGHT) { // 底面より下にはいかないように
+        this.view.camera.position.y = CONST.HEIGHT;
+        controlsDeltaY = 0;
+      }
       this.model.pauseGame(); // カメラ動かしてる間は一時停止
       this.view.controls.rotate({
-        x: evt.x / -CONST.STICK_WEIGHT,
-        y: evt.y / -CONST.STICK_WEIGHT,
+        x: controlsDeltaX,
+        y: controlsDeltaY,
       });
       setTimeout(() => {
         this.model.resumeGame(); // カメラ止まると再開
