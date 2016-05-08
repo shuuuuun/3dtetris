@@ -1,4 +1,4 @@
-# 3dtetris
+# Tetricus
 
 開発中...
 

@@ -6,11 +6,11 @@ module.exports = {
   domain: domain,
   url: url,
   
-  site_name: "3Dtetris",
-  title: "3Dtetris",
+  site_name: "Tetricus",
+  title: "Tetricus",
   
-  meta_description: "3Dtetris",
-  meta_keywords: ["3Dtetris", "tetris"],
+  meta_description: "Tetricus",
+  meta_keywords: ["Tetricus", "tetris"],
   
   // share_image: domain + "/img/ogp.png",
   
