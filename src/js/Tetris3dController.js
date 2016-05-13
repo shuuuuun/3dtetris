@@ -21,7 +21,11 @@ export default class Tetris3dController extends EventEmitter2 {
     this.$infoLines = $('.js-info-lines');
     this.$stickContainer = $('.js-stick-container');
     this.$stickToucharea = $('.js-stick-toucharea');
-    this.touch = new TouchController();
+    this.touch = new TouchController({
+      touchstartElement: this.$root.get(0),
+      touchmoveElement: document,
+      touchendElement: document,
+    });
     this.stick = new StickController({
       $element: this.$stickToucharea
     });
@@ -33,7 +37,7 @@ export default class Tetris3dController extends EventEmitter2 {
     this.setModelEvent();
     this.setBlurEvent();
     this.setKeyEvent();
-    this.setTouchEvent(this.$root);
+    this.setTouchEvent();
     this.setStickController();
   }
   
@@ -289,8 +293,7 @@ export default class Tetris3dController extends EventEmitter2 {
     }
   }
   
-  setTouchEvent($element) {
-    this.touch.setElement($element.get(0));
+  setTouchEvent() {
     let touchStartX;
     let touchStartY;
     let isFreeze = false;

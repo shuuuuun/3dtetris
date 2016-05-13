@@ -1,10 +1,15 @@
 import { EventEmitter2 } from 'eventemitter2';
 
 export default class TouchController extends EventEmitter2 {
-  constructor() {
+  constructor(opts = {}) {
     super();
     
-    this.doubleTapDelay = 500;
+    this.element = opts.element || document;
+    this.touchstartElement = opts.touchstartElement || this.element;
+    this.touchmoveElement = opts.touchmoveElement || this.element;
+    this.touchendElement = opts.touchendElement || this.element;
+    
+    this.doubleTapDelay = opts.doubleTapDelay || 500;
     
     this.touchsupport = ('ontouchstart' in window);
     this.touchstart = (this.touchsupport) ? 'touchstart' : 'mousedown';
@@ -17,28 +22,20 @@ export default class TouchController extends EventEmitter2 {
     this.moveY = 0;
     
     this.defineEventListener();
-  }
-  
-  setElement(element) {
-    this.element = element;
-    
     this.setEvent();
   }
   
   setEvent() {
-    this.element.addEventListener(this.touchstart, this.onTouchStart, false);
-    this.element.addEventListener(this.touchmove, this.ontouchMove, false);
-    this.element.addEventListener(this.touchend, this.onTouchEnd, false);
-    
+    this.touchstartElement.addEventListener(this.touchstart, this.onTouchStart, false);
+    this.touchmoveElement.addEventListener(this.touchmove, this.ontouchMove, false);
+    this.touchendElement.addEventListener(this.touchend, this.onTouchEnd, false);
     // document.addEventListener(touchstart, function(){ return false; }, false); // disableDocumentTouch
-    // document.addEventListener(touchmove, ontouchMove, false);
-    // document.addEventListener(touchend, onTouchEnd, false);
   }
   
   dispose() {
-    this.element.removeEventListener(this.touchstart, this.onTouchStart, false);
-    this.element.removeEventListener(this.touchmove, this.ontouchMove, false);
-    this.element.removeEventListener(this.touchend, this.onTouchEnd, false);
+    this.touchstartElement.removeEventListener(this.touchstart, this.onTouchStart, false);
+    this.touchmoveElement.removeEventListener(this.touchmove, this.ontouchMove, false);
+    this.touchendElement.removeEventListener(this.touchend, this.onTouchEnd, false);
   }
   
   defineEventListener() {
