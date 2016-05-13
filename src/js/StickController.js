@@ -2,10 +2,11 @@ import { EventEmitter2 } from 'eventemitter2';
 import TouchController from './TouchController';
 
 export default class StickController extends EventEmitter2 {
-  constructor(opts ={}) {
+  constructor(opts = {}) {
     super();
     
     this.$element = opts.$element;
+    this.maxDistance = opts.maxDistance;
     this.position = { x: 0, y: 0 };
     
     this.setEvent();
@@ -29,36 +30,46 @@ export default class StickController extends EventEmitter2 {
     });
   }
   
-  checkPosition(){
-    return this.$element.position();
-  }
-  
   movePosition(distance){
-    const before = this.checkPosition();
+    const before = this.position;
     const target = {
-      x: (before.left - distance.x),
-      y: (before.top - distance.y),
+      x: (before.x - distance.x),
+      y: (before.y - distance.y),
     };
     this.jumpPosition(target);
     this.emit('moved', this.position);
   }
   
   animatePosition(target){
-    this.setPosition(target);
-    this.$element.animate({
-      'top': target.y + 'px',
-      'left': target.x + 'px',
-    }, () => {
-      this.emit('animateend', this.position);
+    if (!target) return;
+    // TODO: jquery脱却したい
+    $(this.position).animate(target, {
+      step: (now, fx) => {
+        const nowTarget = {};
+        nowTarget[fx.prop] = fx.now; // fx.prop -> 'x' or 'y'
+        this.jumpPosition(nowTarget);
+      },
+      complete: () => {
+        this.setPosition(target);
+        this.emit('animateend', this.position);
+      },
     });
   }
   
   jumpPosition(target){
-    this.setPosition(target);
+    if (!target) return;
+    let x = target.x || this.position.x;
+    let y = target.y || this.position.y;
+    let d = Math.sqrt(x * x + y * y);
+    if (this.maxDistance && d > this.maxDistance) {
+      let ratio = this.maxDistance / d;
+      x *= ratio;
+      y *= ratio;
+    }
     this.$element.css({
-      'top': target.y + 'px',
-      'left': target.x + 'px',
+      'transform': `translate(${x}px, ${y}px)`,
     });
+    this.setPosition(target);
     this.emit('jumped', this.position);
   }
   

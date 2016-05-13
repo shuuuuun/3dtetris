@@ -27,7 +27,8 @@ export default class Tetris3dController extends EventEmitter2 {
       touchendElement: document,
     });
     this.stick = new StickController({
-      $element: this.$stickToucharea
+      $element: this.$stickToucharea,
+      maxDistance: 50,
     });
     
     this.isAutoMode = false;
