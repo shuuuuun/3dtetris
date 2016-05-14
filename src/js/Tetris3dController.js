@@ -30,7 +30,7 @@ export default class Tetris3dController extends EventEmitter2 {
       $element: this.$stickToucharea,
       maxDistance: 30,
       holdingDelay: 200,
-      watchInterval: 50,
+      watchInterval: CONST.STICK_CONTROLL_THROTTLE,
     });
     
     this.isAutoMode = false;
@@ -343,9 +343,9 @@ export default class Tetris3dController extends EventEmitter2 {
   }
   
   setStickController() {
-    this.stick.on('moved', (evt) => {
+    this.stick.on('moved', Util.throttle((evt) => {
       this.rotateView(evt);
-    });
+    }, CONST.STICK_CONTROLL_THROTTLE));
     this.stick.on('doubletapped', (evt) => {
       this.view.setCamera(); // reset camera position
     });

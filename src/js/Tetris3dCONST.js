@@ -33,7 +33,8 @@ class Tetris3dCONST {
     
     this.AUTO_ROTATE_SPEED = 0.02;
     
-    this.STICK_WEIGHT = 2000;
+    this.STICK_WEIGHT = 1000;
+    this.STICK_CONTROLL_THROTTLE = 50;
     
     this.SHADOW_BLOCK = {
       id: 8,
