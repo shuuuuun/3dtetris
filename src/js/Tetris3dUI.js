@@ -98,7 +98,7 @@ export default class Tetris3dUI extends EventEmitter2 {
       if (this.isModalShown() || this.controller.isAutoMode) {
         return;
       }
-      this.$modalGameover.show();
+      this.$modalResult.show();
     });
   }
   

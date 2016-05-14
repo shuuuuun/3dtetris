@@ -45,49 +45,43 @@ html(lang="ja")
       div.pause-container.modal.js-modal-pause
         div.modal__inner
           div.modal__bg
-          div.modal__content
+          div.modal__content: div.modal__content__inner
             h2.modal__title PAUSE!!
             p.modal__button
-              button.js-btn-modal-close.js-btn-resume(type="button") Resume
-      div.gameover-container.modal.js-modal-gameover
-        div.modal__inner
-          div.modal__bg
-          div.modal__content
-            h2.modal__title GAME OVER!!
-            p.modal__button
-              button.js-btn-to-result(type="button") Result
+              button.js-btn-modal-close.js-btn-resume(type="button") Tap to Resume
       div.start-container.modal.js-modal-start
         div.modal__inner
           div.modal__bg
-          div.modal__content
-            h2.modal__title Tetricus
+          div.modal__content: div.modal__content__inner
+            h2.modal__title
+              span Tetricus
+              include ../svg/logo.svg
             p.modal__button
-              button.js-btn-modal-close.js-btn-start(type="button") Start
-            p.modal__button
-              button.js-btn-to-howto(type="button") How To ?
+              button.js-btn-modal-close.js-btn-start(type="button") Tap to Start
       div.howto-container.modal.js-modal-howto
         div.modal__inner
           div.modal__bg
-          div.modal__content
+          div.modal__content: div.modal__content__inner
             h2.modal__title HOWTO!!
             p.modal__button
               button.js-btn-to-back(type="button") Back
       div.result-container.modal.js-modal-result
         div.modal__inner
           div.modal__bg
-          div.modal__content
-            h2.modal__title RESULT!!
-            p.modal__text
-              | Lv. 
-              span.js-info-level 1
-            p.modal__text
-              | score 
-              span.js-info-score 0
-            p.modal__text
-              | lines 
-              span.js-info-lines 0
+          div.modal__content: div.modal__content__inner
+            h2.modal__title Game Over!!
+            div.modal__text
+              p.modal__text__lv
+                | Lv. 
+                span.js-info-level 1
+              p.modal__text__score
+                | score 
+                span.js-info-score 0000
+              p.modal__text__lines
+                | lines 
+                span.js-info-lines 0000
             p.modal__button
-              button.js-btn-modal-close.js-btn-start(type="button") Restart
+              button.js-btn-modal-close.js-btn-start(type="button") Tap to Restart
       div.splash-container
     
     script(src="./js/script.js")
