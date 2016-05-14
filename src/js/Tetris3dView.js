@@ -91,36 +91,6 @@ export default class Tetris3dView {
       this.scene.add( grid );
     }
     
-    // container top ------------------------------
-    {
-      const size = CONST.CENTER_X;
-      const step = size * 2;
-      const grid = new THREE.GridHelper(size, step);
-      grid.position.set( size, 0, size ); // 0,0が端になるように移動
-      // this.scene.add( grid );
-    }
-    
-    // container line ------------------------------
-    {
-      const size = CONST.COLS * CONST.VOXEL_SIZE;
-      const geometry = new THREE.Geometry();
-      geometry.vertices.push(
-        new THREE.Vector3(    0, CONST.HEIGHT,    0 ),
-        new THREE.Vector3(    0, CONST.HEIGHT, size ),
-        new THREE.Vector3(    0,            0, size ),
-        new THREE.Vector3( size,            0, size ),
-        new THREE.Vector3( size, CONST.HEIGHT, size ),
-        new THREE.Vector3( size, CONST.HEIGHT,    0 ),
-        new THREE.Vector3( size,            0,    0 ),
-        new THREE.Vector3(    0,            0,    0 ),
-        new THREE.Vector3(    0, CONST.HEIGHT,    0 )
-      );
-      const material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2, transparent: true } );
-      const line = new THREE.Line( geometry, material );
-      line.type = THREE.LinePieces;
-      // this.scene.add( line );
-    }
-    
     // field mark ------------------------------
     {
       const geometry = new THREE.Geometry();
