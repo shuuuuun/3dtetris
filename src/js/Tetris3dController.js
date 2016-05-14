@@ -29,6 +29,8 @@ export default class Tetris3dController extends EventEmitter2 {
     this.stick = new StickController({
       $element: this.$stickToucharea,
       maxDistance: 30,
+      holdingDelay: 200,
+      watchInterval: 50,
     });
     
     this.isAutoMode = false;
@@ -342,23 +344,30 @@ export default class Tetris3dController extends EventEmitter2 {
   
   setStickController() {
     this.stick.on('moved', (evt) => {
-      let controlsDeltaX = evt.x / -CONST.STICK_WEIGHT;
-      let controlsDeltaY = evt.y / -CONST.STICK_WEIGHT;
-      if (this.view.camera.position.y > CONST.HEIGHT) { // 底面より下にはいかないように
-        this.view.camera.position.y = CONST.HEIGHT;
-        controlsDeltaY = 0;
-      }
-      this.model.pauseGame(); // カメラ動かしてる間は一時停止
-      this.view.controls.rotate({
-        x: controlsDeltaX,
-        y: controlsDeltaY,
-      });
-      setTimeout(() => {
-        this.model.resumeGame(); // カメラ止まると再開
-      });
+      this.rotateView(evt);
     });
     this.stick.on('doubletapped', (evt) => {
       this.view.setCamera(); // reset camera position
+    });
+    this.stick.on('holding', (evt) => {
+      this.rotateView(evt);
+    });
+  }
+  
+  rotateView(delta) {
+    let controlsDeltaX = delta.x / -CONST.STICK_WEIGHT;
+    let controlsDeltaY = delta.y / -CONST.STICK_WEIGHT;
+    if (this.view.camera.position.y > CONST.HEIGHT) { // 底面より下にはいかないように
+      this.view.camera.position.y = CONST.HEIGHT;
+      controlsDeltaY = 0;
+    }
+    this.model.pauseGame(); // カメラ動かしてる間は一時停止
+    this.view.controls.rotate({
+      x: controlsDeltaX,
+      y: controlsDeltaY,
+    });
+    setTimeout(() => {
+      this.model.resumeGame(); // カメラ止まると再開
     });
   }
   
