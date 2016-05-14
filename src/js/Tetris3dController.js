@@ -333,8 +333,9 @@ export default class Tetris3dController extends EventEmitter2 {
     });
     this.touch.on('touchend', (evt) => {
       if (evt.isDoubleTap) {
-        this.dropBlock();
-        return;
+        // TODO: ダブルタップの一回目のタップを区別する解決策
+        // this.dropBlock();
+        // return;
       }
       if (evt.isTap) {
         this.rotateBlock();
