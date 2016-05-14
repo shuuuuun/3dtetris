@@ -355,9 +355,10 @@ export default class Tetris3dController extends EventEmitter2 {
   }
   
   rotateView(delta) {
+    // TODO: 下にやり過ぎるとzoomしちゃう問題
     let controlsDeltaX = delta.x / -CONST.STICK_WEIGHT;
     let controlsDeltaY = delta.y / -CONST.STICK_WEIGHT;
-    if (this.view.camera.position.y > CONST.HEIGHT) { // 底面より下にはいかないように
+    if (controlsDeltaY < 0 && this.view.camera.position.y > CONST.HEIGHT) { // 底面より下にはいかないように
       this.view.camera.position.y = CONST.HEIGHT;
       controlsDeltaY = 0;
     }
