@@ -29,7 +29,7 @@ export default class Tetris3dController extends EventEmitter2 {
     this.stick = new StickController({
       $element: this.$stickToucharea,
       maxDistance: 30,
-      holdingDelay: 200,
+      holdingDelay: 50,
       watchInterval: CONST.STICK_CONTROLL_THROTTLE,
     });
     
