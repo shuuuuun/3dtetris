@@ -121,6 +121,25 @@ export default class Tetris3dView {
       // this.scene.add( line );
     }
     
+    // field mark ------------------------------
+    {
+      const geometry = new THREE.Geometry();
+      geometry.vertices.push(
+        new THREE.Vector3( 0, CONST.FIELD_MARK_LENGTH, 0 ),
+        new THREE.Vector3( 0, 0, 0 ),
+        new THREE.Vector3( 0, 0, CONST.FIELD_MARK_LENGTH ),
+        new THREE.Vector3( 0, 0, 0 ),
+        new THREE.Vector3( CONST.FIELD_MARK_LENGTH, 0, 0 )
+      );
+      const material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2, transparent: true } );
+      const line = new THREE.Line( geometry, material );
+      line.type = THREE.LinePieces;
+      const line2 = line.clone().translateX(CONST.WIDTH).rotateY(-Math.PI / 2);
+      const line3 = line.clone().translateZ(CONST.WIDTH).rotateY(Math.PI / 2);
+      const line4 = line.clone().translateX(CONST.WIDTH).translateZ(CONST.WIDTH).rotateY(Math.PI);
+      this.scene.add( line, line2, line3, line4 );
+    }
+    
     
     // Lights ------------------------------
     const ambientLight = new THREE.AmbientLight( 0x606060 );

@@ -23,6 +23,8 @@ class Tetris3dCONST {
     this.CENTER_Y = this.HEIGHT / 2;
     this.CENTER_Z = this.WIDTH / 2;
     
+    this.FIELD_MARK_LENGTH = 50;
+    
     this.RENDER_INTERVAL = 30;
     this.TICK_INTERVAL = 700; // default tick interval
     this.SPEEDUP_RATE = 100;
