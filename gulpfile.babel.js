@@ -135,7 +135,8 @@ gulp.task('browserify', () => {
   .pipe(source(config.browserify.dest))
   .pipe(buffer())
   .pipe(gulpif(!gutil.env.develop, uglify({ preserveComments: 'some' }))) // developモードではminifyしない
-  .pipe(gulp.dest(DEST_JS));
+  .pipe(gulp.dest(DEST_JS))
+  .pipe(notify('browserify build succeeded!!'));
 });
 
 gulp.task('lint', () => {
