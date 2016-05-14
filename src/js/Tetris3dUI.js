@@ -65,6 +65,9 @@ export default class Tetris3dUI extends EventEmitter2 {
     this.$btnToHowto.on('click', (evt) => {
       this.$modals.hide();
       this.$modalHowto.show();
+      if (this.controller.isAutoMode) {
+        return;
+      }
       if (this.controller.isPlayngGame) {
         this.controller.pauseGame();
       }
