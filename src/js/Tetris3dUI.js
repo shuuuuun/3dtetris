@@ -82,8 +82,7 @@ export default class Tetris3dUI extends EventEmitter2 {
   
   setControllerEvent() {
     this.controller.on('pauseGame', () => {
-      const isModalShown = this.$modals.get().some(modal => $(modal).is(':visible'));
-      if (isModalShown) {
+      if (this.isModalShown()) {
         // なにかしらmodalが既に表示されてたらreturn
         return;
       }
@@ -93,7 +92,7 @@ export default class Tetris3dUI extends EventEmitter2 {
       this.$modals.hide();
     });
     this.controller.on('gameover', () => {
-      if (this.controller.isAutoMode) {
+      if (this.isModalShown() || this.controller.isAutoMode) {
         return;
       }
       this.$modalGameover.show();
@@ -102,5 +101,9 @@ export default class Tetris3dUI extends EventEmitter2 {
   
   showStartModal() {
     this.$modalStart.show();
+  }
+  
+  isModalShown() {
+    return this.$modals.get().some(modal => $(modal).is(':visible'));
   }
 }

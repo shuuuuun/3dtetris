@@ -90,7 +90,6 @@ export default class Tetris3dController extends EventEmitter2 {
       else {
         this.view.isAutoRotate = true;
       }
-      // alert('gameover!!');
       this.emit('gameover');
     });
     this.model.on('tick', (isNewBlock) => {
