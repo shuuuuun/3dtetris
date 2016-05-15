@@ -30,9 +30,9 @@
         <div id="js-game-view" class="game__view"></div>
         <div class="game__controller js-game-controller">
           <div class="game__controller__info">
-            <p>Lv. <span class="js-info-level">1</span></p>
-            <p>score <span class="js-info-score">0</span></p>
-            <p>lines <span class="js-info-lines">0</span></p>
+            <p class="game__controller__info__lv">Lv. <span class="js-info-level">1</span></p>
+            <p class="game__controller__info__score">score <span class="js-info-score">0000</span></p>
+            <p class="game__controller__info__lines">lines <span class="js-info-lines">0000</span></p>
           </div>
           <div class="game__controller__btns--top-right">
             <div class="game__controller__btn--howto">
@@ -61,21 +61,12 @@
         <div class="modal__inner">
           <div class="modal__bg"></div>
           <div class="modal__content">
-            <h2 class="modal__title">PAUSE!!</h2>
-            <p class="modal__button">
-              <button type="button" class="js-btn-modal-close js-btn-resume">Resume</button>
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="gameover-container modal js-modal-gameover">
-        <div class="modal__inner">
-          <div class="modal__bg"></div>
-          <div class="modal__content">
-            <h2 class="modal__title">GAME OVER!!</h2>
-            <p class="modal__button">
-              <button type="button" class="js-btn-to-result">Result</button>
-            </p>
+            <div class="modal__content__inner">
+              <h2 class="modal__title">PAUSE</h2>
+              <p class="modal__button">
+                <button type="button" class="js-btn-modal-close js-btn-resume">Tap to Resume</button>
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -83,13 +74,25 @@
         <div class="modal__inner">
           <div class="modal__bg"></div>
           <div class="modal__content">
-            <h2 class="modal__title">Tetricus</h2>
-            <p class="modal__button">
-              <button type="button" class="js-btn-modal-close js-btn-start">Start</button>
-            </p>
-            <p class="modal__button">
-              <button type="button" class="js-btn-to-howto">How To ?</button>
-            </p>
+            <div class="modal__content__inner">
+              <h2 class="modal__title"><span>Tetricus</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1980.00037 491.33893">
+  <g>
+    <polygon points="132 75.591 66 113.386 0 151.181 0 226.772 66 188.977 66 231.567 66 264.567 66 340.158 66 382.748 66 415.748 66 491.339 132 453.543 132 377.953 132 377.953 132 377.953 132 302.362 132 226.772 132 226.772 132 226.772 132 151.181 198 113.386 198 37.795 132 75.591" />
+    <polygon points="660 72.055 594 109.85 528 147.645 528 223.236 594 185.441 594 228.031 594 261.031 594 336.622 594 379.213 594 412.212 594 487.803 660 450.008 660 374.417 660 374.417 660 374.417 660 298.826 660 223.236 660 223.236 660 223.236 660 147.645 726 109.85 726 34.259 660 72.055" />
+    <polygon points="330 151.181 396 113.386 462 75.591 462 0 396 37.795 330 75.591 264 113.386 264 188.977 264 231.567 264 264.567 264 340.158 264 382.748 264 415.748 264 491.339 330 453.543 330 453.544 396 415.748 462 377.953 462 302.362 396 340.158 330 377.953 330 377.953 330 377.953 330 377.953 330 302.362 396 264.567 462 226.772 462 151.181 396 188.977 330 226.772 330 226.772 330 226.772 330 151.181" />
+    <polygon points="1848 151.181 1914 113.386 1980 75.591 1980 0 1914 37.795 1848 75.591 1782 113.386 1782 188.977 1782 264.567 1782 297.567 1782 340.158 1848 302.362 1914 264.567 1914 340.158 1914.001 340.157 1914 340.158 1848 377.953 1848 377.953 1782 415.748 1782 491.339 1848 453.543 1848 453.544 1914 415.748 1980 377.953 1980 302.362 1980 269.363 1980 226.772 1980 151.181 1914 188.977 1848 226.772 1848 226.772 1848 226.772 1848 151.181" />
+    <polygon points="1320 151.181 1386 113.386 1452 75.591 1452 0 1386 37.795 1320 75.591 1254 113.386 1254 188.977 1254 231.567 1254 264.567 1254 340.158 1254 415.748 1254 448.748 1254 491.339 1320 453.543 1320 453.544 1386 415.748 1452 377.953 1452 302.362 1386 340.158 1320 377.953 1320 377.953 1320 377.953 1320 377.953 1320 302.362 1320 226.772 1320 226.772 1320 226.772 1320 151.181" />
+    <polygon points="1650 37.795 1650 80.386 1650 113.386 1650 122.977 1650 188.977 1650 231.567 1650 264.567 1650 340.158 1584 377.953 1584 377.953 1584 377.953 1584 377.953 1584 302.362 1584 226.772 1584 226.772 1584 226.772 1584 151.181 1584 75.591 1518 113.386 1518 188.977 1518 231.567 1518 264.567 1518 340.158 1518 382.748 1518 415.748 1518 491.339 1584 453.543 1584 453.544 1650 415.748 1716 377.953 1716 302.362 1716 226.772 1716 193.772 1716 151.181 1716 85.182 1716 75.591 1716 42.591 1716 0 1650 37.795" />
+    <polygon points="1089 104.386 1089 179.977 1089 222.567 1089 255.567 1089 331.158 1089 373.748 1089 406.748 1089 482.339 1155 444.543 1155 368.953 1155 368.953 1155 368.953 1155 293.362 1155 217.772 1155 217.772 1155 217.772 1155 142.181 1155 66.591 1089 104.386" />
+    <path d="M1353.9625,621.60306l-66,37.79529-66,37.79535v377.95282l66-37.79535V961.76071h-0.00037l0.00037-.00018V886.17l0.001-.00055-0.001.00073,66,37.79517,0.00018-.00012-0.00018.00024v151.18115l66-37.79529V961.76083h-0.00024l0.00024-.00012V886.17019l-0.00043.00012,0.00043-.00024-66.00012-37.79529,0.00012-.00006,66-37.79529V659.39822Zm0,151.18115-66,37.79529h-0.00024l0.00024-.00012V734.98886l66-37.79529v75.59052l0.00024-.00012Z" transform="translate(-429.9625 -583.80771)" />
+  </g>
+</svg>
+
+              </h2>
+              <p class="modal__button">
+                <button type="button" class="js-btn-modal-close js-btn-start">Tap to Start</button>
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -97,10 +100,12 @@
         <div class="modal__inner">
           <div class="modal__bg"></div>
           <div class="modal__content">
-            <h2 class="modal__title">HOWTO!!</h2>
-            <p class="modal__button">
-              <button type="button" class="js-btn-to-back">Back</button>
-            </p>
+            <div class="modal__content__inner">
+              <h2 class="modal__title">HOWTO!!</h2>
+              <p class="modal__button">
+                <button type="button" class="js-btn-to-back">Back</button>
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -108,13 +113,17 @@
         <div class="modal__inner">
           <div class="modal__bg"></div>
           <div class="modal__content">
-            <h2 class="modal__title">RESULT!!</h2>
-            <p class="modal__text">Lv. <span class="js-info-level">1</span></p>
-            <p class="modal__text">score <span class="js-info-score">0</span></p>
-            <p class="modal__text">lines <span class="js-info-lines">0</span></p>
-            <p class="modal__button">
-              <button type="button" class="js-btn-modal-close js-btn-start">Restart</button>
-            </p>
+            <div class="modal__content__inner">
+              <h2 class="modal__title">Game Over!!</h2>
+              <div class="modal__text">
+                <p class="modal__text__lv">Lv. <span class="js-info-level">1</span></p>
+                <p class="modal__text__score">score <span class="js-info-score">0000</span></p>
+                <p class="modal__text__lines">lines <span class="js-info-lines">0000</span></p>
+              </div>
+              <p class="modal__button">
+                <button type="button" class="js-btn-modal-close js-btn-start">Tap to Restart</button>
+              </p>
+            </div>
           </div>
         </div>
       </div>
