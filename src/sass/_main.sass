@@ -50,6 +50,7 @@
 %game__controller__btns
   display: flex
   position: absolute
+  margin: 10px
 
 .game__controller__btns--top-right
   @extend %game__controller__btns
@@ -62,18 +63,12 @@
   bottom: 0
 
 %game__controller__btn
-  $size: 60px
   margin: 10px
   button
-    width: $size
-    height: $size
-    border-radius: $size
-    background-color: rgba(255,255,255,0.5)
-    border: solid 6px #fff
     &:before
       font-family: FontAwesome
       color: #fff
-      font-size: 130%
+      font-size: 300%
     span
       display: none
 
@@ -81,26 +76,28 @@
   @extend %game__controller__btn
   button
     &:before
-      content: '\f128'
+      content: '\f059'
 
 .game__controller__btn--pause
   @extend %game__controller__btn
   button
     &:before
-      content: '\f04c'
+      content: '\f28b'
 
 .game__controller__btn--rotate-vertical
   @extend %game__controller__btn
   button
     &:before
-      content: '\f07d'
+      content: '\f01b'
+      font-size: 450%
 
 .game__controller__btn--rotate-horizontal
   @extend %game__controller__btn
   button
     // transform: rotateZ(90deg)
     &:before
-      content: '\f07e'
+      content: '\f18e'
+      font-size: 450%
 
 .game__controller__info
   position: absolute
