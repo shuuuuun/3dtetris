@@ -113,8 +113,8 @@ export default class Tetris3dController extends EventEmitter2 {
     this.model.on('clearline', () => {
       this.updateBoard();
       this.$infoLevel.text(this.model.level);
-      this.$infoScore.text(this.model.score);
-      this.$infoLines.text(this.model.sumOfClearLines);
+      this.$infoScore.text(Util.zeroPadding(this.model.score, 4));
+      this.$infoLines.text(Util.zeroPadding(this.model.sumOfClearLines, 4));
     });
     this.model.on('beforeDropClearLines', (evt) => {
       const dfd = $.Deferred();
