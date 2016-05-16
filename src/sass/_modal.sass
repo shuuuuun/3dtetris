@@ -91,3 +91,20 @@
   span
     font-size: 2.4rem
     margin-left: 1.0em
+
+.modal__slick-dots
+  .slick-dots
+    display: flex
+    justify-content: center
+    
+    li
+      $size: 8px
+      width: $size
+      height: $size
+      border-radius: $size
+      border: solid 1px #fff
+      text-indent: -9999px
+      overflow: hidden
+    
+    .slick-active
+      background-color: #fff

@@ -1,4 +1,7 @@
 import { EventEmitter2 } from 'eventemitter2';
+// TODO: 重いからbowerのjqueryは避けたい
+import $ from 'jquery';
+import 'slick-carousel';
 
 export default class Tetris3dUI extends EventEmitter2 {
   constructor(controller) {
@@ -20,9 +23,12 @@ export default class Tetris3dUI extends EventEmitter2 {
     this.$btnToBack = $('.js-btn-to-back');
     this.$btnRotateVertical = $('.js-btn-rotate-vertical');
     this.$btnRotateHorizontal = $('.js-btn-rotate-horizontal');
+    this.$slickHowto = $('.js-slick-howto');
+    this.$slickDots = $('.js-slick-dots');
     
     this.setEvent();
     this.setControllerEvent();
+    this.setSlick();
   }
   
   setEvent() {
@@ -65,6 +71,7 @@ export default class Tetris3dUI extends EventEmitter2 {
     this.$btnToHowto.on('click', (evt) => {
       this.$modals.hide();
       this.$modalHowto.show();
+      this.updateSlick();
       if (this.controller.isAutoMode) {
         return;
       }
@@ -100,6 +107,25 @@ export default class Tetris3dUI extends EventEmitter2 {
       }
       this.$modalResult.show();
     });
+  }
+  
+  setSlick() {
+    this.$slickHowto.slick({
+      slidesToShow: 1,
+      infinite: false,
+      fade: false,
+      dots: true,
+      autoplay: false,
+      speed: 1000,
+      pauseOnHover: false,
+      arrows: false,
+      draggable: true,
+      appendDots: this.$slickDots,
+    });
+  }
+  
+  updateSlick() {
+    this.$slickHowto.slick('slickGoTo', 0);
   }
   
   showStartModal() {
