@@ -1,7 +1,4 @@
 import { EventEmitter2 } from 'eventemitter2';
-// TODO: 重いからbowerのjqueryは避けたい
-import $ from 'jquery';
-import 'slick-carousel';
 
 export default class Tetris3dUI extends EventEmitter2 {
   constructor(controller) {
