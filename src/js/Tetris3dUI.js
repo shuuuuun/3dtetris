@@ -9,8 +9,10 @@ export default class Tetris3dUI extends EventEmitter2 {
     this.$modalGameover = $('.js-modal-gameover');
     this.$modalStart = $('.js-modal-start');
     this.$modalHowto = $('.js-modal-howto');
+    this.$modalHowtoSecond = $('.js-modal-howto-second');
+    this.$modalHowtoThird = $('.js-modal-howto-third');
     this.$modalResult = $('.js-modal-result');
-    this.$modals = this.$modalPause.add(this.$modalGameover).add(this.$modalStart).add(this.$modalHowto).add(this.$modalResult);
+    this.$modals = this.$modalPause.add(this.$modalGameover).add(this.$modalStart).add(this.$modalHowto).add(this.$modalHowtoSecond).add(this.$modalHowtoThird).add(this.$modalResult);
     this.$btnModalClose = $('.js-btn-modal-close');
     this.$btnResume = $('.js-btn-resume');
     this.$btnStart = $('.js-btn-start');
@@ -22,10 +24,12 @@ export default class Tetris3dUI extends EventEmitter2 {
     this.$btnRotateHorizontal = $('.js-btn-rotate-horizontal');
     this.$slickHowto = $('.js-slick-howto');
     this.$slickDots = $('.js-slick-dots');
+    // this.$bgHowto = $('.js-bg-howto');
     
     this.setEvent();
     this.setControllerEvent();
     this.setSlick();
+    this.setHowto();
   }
   
   setEvent() {
@@ -106,6 +110,22 @@ export default class Tetris3dUI extends EventEmitter2 {
     });
   }
   
+  setHowto() {
+    // TODO: あとでやりかた変える
+    this.$modalHowto.on('click', () => {
+      this.$modals.hide();
+      this.$modalHowtoSecond.show();
+    });
+    this.$modalHowtoSecond.on('click', () => {
+      this.$modals.hide();
+      this.$modalHowtoThird.show();
+    });
+    this.$modalHowtoThird.on('click', () => {
+      this.$modals.hide();
+      this.controller.resumeGame();
+    });
+  }
+  
   setSlick() {
     this.$slickHowto.slick({
       slidesToShow: 1,
@@ -118,6 +138,10 @@ export default class Tetris3dUI extends EventEmitter2 {
       arrows: false,
       draggable: true,
       appendDots: this.$slickDots,
+    });
+    this.$slickHowto.on('beforeChange', (event, slick, currentSlide, nextSlide) => {
+      // TODO: リファクタリング
+      this.$bgHowto.attr('data-slide-index', nextSlide);
     });
   }
   

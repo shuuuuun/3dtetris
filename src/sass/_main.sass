@@ -143,3 +143,69 @@
   
   .modal__text
     margin-bottom: 3em
+
+
+.howto-container
+  .modal__bg--howto
+    @extend .modal__bg
+    background-color: transparent
+    .arround
+      fill: rgba(#000,0.5)
+    .circle
+      fill: rgba(#fff,0.5)
+    svg
+      $size: 2700px / 2
+      width: $size
+      height: $size
+      position: relative
+      top: 50%
+      margin-top: -$size / 2
+      left: 50%
+      margin-left: -$size / 2
+    &[data-slide-index="1"] svg
+      $size: 2700px / 2 * 0.74
+      width: $size
+      height: $size
+      top: 100%
+      margin-top: -$size / 2 - 70px
+      left: 0
+      margin-left: -$size / 2 + 75px
+    &[data-slide-index="2"] svg
+      $size: 2700px / 2 * 0.72
+      width: $size
+      height: $size
+      top: 100%
+      margin-top: -$size / 2 - 40px
+      left: 100%
+      margin-left: -$size / 2 - 90px
+  
+  .modal__content__inner
+    height: 400px
+  
+  .modal__title
+    font-size: 2.2rem
+    margin-bottom: 0.5em
+  
+  .modal__slick-dots
+  
+  .modal__text
+    color: #fff
+  
+  .modal__text--howto
+    @extend .modal__text
+    position: absolute
+    left: 0
+    right: 0
+    margin-top: 280px
+  .modal__text--howto-second
+    @extend .modal__text
+    position: absolute
+    left: 140px
+    bottom: 140px
+    text-align: left
+  .modal__text--howto-third
+    @extend .modal__text
+    position: absolute
+    right: 70px
+    bottom: 140px
+    text-align: left
