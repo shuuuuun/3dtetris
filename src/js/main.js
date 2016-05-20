@@ -1,4 +1,5 @@
 import Util from './Util';
+import SoundController from './SoundController';
 import Tetris3dCONST from './Tetris3dCONST';
 import Tetris3dView from './Tetris3dView';
 import Tetris3dModel from './Tetris3dModel';
@@ -10,7 +11,15 @@ const tetris3dView = new Tetris3dView();
 const tetris3dController = new Tetris3dController(tetris3dModel, tetris3dView);
 const tetris3dUI = new Tetris3dUI(tetris3dController);
 
+const sound = new SoundController({
+  src: './audio/bgm.mp3',
+  COOKIE_NAME: 'TETRICUS-isMute',
+});
+
 // event
+tetris3dController.on('startGame', () => {
+  sound.play();
+});
 
 // start
 tetris3dUI.showStartModal();

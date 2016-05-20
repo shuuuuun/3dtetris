@@ -52,6 +52,7 @@ export default class Tetris3dController extends EventEmitter2 {
     this.model.startGame();
     this.isPlayngGame = true;
     this.isPausingGame = false;
+    this.emit('startGame');
   }
   
   pauseGame() {
