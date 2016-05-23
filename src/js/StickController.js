@@ -19,34 +19,23 @@ export default class StickController extends EventEmitter2 {
       touchstartElement: this.$element.get(0),
       touchmoveElement: document,
       touchendElement: document,
+      holdingDelay: this.holdingDelay,
+      watchInterval: this.watchInterval,
     });
-    let watchTimer;
-    let delayTimer;
-    let isMoving = false;
     
     touch.on('touchstart', (evt) => {
-      clearInterval(watchTimer);
-      watchTimer = setInterval(() => {
-        if (!isMoving) {
-          this.emit('holding', this.position);
-        }
-      }, this.watchInterval);
     });
     touch.on('touchmove', (evt) => {
-      clearTimeout(delayTimer);
-      isMoving = true;
       this.movePosition({ x: -evt.deltaX, y: -evt.deltaY });
-      delayTimer = setTimeout(() => {
-        isMoving = false;
-      }, this.holdingDelay);
     });
     touch.on('touchend', (evt) => {
-      clearInterval(watchTimer);
-      isMoving = false;
       this.animatePosition({ x: 0, y: 0 });
       if (evt.isDoubleTap) {
         this.emit('doubletapped');
       }
+    });
+    touch.on('touchholding', (evt) => {
+      this.emit('holding', this.position);
     });
   }
   
