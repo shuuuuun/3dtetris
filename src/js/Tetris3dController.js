@@ -209,7 +209,9 @@ export default class Tetris3dController extends EventEmitter2 {
     $(window).on('blur', () => {
         this.pauseGame();
     }).on('focus', () => {
-      // this.resumeGame();
+      if (this.isAutoMode) {
+        this.resumeGame();
+      }
     });
   }
   

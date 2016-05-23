@@ -100,6 +100,9 @@ export default class Tetris3dUI extends EventEmitter2 {
       this.$modalPause.show();
     });
     this.controller.on('resumeGame', () => {
+      if (this.controller.isAutoMode) {
+        return;
+      }
       this.$modals.hide();
     });
     this.controller.on('gameover', () => {
