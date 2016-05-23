@@ -25,6 +25,8 @@ export default class Tetris3dController extends EventEmitter2 {
       touchstartElement: this.$root.get(0),
       touchmoveElement: document,
       touchendElement: document,
+      holdingDelay: 1000,
+      watchInterval: 100,
     });
     this.stick = new StickController({
       $element: this.$stickToucharea,
@@ -341,6 +343,9 @@ export default class Tetris3dController extends EventEmitter2 {
       if (evt.isTap) {
         this.rotateBlock();
       }
+    });
+    this.touch.on('touchholding', (evt) => {
+      this.model.moveBlockY(1);
     });
   }
   
