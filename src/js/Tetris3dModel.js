@@ -67,7 +67,7 @@ export default class Tetris3dModel extends EventEmitter2 {
   tick() {
     clearTimeout(this.tickId);
     if (!this.isPlayng || this.isPausing) return;
-    let isMoveDown = this.moveBlockY(1);
+    let isMoveDown = this.moveBlockY();
     if (!isMoveDown) {
       this.freeze();
       this.clearLines();
@@ -274,7 +274,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     return isValid;
   }
   
-  moveBlockX(distance) {
+  moveBlockX(distance = 1) {
     const isValid = this.valid(distance, 0, 0);
     if (isValid) {
       this.currentBlock.x += distance;
@@ -283,7 +283,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     return isValid;
   }
   
-  moveBlockY(distance) {
+  moveBlockY(distance = 1) {
     const isValid = this.valid(0, distance, 0);
     if (isValid) {
       this.currentBlock.y += distance;
@@ -292,7 +292,7 @@ export default class Tetris3dModel extends EventEmitter2 {
     return isValid;
   }
   
-  moveBlockZ(distance) {
+  moveBlockZ(distance = 1) {
     const isValid = this.valid(0, 0, distance);
     if (isValid) {
       this.currentBlock.z += distance;

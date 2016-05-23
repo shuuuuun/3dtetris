@@ -345,7 +345,7 @@ export default class Tetris3dController extends EventEmitter2 {
       }
     });
     this.touch.on('touchholding', (evt) => {
-      this.model.moveBlockY(1);
+      this.model.moveBlockY();
     });
   }
   
