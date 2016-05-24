@@ -56,13 +56,16 @@ export default class TouchController extends EventEmitter2 {
       this.touchStartX = (this.touchSupport) ? evt.touches[0].pageX : evt.pageX;
       this.touchStartY = (this.touchSupport) ? evt.touches[0].pageY : evt.pageY;
       
-      // TODO: ここにもdelayを入れねば
-      clearInterval(watchTimer);
-      watchTimer = setInterval(() => {
-        if (!this.isTouchMoving) {
-          this.emit('touchholding', this);
-        }
-      }, this.watchInterval);
+      // TODO: watchまわりもうちょっとうまく書きたい
+      setTimeout(() => {
+        clearInterval(watchTimer);
+        watchTimer = setInterval(() => {
+          if (!this.isTouchMoving) {
+            console.log('touchholding');
+            this.emit('touchholding', this);
+          }
+        }, this.watchInterval);
+      }, this.holdingDelay);
       
       this.emit('touchstart', {
         'touchStartTime': this.touchStartTime,
