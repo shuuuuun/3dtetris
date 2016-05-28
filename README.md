@@ -2,11 +2,8 @@
 
 開発中...
 
-https://shuuuuun.github.io/3dtetris/
+https://shuuuuun.github.io/tetricus/
 
 
-<img src="https://shuuuuun.github.io/3dtetris/img/qr.png">
+<img src="https://shuuuuun.github.io/tetricus/img/qr.png">
 
-
-参考：
-https://github.com/shuuuuun/Pentrix
