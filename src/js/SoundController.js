@@ -42,6 +42,14 @@ export default class SoundController {
         return this;
     }
     
+    togglePlay(flag) {
+        if (flag === undefined) {
+            flag = !this.audio.paused;
+        }
+        flag ? this.play() : this.pause();
+        return this;
+    }
+    
     mute() {
         this.isMute = true;
         this.audio.muted = true;
