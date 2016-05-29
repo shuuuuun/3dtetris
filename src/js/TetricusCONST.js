@@ -1,4 +1,4 @@
-class Tetris3dCONST {
+class TetricusCONST {
   constructor() {
     this.COLS = 9; // x, z field size
     this.ROWS = 13; // y field size
@@ -298,4 +298,4 @@ class Tetris3dCONST {
   }
 }
 
-module.exports = new Tetris3dCONST();
+module.exports = new TetricusCONST();

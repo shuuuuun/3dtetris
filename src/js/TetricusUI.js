@@ -1,6 +1,6 @@
 import { EventEmitter2 } from 'eventemitter2';
 
-export default class Tetris3dUI extends EventEmitter2 {
+export default class TetricusUI extends EventEmitter2 {
   constructor(controller) {
     super();
     

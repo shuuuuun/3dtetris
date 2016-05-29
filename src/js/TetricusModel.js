@@ -1,10 +1,10 @@
 // import $ from 'jquery';
 import { EventEmitter2 } from 'eventemitter2';
-import Tetris3dCONST from './Tetris3dCONST';
+import TetricusCONST from './TetricusCONST';
 
-const CONST = Tetris3dCONST;
+const CONST = TetricusCONST;
 
-export default class Tetris3dModel extends EventEmitter2 {
+export default class TetricusModel extends EventEmitter2 {
   constructor() {
     super();
   }

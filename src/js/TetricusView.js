@@ -4,11 +4,11 @@
 // import 'three.js/examples/js/controls/EditorControls.js';
 import './lib/EditorControls_';
 // import TWEEN from 'tween.js';
-import Tetris3dCONST from './Tetris3dCONST';
+import TetricusCONST from './TetricusCONST';
 
-const CONST = Tetris3dCONST;
+const CONST = TetricusCONST;
 
-export default class Tetris3dView {
+export default class TetricusView {
   constructor() {
     this.framecount = 0;
     this.isAutoRotate = false;

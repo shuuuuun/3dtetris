@@ -4,11 +4,11 @@ import { EventEmitter2 } from 'eventemitter2';
 import Util from './Util';
 import TouchController from './TouchController';
 import StickController from './StickController';
-import Tetris3dCONST from './Tetris3dCONST';
+import TetricusCONST from './TetricusCONST';
 
-const CONST = Tetris3dCONST;
+const CONST = TetricusCONST;
 
-export default class Tetris3dController extends EventEmitter2 {
+export default class TetricusController extends EventEmitter2 {
   constructor(model, view) {
     super();
     
