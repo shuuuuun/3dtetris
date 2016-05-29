@@ -20,6 +20,10 @@ const sound = new SoundController({
 tetris3dController.on('startGame', () => {
   sound.play();
 });
+tetris3dUI.on('toggleSound', (evt) => {
+  sound.toggleMute(!evt.isSoundOn);
+  sound.togglePlay(evt.isSoundOn);
+});
 
 // start
 tetris3dUI.showStartModal();

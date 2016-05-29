@@ -17,6 +17,7 @@ export default class Tetris3dUI extends EventEmitter2 {
     this.$btnResume = $('.js-btn-resume');
     this.$btnStart = $('.js-btn-start');
     this.$btnPause = $('.js-btn-pause');
+    this.$btnSound = $('.js-btn-sound');
     this.$btnToResult = $('.js-btn-to-result');
     this.$btnToHowto = $('.js-btn-to-howto');
     this.$btnToBack = $('.js-btn-to-back');
@@ -48,6 +49,14 @@ export default class Tetris3dUI extends EventEmitter2 {
       else {
         this.controller.resumeGame();
       }
+    });
+    this.$btnSound.on('click', (evt) => {
+      this.$btnSound.toggleClass('is-sound-on');
+      let isSoundOn = this.$btnSound.hasClass('is-sound-on');
+      
+      this.emit('toggleSound', {
+        isSoundOn: isSoundOn,
+      });
     });
     this.$btnRotateVertical.on('click', (evt) => {
       this.controller.rotateBlockVertical();

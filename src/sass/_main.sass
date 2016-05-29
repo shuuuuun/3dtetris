@@ -81,6 +81,21 @@
     span
       display: none
 
+.game__controller__btn--sound
+  $size: 48px
+  @extend %game__controller__btn
+  button
+    width: $size
+    height: $size
+    border-radius: $size
+    border: solid 6px #fff
+    &:before
+      content: '\f026'
+      font-size: 200%
+  button.is-sound-on
+    &:before
+      content: '\f028'
+
 .game__controller__btn--howto
   @extend %game__controller__btn
   button
