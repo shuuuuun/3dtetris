@@ -32,7 +32,7 @@ export default class SoundController {
     }
     
     play() {
-        if (this.isMute) return this;
+        if (this.audio.muted) return this;
         this.audio.play();
         return this;
     }
@@ -51,16 +51,14 @@ export default class SoundController {
     }
     
     mute() {
-        this.isMute = true;
         this.audio.muted = true;
-        this.setCookie(this.isMute);
+        this.setCookie(this.audio.muted);
         return this;
     }
     
     unmute() {
-        this.isMute = false;
         this.audio.muted = false;
-        this.setCookie(this.isMute);
+        this.setCookie(this.audio.muted);
         return this;
     }
     
@@ -79,7 +77,7 @@ export default class SoundController {
     }
     
     playSE(key) {
-        if (this.isMute) return this;
+        if (this.audio.muted) return this;
         // if (Const.IS_TOUCH) return this;
         
         let se = this.SE[key];
