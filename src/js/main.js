@@ -16,6 +16,7 @@ const sound = new SoundController({
   COOKIE_NAME: 'TETRICUS-isMute',
 });
 
+
 // event
 tetris3dController.on('startGame', () => {
   sound.play();
@@ -25,7 +26,9 @@ tetris3dUI.on('toggleSound', (evt) => {
   sound.togglePlay(evt.isSoundOn);
 });
 
+
 // start
+tetris3dUI.toggleBtnSound(!sound.audio.muted);
 tetris3dUI.showStartModal();
 tetris3dController.isAutoMode = true;
 tetris3dController.newGame();

@@ -51,7 +51,7 @@ export default class Tetris3dUI extends EventEmitter2 {
       }
     });
     this.$btnSound.on('click', (evt) => {
-      this.$btnSound.toggleClass('is-sound-on');
+      this.toggleBtnSound();
       let isSoundOn = this.$btnSound.hasClass('is-sound-on');
       
       this.emit('toggleSound', {
@@ -167,5 +167,9 @@ export default class Tetris3dUI extends EventEmitter2 {
   
   isModalShown() {
     return this.$modals.get().some(modal => $(modal).is(':visible'));
+  }
+  
+  toggleBtnSound(flag) {
+    this.$btnSound.toggleClass('is-sound-on', flag);
   }
 }
