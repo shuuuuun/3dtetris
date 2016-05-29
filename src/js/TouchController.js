@@ -44,6 +44,21 @@ export default class TouchController extends EventEmitter2 {
     let watchTimer;
     let delayTimer;
     
+    const clearWatcher = () => {
+      clearInterval(watchTimer);
+      clearTimeout(delayTimer);
+    };
+    
+    const setWatcher = () => {
+      clearWatcher();
+      delayTimer = setTimeout(() => {
+        watchTimer = setInterval(() => {
+          console.log('touchholding');
+          this.emit('touchholding', this);
+        }, this.watchInterval);
+      }, this.holdingDelay);
+    };
+    
     this.onTouchStart = (evt) => {
       evt.preventDefault(); // enablePreventDefault
       evt.stopPropagation(); // enableStopPropagation
@@ -56,16 +71,7 @@ export default class TouchController extends EventEmitter2 {
       this.touchStartX = (this.touchSupport) ? evt.touches[0].pageX : evt.pageX;
       this.touchStartY = (this.touchSupport) ? evt.touches[0].pageY : evt.pageY;
       
-      // TODO: watchまわりもうちょっとうまく書きたい
-      setTimeout(() => {
-        clearInterval(watchTimer);
-        watchTimer = setInterval(() => {
-          if (!this.isTouchMoving) {
-            console.log('touchholding');
-            this.emit('touchholding', this);
-          }
-        }, this.watchInterval);
-      }, this.holdingDelay);
+      setWatcher();
       
       this.emit('touchstart', {
         'touchStartTime': this.touchStartTime,
@@ -78,12 +84,8 @@ export default class TouchController extends EventEmitter2 {
     
     this.onTouchMove = (evt) => {
       if (!this.isDragging) return;
-      this.isTouchMoving = true;
       
-      clearTimeout(delayTimer);
-      delayTimer = setTimeout(() => {
-        this.isTouchMoving = false;
-      }, this.holdingDelay);
+      clearWatcher();
       
       this.lasttouchX = this.touchX || this.touchStartX;
       this.lasttouchY = this.touchY || this.touchStartY;
@@ -96,6 +98,8 @@ export default class TouchController extends EventEmitter2 {
       this.moveY  = this.touchY - this.touchStartY;
       
       this.isTap = this.isDoubleTap = false;
+      
+      setWatcher();
       
       this.emit('touchmove', {
         'lasttouchX': this.lasttouchX,
@@ -114,8 +118,8 @@ export default class TouchController extends EventEmitter2 {
     
     this.onTouchEnd = (evt) => {
       this.isDragging = false;
-      this.isTouchMoving = false;
-      clearInterval(watchTimer);
+      
+      clearWatcher();
       
       this.elapsedTime = Date.now() - this.touchStartTime;
       this.touchEndX = this.touchX;
