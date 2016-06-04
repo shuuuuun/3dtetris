@@ -14,9 +14,8 @@ export default class TetricusView {
     this.isAutoRotate = false;
     this.CONTAINER_ID = 'js-game-view';
     this.ZERO_VECTOR = new THREE.Vector3(0,0,0);
-    this.CAMERA_DISTANCE_DEFAULT = 1500;
     this.CENTER_VECTOR = new THREE.Vector3(CONST.CENTER_X, CONST.CENTER_Y, CONST.CENTER_Z);
-    this.CAMERA_POSITION = new THREE.Vector3(CONST.CENTER_X, -100, this.CAMERA_DISTANCE_DEFAULT);
+    this.CAMERA_POSITION = new THREE.Vector3(CONST.CENTER_X, -100, CONST.CAMERA_DISTANCE_DEFAULT);
     this.CAMERA_NEAR = 1;
     this.CAMERA_FAR = 100000;
     this.VIEW_BLOCK_LIST = CONST.BLOCK_LIST.concat([CONST.SHADOW_BLOCK, CONST.CLEARLINE_BLOCK, CONST.GAMEOVER_BLOCK]);
@@ -146,11 +145,11 @@ export default class TetricusView {
     switch (code) {
       case 'ortho1':
         this.camera = this.orthocamera;
-        this.camera.position.set(CONST.CENTER_X, CONST.CENTER_Y, this.CAMERA_DISTANCE_DEFAULT);
+        this.camera.position.set(CONST.CENTER_X, CONST.CENTER_Y, CONST.CAMERA_DISTANCE_DEFAULT);
         break;
       case 'ortho2':
         this.camera = this.orthocamera;
-        this.camera.position.set(this.CAMERA_DISTANCE_DEFAULT, CONST.CENTER_Y, CONST.CENTER_Z);
+        this.camera.position.set(CONST.CAMERA_DISTANCE_DEFAULT, CONST.CENTER_Y, CONST.CENTER_Z);
         break;
       case 'ortho3':
         this.camera = this.orthocamera;
