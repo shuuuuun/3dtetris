@@ -36,8 +36,8 @@ class TetricusCONST {
     this.STICK_WEIGHT = 850;
     this.STICK_CONTROLL_THROTTLE = 50;
     
-    this.CAMERA_HEIGHT_DEFAULT = 100;
-    this.CAMERA_DISTANCE_DEFAULT = 1500;
+    this.CAMERA_HEIGHT_DEFAULT = 300;
+    this.CAMERA_DISTANCE_DEFAULT = 1400;
     
     this.SHADOW_BLOCK = {
       id: 8,
