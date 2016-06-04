@@ -1,13 +1,13 @@
 class TetricusCONST {
   constructor() {
-    this.COLS = 9; // x, z field size
-    this.ROWS = 13; // y field size
+    this.COLS = 7; // x, z field size
+    this.ROWS = 9; // y field size
     // this.FIELD_SIZE = 10; // this.COLS
     
     // NUMBER_OF_BLOCK = 4;
     // NUMBER_OF_VOXEL = 4; // number of voxel in a block
     this.VOXEL_LENGTH = 4; // voxel length in a block
-    this.VOXEL_SIZE = 45; // (px)
+    this.VOXEL_SIZE = 55; // (px)
     
     this.START_X = Math.floor((this.COLS - this.VOXEL_LENGTH) / 2);
     this.START_Y = 0;
