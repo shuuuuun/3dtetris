@@ -10,6 +10,7 @@
     "eventemitter2": "~0.4.14",
     "tween.js": "tweenjs#^16.3.4",
     "slick-carousel": "^1.6.0",
-    "js-cookie": "2.1.0"
+    "js-cookie": "2.1.0",
+    "howler.js": "^1.1.29"
   }
 }
