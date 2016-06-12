@@ -29,7 +29,7 @@
   <body>
     <div class="wrapper">
       <div class="game-container">
-        <div id="js-game-view" class="game__view"></div>
+        <div class="game__view" id="js-game-view"></div>
         <div class="game__controller js-game-controller">
           <div class="game__controller__info">
             <p class="game__controller__info__lv">Lv. <span class="js-info-level">1</span></p>
@@ -38,13 +38,13 @@
           </div>
           <div class="game__controller__btns--top-right">
             <div class="game__controller__btn--sound">
-              <button type="button" class="js-btn-sound is-sound-on"><span>sound on/off</span></button>
+              <button class="js-btn-sound is-sound-on" type="button"><span>sound on/off</span></button>
             </div>
             <div class="game__controller__btn--howto">
-              <button type="button" class="js-btn-to-howto"><span>howto</span></button>
+              <button class="js-btn-to-howto" type="button"><span>howto</span></button>
             </div>
             <div class="game__controller__btn--pause">
-              <button type="button" class="js-btn-pause"><span>pause</span></button>
+              <button class="js-btn-pause" type="button"><span>pause</span></button>
             </div>
           </div>
           <div class="game__controller__stick js-stick-container">
@@ -54,10 +54,10 @@
           </div>
           <div class="game__controller__btns--right-bottom">
             <div class="game__controller__btn--rotate-vertical">
-              <button type="button" class="js-btn-rotate-vertical"><span>↑</span></button>
+              <button class="js-btn-rotate-vertical" type="button"><span>↑</span></button>
             </div>
             <div class="game__controller__btn--rotate-horizontal">
-              <button type="button" class="js-btn-rotate-horizontal"><span>→</span></button>
+              <button class="js-btn-rotate-horizontal" type="button"><span>→</span></button>
             </div>
           </div>
         </div>
@@ -69,7 +69,7 @@
             <div class="modal__content__inner">
               <h2 class="modal__title">PAUSE</h2>
               <p class="modal__button">
-                <button type="button" class="js-btn-modal-close js-btn-resume">Tap to Resume</button>
+                <button class="js-btn-modal-close js-btn-resume" type="button">Tap to Resume</button>
               </p>
             </div>
           </div>
@@ -95,7 +95,7 @@
 
               </h2>
               <p class="modal__button">
-                <button type="button" class="js-btn-modal-close js-btn-start">Tap to Start</button>
+                <button class="js-btn-modal-close js-btn-start" type="button">Tap to Start</button>
               </p>
             </div>
           </div>
@@ -103,7 +103,7 @@
       </div>
       <div class="howto-container modal js-modal-howto">
         <div class="modal__inner">
-          <div data-slide-index="0" class="modal__bg--howto"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6000 6000">
+          <div class="modal__bg--howto" data-slide-index="0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6000 6000">
   <path class="arround" d="M3000,2730c149.11682,0,270,120.88318,270,270s-120.88318,270-270,270-270-120.88306-270-270S2850.88318,2730,3000,2730ZM6000,0H0V6000H6000V0Z" />
   <path class="circle" d="M3000,2730c149.11682,0,270,120.88318,270,270s-120.88318,270-270,270-270-120.88306-270-270S2850.88318,2730,3000,2730Z" />
 </svg>
@@ -133,7 +133,7 @@
       </div>
       <div class="howto-container modal js-modal-howto-second">
         <div class="modal__inner">
-          <div data-slide-index="1" class="modal__bg--howto"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6000 6000">
+          <div class="modal__bg--howto" data-slide-index="1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6000 6000">
   <path class="arround" d="M3000,2730c149.11682,0,270,120.88318,270,270s-120.88318,270-270,270-270-120.88306-270-270S2850.88318,2730,3000,2730ZM6000,0H0V6000H6000V0Z" />
   <path class="circle" d="M3000,2730c149.11682,0,270,120.88318,270,270s-120.88318,270-270,270-270-120.88306-270-270S2850.88318,2730,3000,2730Z" />
 </svg>
@@ -163,7 +163,7 @@
       </div>
       <div class="howto-container modal js-modal-howto-third">
         <div class="modal__inner">
-          <div data-slide-index="2" class="modal__bg--howto"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6000 6000">
+          <div class="modal__bg--howto" data-slide-index="2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6000 6000">
   <path class="arround" d="M3000,2730c149.11682,0,270,120.88318,270,270s-120.88318,270-270,270-270-120.88306-270-270S2850.88318,2730,3000,2730ZM6000,0H0V6000H6000V0Z" />
   <path class="circle" d="M3000,2730c149.11682,0,270,120.88318,270,270s-120.88318,270-270,270-270-120.88306-270-270S2850.88318,2730,3000,2730Z" />
 </svg>
@@ -202,7 +202,7 @@
                 <p class="modal__text__lines">lines <span class="js-info-lines">0000</span></p>
               </div>
               <p class="modal__button">
-                <button type="button" class="js-btn-modal-close js-btn-start">Tap to Restart</button>
+                <button class="js-btn-modal-close js-btn-start" type="button">Tap to Restart</button>
               </p>
             </div>
           </div>
