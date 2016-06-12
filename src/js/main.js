@@ -24,6 +24,8 @@ const sound = new SoundController({
 
 // event
 tetricusController.on('startGame', () => {
+  // TODO: startGameでなくUIのクリックイベントにしたほうがいいかも
+  // ただ、それでpcはautoplayを使おうとすると意図せぬ挙動になる
   sound.play();
 });
 tetricusUI.on('toggleSound', (evt) => {

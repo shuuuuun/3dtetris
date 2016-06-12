@@ -14,6 +14,10 @@ export default class SoundController {
         this.toggleMute(this.isMute);
         
         this.sound = new Howl(opts.howl);
+        // TODO: iosのサイレントモードに対応したい
+        // TODO: 複数音源にちゃんと対応したい
+        // TODO: fadeOut使ってもいいかも
+        // TODO: 非アクティブの判定をblur以外も検討してみる
         
         this.initListeners();
     }
