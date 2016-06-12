@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+import { Howl } from 'howler.js';
 
 export default class SoundController {
     constructor(opts = {}) {
@@ -7,10 +8,12 @@ export default class SoundController {
         this.EXPIRES_DATE = opts.EXPIRES_DATE;
         this.disableBlurPause = !!opts.disableBlurPause;
         
-        this.audio = new Audio(opts.src);
-        this.audio.volume = 0.2;
-        this.audio.loop = !opts.disableLoop;
-        this.audio.muted = this.getCookie();
+        this.isMute = this.getCookie();
+        this.isPaused = false;
+        this.isPlayng = false;
+        this.toggleMute(this.isMute);
+        
+        this.sound = new Howl(opts.howl);
         
         this.initListeners();
     }
@@ -26,33 +29,37 @@ export default class SoundController {
     }
     
     play() {
-        if (this.audio.muted) return this;
-        this.audio.play();
+        if (this.isMute || this.isPlayng) return this;
+        this.isPaused = false;
+        this.isPlayng = true;
+        this.sound.play();
         return this;
     }
     
     pause() {
-        this.audio.pause();
+        this.isPaused = true;
+        this.isPlayng = false;
+        this.sound.pause();
         return this;
     }
     
     togglePlay(flag) {
         if (flag === undefined) {
-            flag = !this.audio.paused;
+            flag = !this.isPaused;
         }
         flag ? this.play() : this.pause();
         return this;
     }
     
     mute() {
-        this.audio.muted = true;
-        this.setCookie(this.audio.muted);
+        this.isMute = true;
+        this.setCookie(this.isMute);
         return this;
     }
     
     unmute() {
-        this.audio.muted = false;
-        this.setCookie(this.audio.muted);
+        this.isMute = false;
+        this.setCookie(this.isMute);
         return this;
     }
     
