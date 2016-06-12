@@ -11,11 +11,11 @@ const CONFIG_PATH = './config/';
 const DEST_HTML = DEST_PATH;
 const DEST_CSS = `${DEST_PATH}css/`;
 const DEST_JS = `${DEST_PATH}js/`;
-const SRC_JADE = `${SRC_PATH}jade/`;
+const SRC_PUG = `${SRC_PATH}pug/`;
 const SRC_SASS = `${SRC_PATH}sass/`;
 const SRC_JS = `${SRC_PATH}js/`;
 const GLOB_UNBUILD = '!' + `${SRC_PATH}**/_**`;
-const GLOB_JADE = `${SRC_JADE}**/*.jade`;
+const GLOB_PUG = `${SRC_PUG}**/*.pug`;
 const GLOB_SASS = `${SRC_SASS}**/*.sass`;
 const GLOB_SCSS = `${SRC_SASS}**/*.scss`;
 const GLOB_JS = `${SRC_JS}**/*.js`;
@@ -35,7 +35,7 @@ import gulp from 'gulp';
 import plumber from 'gulp-plumber';
 import sass from 'gulp-sass';
 import pleeease from 'gulp-pleeease';
-import jade from 'gulp-jade';
+import pug from 'gulp-pug';
 import watch from 'gulp-watch';
 import webserver from 'gulp-webserver';
 import uglify from 'gulp-uglify';
@@ -54,13 +54,13 @@ import eslint from 'gulp-eslint';
 // tasks
 gulp.task('default',['build', 'server', 'watch']);
 gulp.task('build', ['html', 'css', 'js']);
-gulp.task('html', ['jade']);
+gulp.task('html', ['pug']);
 gulp.task('css', ['sass']);
 gulp.task('js', ['lint', 'browserify', 'js-copy']);
 
 gulp.task('watch', () => {
-  watch(GLOB_JADE, () => {
-    gulp.start('jade');
+  watch(GLOB_PUG, () => {
+    gulp.start('pug');
   });
   watch(GLOB_JS, () => {
     gulp.start('js');
@@ -81,18 +81,18 @@ gulp.task('server', () => {
   );
 });
 
-gulp.task('jade', () => {
-  gulp.src([GLOB_JADE, GLOB_UNBUILD])
+gulp.task('pug', () => {
+  gulp.src([GLOB_PUG, GLOB_UNBUILD])
     .pipe(plumber({ errorHandler: notify.onError('<%= error.message %>') }))
-    .pipe(jade({
+    .pipe(pug({
       locals: config.site,
       pretty: true
     }))
     .pipe(rename((path) => {
-      // ex. hoge.jade -> hoge.html
-      // ex. hoge__.jade -> hoge/index.html
-      // ex. hoge__fuga.jade -> hoge/fuga.html
-      // ex. hoge__fuga__.jade -> hoge/fuga/index.html
+      // ex. hoge.pug -> hoge.html
+      // ex. hoge__.pug -> hoge/index.html
+      // ex. hoge__fuga.pug -> hoge/fuga.html
+      // ex. hoge__fuga__.pug -> hoge/fuga/index.html
       if (!!path.basename.match(/__$/)) {
         path.dirname += '/' + path.basename.replace(/__/g, '/');
         path.basename = 'index';
