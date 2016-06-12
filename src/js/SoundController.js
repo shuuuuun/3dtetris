@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { Howl } from 'howler.js';
+import { Howl } from 'howler';
 
 export default class SoundController {
     constructor(opts = {}) {

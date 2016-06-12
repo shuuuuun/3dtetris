@@ -42,7 +42,6 @@ import uglify from 'gulp-uglify';
 import gutil from 'gulp-util';
 import rename from 'gulp-rename';
 import browserify from 'browserify';
-import debowerify from 'debowerify';
 import source from 'vinyl-source-stream';
 import buffer from 'vinyl-buffer';
 import babelify from 'babelify';
@@ -129,7 +128,6 @@ gulp.task('browserify', () => {
     entries: config.browserify.entries,
   })
   .transform(babelify)
-  .transform(debowerify)
   .bundle()
   .on('error', notify.onError('<%= error.message %>'))
   .pipe(source(config.browserify.dest))
