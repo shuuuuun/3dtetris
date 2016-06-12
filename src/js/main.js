@@ -14,11 +14,18 @@ const tetricusUI = new TetricusUI(tetricusController);
 const sound = new SoundController({
   src: './audio/bgm.mp3',
   COOKIE_NAME: 'TETRICUS-isMute',
+  howl: {
+    urls: ['./audio/bgm.mp3'],
+    loop: true,
+    volume: 0.2,
+  },
 });
 
 
 // event
 tetricusController.on('startGame', () => {
+  // TODO: startGameでなくUIのクリックイベントにしたほうがいいかも
+  // ただ、それでpcはautoplayを使おうとすると意図せぬ挙動になる
   sound.play();
 });
 tetricusUI.on('toggleSound', (evt) => {
@@ -28,7 +35,7 @@ tetricusUI.on('toggleSound', (evt) => {
 
 
 // start
-tetricusUI.toggleBtnSound(!sound.audio.muted);
+tetricusUI.toggleBtnSound(!sound.isMute);
 tetricusUI.showStartModal();
 tetricusController.isAutoMode = true;
 tetricusController.newGame();
