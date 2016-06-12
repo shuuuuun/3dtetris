@@ -6,7 +6,7 @@ title=title
 if meta_description
   meta(name="description" content=meta_description)
 if meta_keywords
-  meta(name="keywords" content=meta_keywords)
+  meta(name="keywords" content=meta_keywords.join(","))
 
 //- IEで「互換モード」で表示されるのを防ぐための指定
 meta(http-equiv="X-UA-Compatible", content="IE=Edge")
