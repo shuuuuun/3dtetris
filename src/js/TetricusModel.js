@@ -22,6 +22,7 @@ export default class TetricusModel extends EventEmitter2 {
     this.lose = false;
     this.tickInterval = CONST.TICK_INTERVAL;
     this.sumOfClearLines = 0;
+    this.level = 1;
     this.score = 0;
     this.frameCount = 0;
     this.initBoad();
@@ -201,14 +202,30 @@ export default class TetricusModel extends EventEmitter2 {
         
         this.sumOfClearLines += clearLineLength;
         
-        // 消去列ぶん速度を上げる
-        this.tickInterval -= CONST.SPEEDUP_RATE * clearLineLength;
-        
-        // calc score
-        this.score += (clearLineLength <= 1) ? clearLineLength : Math.pow(2, clearLineLength);
+        this.levelUp();
+        this.setSpeed();
+        this.calcScore(clearLineLength);
         
         if (clearLineLength > 0) this.emit('clearline');
       });
+  }
+  
+  levelUp() {
+    let goalLines = 0;
+    for (let i = 0; i < this.level; i++) {
+      goalLines += CONST.GOAL_LINES_RATE * (i + 1);
+    }
+    if (this.sumOfClearLines > goalLines) {
+      ++this.level;
+    }
+  }
+  
+  setSpeed(level = this.level) {
+    this.tickInterval = CONST.TICK_INTERVAL - CONST.SPEEDUP_RATE * (level - 1);
+  }
+  
+  calcScore(lines = 0) {
+    this.score += (lines <= 1) ? lines : Math.pow(2, lines);
   }
   
   dropRow(filledRowList) {
