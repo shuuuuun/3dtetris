@@ -39,6 +39,8 @@ class TetricusCONST {
     this.CAMERA_HEIGHT_DEFAULT = 300;
     this.CAMERA_DISTANCE_DEFAULT = 1400;
     
+    this.GOAL_LINES_RATE = 5;
+    
     this.SHADOW_BLOCK = {
       id: 8,
       color: '#000',
