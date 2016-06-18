@@ -215,7 +215,7 @@ export default class TetricusModel extends EventEmitter2 {
     for (let i = 0; i < this.level; i++) {
       goalLines += CONST.GOAL_LINES_RATE * (i + 1);
     }
-    if (this.sumOfClearLines > goalLines) {
+    if (this.sumOfClearLines >= goalLines) {
       ++this.level;
     }
   }
