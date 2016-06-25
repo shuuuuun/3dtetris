@@ -8,7 +8,6 @@ html(lang="ja")
     link(rel="stylesheet" href="./css/app.css")
     script(src="//ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js")
     script(src="//cdnjs.cloudflare.com/ajax/libs/three.js/r75/three.min.js")
-    script(src="//cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.js")
     
     include partials/_ga
     
@@ -63,77 +62,35 @@ html(lang="ja")
               include ../svg/logo.svg
             p.modal__button
               button.js-btn-modal-close.js-btn-start(type="button") Tap to Start
-      //- TODO: ↓
-      //- div.howto-container.modal.js-modal-howto
+
+      div.howto-container.modal.js-modal-howto(data-slide-index="0")
         div.modal__inner
-          div.modal__bg--howto.js-bg-howto
+          div.modal__bg--howto
             include ../svg/bg_circle.svg
           div.modal__content
             div.modal__content__inner
               h2.modal__title How to play
-              div.modal__slick-dots.js-slick-dots
-              div.js-slick-howto
+              ul.modal__slide-dots.js-slide-dots
+                li.is-active
+                li
+                li
+              div.js-slide-howto
                 div
-                  p.modal__text
+                  p.howto__pointer
+                    img(src="./img/pointer.png" width="123px")
+                  p.modal__text--howto
                     | Flick to <br>Move the block
-                  //- p.modal__button
-                    button.js-btn-to-back(type="button") Back
                 div
-                  p.modal__text 
+                  p.howto__pointer--second
+                    img(src="./img/pointer_2.png" width="103px")
+                  p.modal__text--howto-second 
                     | Flick <br>Camera Stick
-                  //- p.modal__button
-                    button.js-btn-to-back(type="button") Back
                 div
-                  p.modal__text 
-                    | Tap to <br>Roll the block
+                  p.modal__text--howto-third 
+                    | Tap to <br>Rotate the block
                   //- p.modal__button
                     button.js-btn-to-back(type="button") Back
-      div.howto-container.modal.js-modal-howto
-        div.modal__inner
-          div.modal__bg--howto(data-slide-index="0")
-            include ../svg/bg_circle.svg
-          div.modal__content
-            div.modal__content__inner
-              h2.modal__title How to play
-              div.modal__slick-dots
-                ul.slick-dots
-                  li.slick-active: button(type="button")
-                  li: button(type="button")
-                  li: button(type="button")
-              p.howto__pointer
-                img(src="./img/pointer.png" width="123px")
-              p.modal__text--howto
-                | Flick to <br>Move the block
-      div.howto-container.modal.js-modal-howto-second
-        div.modal__inner
-          div.modal__bg--howto(data-slide-index="1")
-            include ../svg/bg_circle.svg
-          div.modal__content
-            div.modal__content__inner
-              h2.modal__title How to play
-              div.modal__slick-dots
-                ul.slick-dots
-                  li: button(type="button")
-                  li.slick-active: button(type="button")
-                  li: button(type="button")
-              p.howto__pointer--second
-                img(src="./img/pointer_2.png" width="103px")
-              p.modal__text--howto-second
-                | Flick <br>Camera Stick
-      div.howto-container.modal.js-modal-howto-third
-        div.modal__inner
-          div.modal__bg--howto(data-slide-index="2")
-            include ../svg/bg_circle.svg
-          div.modal__content
-            div.modal__content__inner
-              h2.modal__title How to play
-              div.modal__slick-dots
-                ul.slick-dots
-                  li: button(type="button")
-                  li: button(type="button")
-                  li.slick-active: button(type="button")
-              p.modal__text--howto-third
-                | Tap to <br>Rotate the block
+
       div.result-container.modal.js-modal-result
         div.modal__inner
           div.modal__bg
