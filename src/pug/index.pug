@@ -52,7 +52,7 @@ html(lang="ja")
           div.modal__content: div.modal__content__inner
             h2.modal__title PAUSE
             p.modal__button
-              button.js-btn-modal-close.js-btn-resume(type="button") Tap to Resume
+              span.js-btn-modal-close.js-btn-resume Tap to Resume
       div.start-container.modal.js-modal-start
         div.modal__inner
           div.modal__bg
@@ -61,7 +61,9 @@ html(lang="ja")
               span Tetricus
               include ../svg/logo.svg
             p.modal__button
-              button.js-btn-modal-close.js-btn-start(type="button") Tap to Start
+              span.js-btn-modal-close.js-btn-start Tap to Start
+            p.modal__button
+              button.js-btn-to-howto(type="button") Tutorial
 
       div.howto-container.modal.js-modal-howto(data-slide-index="0")
         div.modal__inner
@@ -107,7 +109,7 @@ html(lang="ja")
                 | lines 
                 span.js-info-lines 0000
             p.modal__button
-              button.js-btn-modal-close.js-btn-start(type="button") Tap to Restart
+              span.js-btn-modal-close.js-btn-start Tap to Restart
       div.splash-container
     
     script(src="./js/script.js")
