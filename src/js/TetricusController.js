@@ -36,6 +36,7 @@ export default class TetricusController extends EventEmitter2 {
     });
     
     this.isAutoMode = false;
+    this.isTutorialMode = false;
     this.isPlayngGame = false;
     this.isPausingGame = false;
     
@@ -73,6 +74,13 @@ export default class TetricusController extends EventEmitter2 {
     this.emit('resumeGame');
   }
   
+  setTutorialMode() {
+    this.isTutorialMode = true;
+    this.isAutoMode = false;
+    this.view.isAutoRotate = false;
+    this.view.setCamera(); // reset camera
+  }
+  
   setModelEvent() {
     this.model.on('gamestart', () => {
       this.view.isAutoRotate = this.isAutoMode;
@@ -87,7 +95,7 @@ export default class TetricusController extends EventEmitter2 {
     });
     this.model.on('nextblockcreated', () => {});
     this.model.on('gameover', () => {
-      if (this.isAutoMode) {
+      if (this.isAutoMode || this.isTutorialMode) {
         this.newGame();
       }
       else {
@@ -209,7 +217,7 @@ export default class TetricusController extends EventEmitter2 {
     $(window).on('blur', () => {
         this.pauseGame();
     }).on('focus', () => {
-      if (this.isAutoMode) {
+      if (this.isAutoMode || this.isTutorialMode) {
         this.resumeGame();
       }
     });

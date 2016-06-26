@@ -78,6 +78,7 @@ export default class TetricusUI extends EventEmitter2 {
       this.$modals.hide();
       this.$modalHowto.show();
       if (this.controller.isAutoMode) {
+        this.controller.setTutorialMode();
         return;
       }
       if (this.controller.isPlayngGame) {
@@ -104,7 +105,7 @@ export default class TetricusUI extends EventEmitter2 {
       this.$modalPause.show();
     });
     this.controller.on('resumeGame', () => {
-      if (this.controller.isAutoMode) {
+      if (this.controller.isAutoMode || this.controller.isTutorialMode) {
         return;
       }
       this.$modals.hide();
