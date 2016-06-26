@@ -77,8 +77,10 @@ export default class TetricusUI extends EventEmitter2 {
     this.$btnToHowto.on('click', (evt) => {
       this.$modals.hide();
       this.$modalHowto.show();
+      this.$modalHowto.removeClass('is-touch-none');
       if (this.controller.isAutoMode) {
         this.controller.setTutorialMode();
+        this.$modalHowto.addClass('is-touch-none');
         return;
       }
       if (this.controller.isPlayngGame) {
