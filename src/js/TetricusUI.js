@@ -132,7 +132,12 @@ export default class TetricusUI extends EventEmitter2 {
       if (index >= length) {
         index = 0;
         this.$modals.hide();
-        this.controller.resumeGame();
+        if (!this.controller.isPausingGame) {
+          this.$modalStart.show();
+        }
+        else {
+          this.controller.resumeGame();
+        }
       }
       $items.hide().eq(index).show();
       $dots.removeClass(ACTIVE_CLASSNAME).eq(index).addClass(ACTIVE_CLASSNAME);
