@@ -15,7 +15,6 @@
     <link rel="stylesheet" href="./css/app.css">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/three.js/r75/three.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.js"></script>
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -68,9 +67,7 @@
           <div class="modal__content">
             <div class="modal__content__inner">
               <h2 class="modal__title">PAUSE</h2>
-              <p class="modal__button">
-                <button class="js-btn-modal-close js-btn-resume" type="button">Tap to Resume</button>
-              </p>
+              <p class="modal__button"><span class="js-btn-modal-close js-btn-resume">Tap to Resume</span></p>
             </div>
           </div>
         </div>
@@ -94,16 +91,17 @@
 </svg>
 
               </h2>
+              <p class="modal__button"><span class="js-btn-modal-close js-btn-start">Tap to Start</span></p>
               <p class="modal__button">
-                <button class="js-btn-modal-close js-btn-start" type="button">Tap to Start</button>
+                <button class="js-btn-to-howto" type="button">Tutorial</button>
               </p>
             </div>
           </div>
         </div>
       </div>
-      <div class="howto-container modal js-modal-howto">
+      <div class="howto-container modal js-modal-howto" data-slide-index="0">
         <div class="modal__inner">
-          <div class="modal__bg--howto" data-slide-index="0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6000 6000">
+          <div class="modal__bg--howto"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6000 6000">
   <path class="arround" d="M3000,2730c149.11682,0,270,120.88318,270,270s-120.88318,270-270,270-270-120.88306-270-270S2850.88318,2730,3000,2730ZM6000,0H0V6000H6000V0Z" />
   <path class="circle" d="M3000,2730c149.11682,0,270,120.88318,270,270s-120.88318,270-270,270-270-120.88306-270-270S2850.88318,2730,3000,2730Z" />
 </svg>
@@ -112,80 +110,26 @@
           <div class="modal__content">
             <div class="modal__content__inner">
               <h2 class="modal__title">How to play</h2>
-              <div class="modal__slick-dots">
-                <ul class="slick-dots">
-                  <li class="slick-active">
-                    <button type="button"></button>
-                  </li>
-                  <li>
-                    <button type="button"></button>
-                  </li>
-                  <li>
-                    <button type="button"></button>
-                  </li>
-                </ul>
+              <ul class="modal__slide-dots js-slide-dots">
+                <li class="is-active"></li>
+                <li></li>
+                <li></li>
+              </ul>
+              <div class="js-slide-howto">
+                <div>
+                  <p class="howto__pointer"><img src="./img/pointer.png" width="123px"></p>
+                  <p class="modal__text--howto">Flick to <br>Move the block</p>
+                </div>
+                <div>
+                  <p class="howto__pointer--second"><img src="./img/pointer_2.png" width="103px"></p>
+                  <p class="modal__text--howto-second">
+                     Flick <br>Camera Stick</p>
+                </div>
+                <div>
+                  <p class="modal__text--howto-third">
+                     Tap to <br>Rotate the block</p>
+                </div>
               </div>
-              <p class="howto__pointer"><img src="./img/pointer.png" width="123px"></p>
-              <p class="modal__text--howto">Flick to <br>Move the block</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="howto-container modal js-modal-howto-second">
-        <div class="modal__inner">
-          <div class="modal__bg--howto" data-slide-index="1"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6000 6000">
-  <path class="arround" d="M3000,2730c149.11682,0,270,120.88318,270,270s-120.88318,270-270,270-270-120.88306-270-270S2850.88318,2730,3000,2730ZM6000,0H0V6000H6000V0Z" />
-  <path class="circle" d="M3000,2730c149.11682,0,270,120.88318,270,270s-120.88318,270-270,270-270-120.88306-270-270S2850.88318,2730,3000,2730Z" />
-</svg>
-
-          </div>
-          <div class="modal__content">
-            <div class="modal__content__inner">
-              <h2 class="modal__title">How to play</h2>
-              <div class="modal__slick-dots">
-                <ul class="slick-dots">
-                  <li>
-                    <button type="button"></button>
-                  </li>
-                  <li class="slick-active">
-                    <button type="button"></button>
-                  </li>
-                  <li>
-                    <button type="button"></button>
-                  </li>
-                </ul>
-              </div>
-              <p class="howto__pointer--second"><img src="./img/pointer_2.png" width="103px"></p>
-              <p class="modal__text--howto-second">Flick <br>Camera Stick</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="howto-container modal js-modal-howto-third">
-        <div class="modal__inner">
-          <div class="modal__bg--howto" data-slide-index="2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 6000 6000">
-  <path class="arround" d="M3000,2730c149.11682,0,270,120.88318,270,270s-120.88318,270-270,270-270-120.88306-270-270S2850.88318,2730,3000,2730ZM6000,0H0V6000H6000V0Z" />
-  <path class="circle" d="M3000,2730c149.11682,0,270,120.88318,270,270s-120.88318,270-270,270-270-120.88306-270-270S2850.88318,2730,3000,2730Z" />
-</svg>
-
-          </div>
-          <div class="modal__content">
-            <div class="modal__content__inner">
-              <h2 class="modal__title">How to play</h2>
-              <div class="modal__slick-dots">
-                <ul class="slick-dots">
-                  <li>
-                    <button type="button"></button>
-                  </li>
-                  <li>
-                    <button type="button"></button>
-                  </li>
-                  <li class="slick-active">
-                    <button type="button"></button>
-                  </li>
-                </ul>
-              </div>
-              <p class="modal__text--howto-third">Tap to <br>Rotate the block</p>
             </div>
           </div>
         </div>
@@ -201,9 +145,7 @@
                 <p class="modal__text__score">score <span class="js-info-score">0000</span></p>
                 <p class="modal__text__lines">lines <span class="js-info-lines">0000</span></p>
               </div>
-              <p class="modal__button">
-                <button class="js-btn-modal-close js-btn-start" type="button">Tap to Restart</button>
-              </p>
+              <p class="modal__button"><span class="js-btn-modal-close js-btn-start">Tap to Restart</span></p>
             </div>
           </div>
         </div>
