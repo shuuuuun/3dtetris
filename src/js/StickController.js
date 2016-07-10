@@ -86,6 +86,6 @@ export default class StickController extends EventEmitter2 {
   }
   
   setPosition(target){
-    this.position = target;
+    Object.assign(this.position, target);
   }
 }
