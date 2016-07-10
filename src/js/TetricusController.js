@@ -74,9 +74,15 @@ export default class TetricusController extends EventEmitter2 {
     this.emit('resumeGame');
   }
   
+  setAutoMode() {
+    this.isAutoMode = true;
+    this.isTutorialMode = false;
+    this.view.isAutoRotate = true;
+  }
+  
   setTutorialMode() {
-    this.isTutorialMode = true;
     this.isAutoMode = false;
+    this.isTutorialMode = true;
     this.view.isAutoRotate = false;
     this.view.setCamera(); // reset camera
   }
