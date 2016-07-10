@@ -312,6 +312,7 @@ export default class TetricusController extends EventEmitter2 {
     let touchStartX;
     let touchStartY;
     let isFreeze = false;
+    let isBlockMoved = false;
 
     this.model.on('freeze', () => {
       isFreeze = true;
@@ -329,6 +330,10 @@ export default class TetricusController extends EventEmitter2 {
       // console.log('touchmove', blockMoveX, blockMoveY, isFreeze);
       
       if (isFreeze) return;
+      
+      if (blockMoveX || blockMoveY) {
+        isBlockMoved = true;
+      }
       
       // 1マスずつバリデーション（すり抜け対策）
       while (blockMoveX) {
@@ -353,6 +358,10 @@ export default class TetricusController extends EventEmitter2 {
       if (evt.isTap) {
         this.rotateBlock();
       }
+      this.emit('touchend', {
+        isBlockMoved: isBlockMoved,
+      });
+      isBlockMoved = false;
     });
     this.touch.on('touchholding', (evt) => {
       // TODO: バグありそう

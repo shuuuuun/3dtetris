@@ -129,7 +129,7 @@ export default class TetricusUI extends EventEmitter2 {
     $items.hide().first().show();
     
     // TODO: もうちょいリファクタ
-    this.$modalHowto.on('click', () => {
+    const nextSlide = () => {
       let index = +this.$modalHowto.attr(INDEX_DATANAME);
       ++index;
       if (index >= length) {
@@ -145,6 +145,16 @@ export default class TetricusUI extends EventEmitter2 {
       $items.hide().eq(index).show();
       $dots.removeClass(ACTIVE_CLASSNAME).eq(index).addClass(ACTIVE_CLASSNAME);
       this.$modalHowto.attr(INDEX_DATANAME, index);
+    };
+    
+    this.$modalHowto.on('click', nextSlide);
+    this.controller.on('touchend', (evt) => {
+      if (!this.controller.isTutorialMode) {
+        return;
+      }
+      if (evt.isBlockMoved) {
+        nextSlide();
+      }
     });
   }
   
