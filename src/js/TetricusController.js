@@ -250,7 +250,6 @@ export default class TetricusController extends EventEmitter2 {
     const keyMap = new Map(mapArray);
     
     $(document).on('keydown', (evt) => {
-      // console.log(evt.keyCode);
       if (!this.isPlayngGame) { // プレイ中以外はキー操作無効
         return;
       }
@@ -333,7 +332,6 @@ export default class TetricusController extends EventEmitter2 {
       let moveY = evt.touchY - touchStartY;
       let blockMoveX = (moveX / CONST.VOXEL_SIZE) | 0;
       let blockMoveY = (moveY / CONST.VOXEL_SIZE) | 0;
-      // console.log('touchmove', blockMoveX, blockMoveY, isFreeze);
       
       if (isFreeze) return;
       

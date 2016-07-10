@@ -53,7 +53,6 @@ export default class TouchController extends EventEmitter2 {
       clearWatcher();
       delayTimer = setTimeout(() => {
         watchTimer = setInterval(() => {
-          console.log('touchholding');
           this.emit('touchholding', this);
         }, this.watchInterval);
       }, this.holdingDelay);
