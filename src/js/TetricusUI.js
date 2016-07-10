@@ -21,6 +21,7 @@ export default class TetricusUI extends EventEmitter2 {
     this.$btnToBack = $('.js-btn-to-back');
     this.$btnRotateVertical = $('.js-btn-rotate-vertical');
     this.$btnRotateHorizontal = $('.js-btn-rotate-horizontal');
+    this.$btnRotate = this.$btnRotateVertical.add(this.$btnRotateHorizontal);
     this.$slideHowto = $('.js-slide-howto');
     this.$slideDots = $('.js-slide-dots');
     
@@ -152,7 +153,7 @@ export default class TetricusUI extends EventEmitter2 {
         nextSlide();
       }
     });
-    this.$btnRotateVertical.add(this.$btnRotateHorizontal).on('touchstart', (evt) => {
+    this.$btnRotate.on('touchstart', (evt) => {
       if (!this.controller.isTutorialMode) {
         return;
       }
