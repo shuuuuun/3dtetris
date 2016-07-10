@@ -120,11 +120,11 @@ export default class TetricusUI extends EventEmitter2 {
     const $items = this.$slideHowto.children();
     const $dots = this.$slideDots.children();
     const length = $items.length;
+    let index = +this.$modalHowto.attr(INDEX_DATANAME) || 0;
     $items.hide().first().show();
     
     // TODO: もうちょいリファクタ
     const nextSlide = () => {
-      let index = +this.$modalHowto.attr(INDEX_DATANAME);
       ++index;
       if (index >= length) {
         index = 0;
@@ -140,7 +140,23 @@ export default class TetricusUI extends EventEmitter2 {
       if (!this.controller.isTutorialMode) {
         return;
       }
-      if (evt.isBlockMoved) {
+      if (index === 0 && evt.isBlockMoved) {
+        nextSlide();
+      }
+    });
+    this.controller.on('stickTouchend', (evt) => {
+      if (!this.controller.isTutorialMode) {
+        return;
+      }
+      if (index === 1 && evt.isStickMoved) {
+        nextSlide();
+      }
+    });
+    this.$btnRotateVertical.add(this.$btnRotateHorizontal).on('click', (evt) => {
+      if (!this.controller.isTutorialMode) {
+        return;
+      }
+      if (index === 2) {
         nextSlide();
       }
     });

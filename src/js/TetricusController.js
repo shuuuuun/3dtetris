@@ -376,7 +376,10 @@ export default class TetricusController extends EventEmitter2 {
   }
   
   setStickController() {
+    let isStickMoved = false;
+    
     this.stick.on('moved', Util.throttle((evt) => {
+      isStickMoved = true;
       this.rotateView(evt);
     }, CONST.STICK_CONTROLL_THROTTLE));
     this.stick.on('doubletapped', (evt) => {
@@ -384,6 +387,12 @@ export default class TetricusController extends EventEmitter2 {
     });
     this.stick.on('holding', (evt) => {
       this.rotateView(evt);
+    });
+    this.stick.on('touchend', (evt) => {
+      this.emit('stickTouchend', {
+        isStickMoved: isStickMoved,
+      });
+      isStickMoved = false;
     });
   }
   
