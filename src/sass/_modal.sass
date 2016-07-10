@@ -10,6 +10,9 @@
   //overflow: scroll
   overflow: hidden
   
+  &.is-touch-none
+    pointer-events: none
+  
   button
     +reset-btn-style
 
@@ -26,6 +29,39 @@
   position: absolute
   top: 0
   left: 0
+
+.modal__bg--howto
+  @extend .modal__bg
+  background-color: transparent
+  .arround
+    fill: rgba(#000,0.5)
+  .circle
+    fill: rgba(#fff,0.5)
+  svg
+    $size: 6000px / 2
+    width: $size
+    height: $size
+    position: relative
+    top: 50%
+    margin-top: -$size / 2
+    left: 50%
+    margin-left: -$size / 2
+  [data-slide-index="1"] & svg
+    $size: 6000px / 2 * 0.75
+    width: $size
+    height: $size
+    top: 100%
+    margin-top: -$size / 2 - 70px
+    left: 0
+    margin-left: -$size / 2 + 75px
+  [data-slide-index="2"] & svg
+    $size: 6000px / 2 * 0.75
+    width: $size
+    height: $size
+    top: 100%
+    margin-top: -$size / 2 - 40px
+    left: 100%
+    margin-left: -$size / 2 - 90px
 
 .modal__content
   text-align: center
@@ -60,6 +96,12 @@
   font-size: 2.2rem
   
   button
+    position: relative
+    border: solid 2px #fff
+    border-radius: 30px
+    padding: 7px 10px 3px
+  
+  span
     width: 100%
     height: 100%
     
@@ -92,24 +134,22 @@
     font-size: 2.4rem
     margin-left: 1.0em
 
-.modal__slick-dots
+.modal__slide-dots
   margin-bottom: 30px
+  display: flex
+  justify-content: center
   
-  .slick-dots
-    display: flex
-    justify-content: center
+  li
+    $size: 8px
+    width: $size
+    height: $size
+    border-radius: $size
+    border: solid 1px #fff
+    text-indent: -9999px
+    overflow: hidden
+    margin-right: 8px
+    &:last-child
+      margin-right: 0
     
-    li
-      $size: 8px
-      width: $size
-      height: $size
-      border-radius: $size
-      border: solid 1px #fff
-      text-indent: -9999px
-      overflow: hidden
-      margin-right: 8px
-      &:last-child
-        margin-right: 0
-    
-    .slick-active
+    &.is-active
       background-color: #fff

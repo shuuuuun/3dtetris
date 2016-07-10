@@ -36,6 +36,7 @@ export default class TetricusController extends EventEmitter2 {
     });
     
     this.isAutoMode = false;
+    this.isTutorialMode = false;
     this.isPlayngGame = false;
     this.isPausingGame = false;
     
@@ -73,6 +74,19 @@ export default class TetricusController extends EventEmitter2 {
     this.emit('resumeGame');
   }
   
+  setAutoMode() {
+    this.isAutoMode = true;
+    this.isTutorialMode = false;
+    this.view.isAutoRotate = true;
+  }
+  
+  setTutorialMode() {
+    this.isAutoMode = false;
+    this.isTutorialMode = true;
+    this.view.isAutoRotate = false;
+    this.view.setCamera(); // reset camera
+  }
+  
   setModelEvent() {
     this.model.on('gamestart', () => {
       this.view.isAutoRotate = this.isAutoMode;
@@ -87,7 +101,7 @@ export default class TetricusController extends EventEmitter2 {
     });
     this.model.on('nextblockcreated', () => {});
     this.model.on('gameover', () => {
-      if (this.isAutoMode) {
+      if (this.isAutoMode || this.isTutorialMode) {
         this.newGame();
       }
       else {
@@ -209,7 +223,7 @@ export default class TetricusController extends EventEmitter2 {
     $(window).on('blur', () => {
         this.pauseGame();
     }).on('focus', () => {
-      if (this.isAutoMode) {
+      if (this.isAutoMode || this.isTutorialMode) {
         this.resumeGame();
       }
     });
@@ -304,6 +318,7 @@ export default class TetricusController extends EventEmitter2 {
     let touchStartX;
     let touchStartY;
     let isFreeze = false;
+    let isBlockMoved = false;
 
     this.model.on('freeze', () => {
       isFreeze = true;
@@ -321,6 +336,10 @@ export default class TetricusController extends EventEmitter2 {
       // console.log('touchmove', blockMoveX, blockMoveY, isFreeze);
       
       if (isFreeze) return;
+      
+      if (blockMoveX || blockMoveY) {
+        isBlockMoved = true;
+      }
       
       // 1マスずつバリデーション（すり抜け対策）
       while (blockMoveX) {
@@ -345,6 +364,10 @@ export default class TetricusController extends EventEmitter2 {
       if (evt.isTap) {
         this.rotateBlock();
       }
+      this.emit('touchend', {
+        isBlockMoved: isBlockMoved,
+      });
+      isBlockMoved = false;
     });
     this.touch.on('touchholding', (evt) => {
       // TODO: バグありそう
@@ -353,7 +376,10 @@ export default class TetricusController extends EventEmitter2 {
   }
   
   setStickController() {
+    let isStickMoved = false;
+    
     this.stick.on('moved', Util.throttle((evt) => {
+      isStickMoved = true;
       this.rotateView(evt);
     }, CONST.STICK_CONTROLL_THROTTLE));
     this.stick.on('doubletapped', (evt) => {
@@ -361,6 +387,12 @@ export default class TetricusController extends EventEmitter2 {
     });
     this.stick.on('holding', (evt) => {
       this.rotateView(evt);
+    });
+    this.stick.on('touchend', (evt) => {
+      this.emit('stickTouchend', {
+        isStickMoved: isStickMoved,
+      });
+      isStickMoved = false;
     });
   }
   

@@ -9,10 +9,8 @@ export default class TetricusUI extends EventEmitter2 {
     this.$modalGameover = $('.js-modal-gameover');
     this.$modalStart = $('.js-modal-start');
     this.$modalHowto = $('.js-modal-howto');
-    this.$modalHowtoSecond = $('.js-modal-howto-second');
-    this.$modalHowtoThird = $('.js-modal-howto-third');
     this.$modalResult = $('.js-modal-result');
-    this.$modals = this.$modalPause.add(this.$modalGameover).add(this.$modalStart).add(this.$modalHowto).add(this.$modalHowtoSecond).add(this.$modalHowtoThird).add(this.$modalResult);
+    this.$modals = this.$modalPause.add(this.$modalGameover).add(this.$modalStart).add(this.$modalHowto).add(this.$modalResult);
     this.$btnModalClose = $('.js-btn-modal-close');
     this.$btnResume = $('.js-btn-resume');
     this.$btnStart = $('.js-btn-start');
@@ -23,13 +21,11 @@ export default class TetricusUI extends EventEmitter2 {
     this.$btnToBack = $('.js-btn-to-back');
     this.$btnRotateVertical = $('.js-btn-rotate-vertical');
     this.$btnRotateHorizontal = $('.js-btn-rotate-horizontal');
-    this.$slickHowto = $('.js-slick-howto');
-    this.$slickDots = $('.js-slick-dots');
-    // this.$bgHowto = $('.js-bg-howto');
+    this.$slideHowto = $('.js-slide-howto');
+    this.$slideDots = $('.js-slide-dots');
     
     this.setEvent();
     this.setControllerEvent();
-    this.setSlick();
     this.setHowto();
   }
   
@@ -81,8 +77,10 @@ export default class TetricusUI extends EventEmitter2 {
     this.$btnToHowto.on('click', (evt) => {
       this.$modals.hide();
       this.$modalHowto.show();
-      this.updateSlick();
+      this.$modalHowto.removeClass('is-touch-none');
       if (this.controller.isAutoMode) {
+        this.controller.setTutorialMode();
+        this.$modalHowto.addClass('is-touch-none');
         return;
       }
       if (this.controller.isPlayngGame) {
@@ -90,13 +88,7 @@ export default class TetricusUI extends EventEmitter2 {
       }
     });
     this.$btnToBack.on('click', (evt) => {
-      this.$modals.hide();
-      if (!this.controller.isPausingGame) {
-        this.$modalStart.show();
-      }
-      else {
-        this.controller.resumeGame();
-      }
+      this.backModal();
     });
   }
   
@@ -109,7 +101,7 @@ export default class TetricusUI extends EventEmitter2 {
       this.$modalPause.show();
     });
     this.controller.on('resumeGame', () => {
-      if (this.controller.isAutoMode) {
+      if (this.controller.isAutoMode || this.controller.isTutorialMode) {
         return;
       }
       this.$modals.hide();
@@ -123,42 +115,62 @@ export default class TetricusUI extends EventEmitter2 {
   }
   
   setHowto() {
-    // TODO: あとでやりかた変える
-    this.$modalHowto.on('click', () => {
-      this.$modals.hide();
-      this.$modalHowtoSecond.show();
+    const ACTIVE_CLASSNAME = 'is-active';
+    const INDEX_DATANAME = 'data-slide-index';
+    const $items = this.$slideHowto.children();
+    const $dots = this.$slideDots.children();
+    const length = $items.length;
+    let index = +this.$modalHowto.attr(INDEX_DATANAME) || 0;
+    $items.hide().first().show();
+    
+    // TODO: もうちょいリファクタ
+    const nextSlide = () => {
+      ++index;
+      if (index >= length) {
+        index = 0;
+        this.backModal();
+      }
+      $items.hide().eq(index).show();
+      $dots.removeClass(ACTIVE_CLASSNAME).eq(index).addClass(ACTIVE_CLASSNAME);
+      this.$modalHowto.attr(INDEX_DATANAME, index);
+    };
+    
+    this.$modalHowto.on('click', nextSlide);
+    this.controller.on('touchend', (evt) => {
+      if (!this.controller.isTutorialMode) {
+        return;
+      }
+      if (index === 0 && evt.isBlockMoved) {
+        nextSlide();
+      }
     });
-    this.$modalHowtoSecond.on('click', () => {
-      this.$modals.hide();
-      this.$modalHowtoThird.show();
+    this.controller.on('stickTouchend', (evt) => {
+      if (!this.controller.isTutorialMode) {
+        return;
+      }
+      if (index === 1 && evt.isStickMoved) {
+        nextSlide();
+      }
     });
-    this.$modalHowtoThird.on('click', () => {
-      this.$modals.hide();
+    this.$btnRotateVertical.add(this.$btnRotateHorizontal).on('click', (evt) => {
+      if (!this.controller.isTutorialMode) {
+        return;
+      }
+      if (index === 2) {
+        nextSlide();
+      }
+    });
+  }
+  
+  backModal() {
+    this.$modals.hide();
+    if (!this.controller.isPausingGame) {
+      this.$modalStart.show();
+      this.controller.setAutoMode();
+    }
+    else {
       this.controller.resumeGame();
-    });
-  }
-  
-  setSlick() {
-    this.$slickHowto.slick({
-      slidesToShow: 1,
-      infinite: false,
-      fade: false,
-      dots: true,
-      autoplay: false,
-      speed: 1000,
-      pauseOnHover: false,
-      arrows: false,
-      draggable: true,
-      appendDots: this.$slickDots,
-    });
-    this.$slickHowto.on('beforeChange', (event, slick, currentSlide, nextSlide) => {
-      // TODO: リファクタリング
-      this.$bgHowto.attr('data-slide-index', nextSlide);
-    });
-  }
-  
-  updateSlick() {
-    this.$slickHowto.slick('slickGoTo', 0);
+    }
   }
   
   showStartModal() {
