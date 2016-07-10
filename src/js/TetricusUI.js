@@ -153,7 +153,7 @@ export default class TetricusUI extends EventEmitter2 {
         nextSlide();
       }
     });
-    this.$btnRotate.on('touchstart', (evt) => {
+    this.$btnRotate.on('click', (evt) => {
       if (!this.controller.isTutorialMode) {
         return;
       }
