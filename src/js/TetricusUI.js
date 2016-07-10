@@ -54,10 +54,10 @@ export default class TetricusUI extends EventEmitter2 {
         isSoundOn: isSoundOn,
       });
     });
-    this.$btnRotateVertical.on('click', (evt) => {
+    this.$btnRotateVertical.on('touchstart', (evt) => {
       this.controller.rotateBlockVertical();
     });
-    this.$btnRotateHorizontal.on('click', (evt) => {
+    this.$btnRotateHorizontal.on('touchstart', (evt) => {
       this.controller.rotateBlockHorizontal();
     });
     this.$btnModalClose.on('click', (evt) => {
@@ -152,7 +152,7 @@ export default class TetricusUI extends EventEmitter2 {
         nextSlide();
       }
     });
-    this.$btnRotateVertical.add(this.$btnRotateHorizontal).on('click', (evt) => {
+    this.$btnRotateVertical.add(this.$btnRotateHorizontal).on('touchstart', (evt) => {
       if (!this.controller.isTutorialMode) {
         return;
       }
