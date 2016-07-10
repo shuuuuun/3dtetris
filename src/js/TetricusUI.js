@@ -88,13 +88,7 @@ export default class TetricusUI extends EventEmitter2 {
       }
     });
     this.$btnToBack.on('click', (evt) => {
-      this.$modals.hide();
-      if (!this.controller.isPausingGame) {
-        this.$modalStart.show();
-      }
-      else {
-        this.controller.resumeGame();
-      }
+      this.backModal();
     });
   }
   
@@ -134,13 +128,7 @@ export default class TetricusUI extends EventEmitter2 {
       ++index;
       if (index >= length) {
         index = 0;
-        this.$modals.hide();
-        if (!this.controller.isPausingGame) {
-          this.$modalStart.show();
-        }
-        else {
-          this.controller.resumeGame();
-        }
+        this.backModal();
       }
       $items.hide().eq(index).show();
       $dots.removeClass(ACTIVE_CLASSNAME).eq(index).addClass(ACTIVE_CLASSNAME);
@@ -156,6 +144,16 @@ export default class TetricusUI extends EventEmitter2 {
         nextSlide();
       }
     });
+  }
+  
+  backModal() {
+    this.$modals.hide();
+    if (!this.controller.isPausingGame) {
+      this.$modalStart.show();
+    }
+    else {
+      this.controller.resumeGame();
+    }
   }
   
   showStartModal() {
