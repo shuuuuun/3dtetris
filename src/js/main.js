@@ -14,6 +14,7 @@ const tetricusUI = new TetricusUI(tetricusController);
 const sound = new SoundController({
   src: './audio/bgm.mp3',
   COOKIE_NAME: 'TETRICUS-isMute',
+  EXPIRES_DATE: 365,
   howl: {
     urls: ['./audio/bgm.mp3'],
     loop: true,
