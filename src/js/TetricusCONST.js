@@ -49,12 +49,12 @@ class TetricusCONST {
     
     this.CLEARLINE_BLOCK = {
       id: 9,
-      color: '#CC66FF',
+      color: '#aaa',
     };
     
     this.GAMEOVER_BLOCK = {
       id: 10,
-      color: '#FF66FF',
+      color: '#777',
     };
     
     // shape: 4 x 4 x 4
