@@ -1,5 +1,6 @@
 var domain = "https://shuuuuun.github.io";
 var url = domain + "/tetricus/";
+// var url = "http://192.168.1.4:3600/";
 var meta_description = "Tetricus";
 
 module.exports = {
@@ -27,6 +28,6 @@ module.exports = {
   
   // fb_appid: "",
   
-  favicon_url: url + "img/icon.png",
+  favicon_url: url + "img/icon_t.png",
   apple_touch_icon_url: url + "img/icon.png",
 };
