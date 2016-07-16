@@ -318,6 +318,9 @@ export default class TetricusView {
     let previousTime = startTime;
     let previousRenderTime = previousTime;
     let previousTickTime = previousTime;
+    
+    if (typeof this.loopId === 'number') return;
+    
     this.loopId = null;
     
     let loop = (timestamp) => {
@@ -345,5 +348,6 @@ export default class TetricusView {
   
   stop() {
     cancelAnimationFrame(this.loopId);
+    this.loopId = null;
   }
 }
