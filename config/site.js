@@ -1,6 +1,6 @@
-var domain = "http://localhost";
-var url = domain + "/";
-var meta_description = "description";
+var domain = "https://shuuuuun.github.io";
+var url = domain + "/tetricus/";
+var meta_description = "Tetricus";
 
 module.exports = {
   domain: domain,
@@ -9,8 +9,8 @@ module.exports = {
   site_name: "Tetricus",
   title: "Tetricus",
   
-  meta_description: "Tetricus",
-  meta_keywords: ["Tetricus", "tetris"],
+  meta_description: meta_description,
+  meta_keywords: ["Tetricus", "game"],
   
   // share_image: domain + "/img/ogp.png",
   
@@ -27,6 +27,6 @@ module.exports = {
   
   // fb_appid: "",
   
-  // favicon_url: domain + "/favicon.ico",
-  apple_touch_icon_url: domain,
+  favicon_url: url + "img/icon.png",
+  apple_touch_icon_url: url + "img/icon.png",
 };
