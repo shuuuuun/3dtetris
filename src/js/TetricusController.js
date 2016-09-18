@@ -40,11 +40,11 @@ export default class TetricusController extends EventEmitter2 {
     this.isPlayngGame = false;
     this.isPausingGame = false;
     
-    this.setModelEvent();
-    this.setBlurEvent();
-    this.setKeyEvent();
-    this.setTouchEvent();
-    this.setStickController();
+    this.initModelEvent();
+    this.initBlurEvent();
+    this.initKeyEvent();
+    this.initTouchEvent();
+    this.initStickController();
   }
   
   newGame() {
@@ -87,7 +87,7 @@ export default class TetricusController extends EventEmitter2 {
     this.view.setCamera(); // reset camera
   }
   
-  setModelEvent() {
+  initModelEvent() {
     this.model.on('gamestart', () => {
       this.view.isAutoRotate = this.isAutoMode;
     });
@@ -219,7 +219,7 @@ export default class TetricusController extends EventEmitter2 {
     return board;
   }
   
-  setBlurEvent() {
+  initBlurEvent() {
     $(window).on('blur', () => {
         this.pauseGame();
     }).on('focus', () => {
@@ -229,7 +229,7 @@ export default class TetricusController extends EventEmitter2 {
     });
   }
   
-  setKeyEvent() {
+  initKeyEvent() {
     const mapArray = [
       [37, 'left'], // ←
       [39, 'right'], // →
@@ -313,7 +313,7 @@ export default class TetricusController extends EventEmitter2 {
     }
   }
   
-  setTouchEvent() {
+  initTouchEvent() {
     let touchStartX;
     let touchStartY;
     let isFreeze = false;
@@ -373,7 +373,7 @@ export default class TetricusController extends EventEmitter2 {
     });
   }
   
-  setStickController() {
+  initStickController() {
     let isStickMoved = false;
     
     this.stick.on('moved', Util.throttle((evt) => {
