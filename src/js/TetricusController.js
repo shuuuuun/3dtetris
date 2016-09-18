@@ -374,7 +374,7 @@ export default class TetricusController extends EventEmitter2 {
       });
       isBlockMoved = false;
     });
-    this.touch.on('touchholding', (evt) => {
+    this.touch.on('touchholding', () => {
       // TODO: バグありそう
       this.model.moveBlockY();
     });
@@ -387,13 +387,13 @@ export default class TetricusController extends EventEmitter2 {
       isStickMoved = true;
       this.rotateView(evt);
     }, CONST.STICK_CONTROLL_THROTTLE));
-    this.stick.on('doubletapped', (evt) => {
+    this.stick.on('doubletapped', () => {
       this.view.setCamera(); // reset camera position
     });
     this.stick.on('holding', (evt) => {
       this.rotateView(evt);
     });
-    this.stick.on('touchend', (evt) => {
+    this.stick.on('touchend', () => {
       this.emit('stickTouchend', {
         isStickMoved: isStickMoved,
       });

@@ -36,7 +36,7 @@ export default class TetricusUI extends EventEmitter2 {
       // cf. http://jsdo.it/shuuuuun/WLX1
       evt.stopPropagation();
     });
-    this.$btnPause.on('click', (evt) => {
+    this.$btnPause.on('click', () => {
       this.$btnPause.toggleClass('is-active');
       this.$modalPause.show();
       
@@ -47,7 +47,7 @@ export default class TetricusUI extends EventEmitter2 {
         this.controller.resumeGame();
       }
     });
-    this.$btnSound.on('click', (evt) => {
+    this.$btnSound.on('click', () => {
       this.toggleBtnSound();
       let isSoundOn = this.$btnSound.hasClass('is-sound-on');
       
@@ -55,27 +55,27 @@ export default class TetricusUI extends EventEmitter2 {
         isSoundOn: isSoundOn,
       });
     });
-    this.$btnRotateVertical.on('touchstart', (evt) => {
+    this.$btnRotateVertical.on('touchstart', () => {
       this.controller.rotateBlockVertical();
     });
-    this.$btnRotateHorizontal.on('touchstart', (evt) => {
+    this.$btnRotateHorizontal.on('touchstart', () => {
       this.controller.rotateBlockHorizontal();
     });
-    this.$btnModalClose.on('click', (evt) => {
+    this.$btnModalClose.on('click', () => {
       this.$modals.hide();
     });
-    this.$btnResume.on('click', (evt) => {
+    this.$btnResume.on('click', () => {
       this.controller.resumeGame();
     });
-    this.$btnStart.on('click', (evt) => {
+    this.$btnStart.on('click', () => {
       this.controller.isAutoMode = false;
       this.controller.newGame();
     });
-    this.$btnToResult.on('click', (evt) => {
+    this.$btnToResult.on('click', () => {
       this.$modals.hide();
       this.$modalResult.show();
     });
-    this.$btnToHowto.on('click', (evt) => {
+    this.$btnToHowto.on('click', () => {
       this.$modals.hide();
       this.$modalHowto.show();
       this.$modalHowto.removeClass('is-touch-none');
@@ -88,7 +88,7 @@ export default class TetricusUI extends EventEmitter2 {
         this.controller.pauseGame();
       }
     });
-    this.$btnToBack.on('click', (evt) => {
+    this.$btnToBack.on('click', () => {
       this.backModal();
     });
   }
