@@ -41,6 +41,7 @@ export default class TetricusController extends EventEmitter2 {
     this.isPausingGame = false;
     
     this.initModelEvent();
+    this.initResizeEvent();
     this.initBlurEvent();
     this.initKeyEvent();
     this.initTouchEvent();
@@ -217,6 +218,12 @@ export default class TetricusController extends EventEmitter2 {
       }
     }
     return board;
+  }
+  
+  initResizeEvent() {
+    window.addEventListener('resize', () => {
+      this.view.setSize();
+    });
   }
   
   initBlurEvent() {
