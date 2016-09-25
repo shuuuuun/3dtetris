@@ -1,7 +1,7 @@
 var domain = "https://shuuuuun.github.io";
 var url = domain + "/tetricus/";
 // var url = "http://192.168.1.4:3600/";
-var meta_description = "Tetricus";
+var meta_description = "Tetricus. This is a simple 3D puzzle game! Play it on your smartphone!";
 
 module.exports = {
   domain: domain,
