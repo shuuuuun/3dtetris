@@ -16,7 +16,7 @@ const sound = new SoundController({
   COOKIE_NAME: 'TETRICUS-isMute',
   EXPIRES_DATE: 365,
   howl: {
-    urls: ['./audio/bgm.mp3'],
+    src: ['./audio/bgm.mp3'],
     loop: true,
     volume: 0.2,
   },
