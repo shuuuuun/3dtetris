@@ -84,8 +84,8 @@ export default class TetricusView {
     // grid bottom ------------------------------
     {
       const size = CONST.CENTER_X;
-      const step = CONST.VOXEL_SIZE;
-      const grid = new THREE.GridHelper(size, step);
+      const divisions = CONST.WIDTH / CONST.VOXEL_SIZE;
+      const grid = new THREE.GridHelper(size, divisions);
       grid.position.set( size, CONST.HEIGHT, size );
       this.scene.add( grid );
     }
