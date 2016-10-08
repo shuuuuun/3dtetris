@@ -184,6 +184,9 @@ export default class TetricusModel extends EventEmitter2 {
       filledRowList.push([filledRowListX, filledRowListZ]);
     }
     
+    if (!clearLineLength) {
+      return;
+    }
     // clear line drop
     dfd
       .resolve()
