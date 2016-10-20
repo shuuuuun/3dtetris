@@ -26,7 +26,7 @@ class TetricusCONST {
     this.FIELD_MARK_LENGTH = 50;
     
     this.RENDER_INTERVAL = 30;
-    this.TICK_INTERVAL = 700; // default tick interval
+    this.TICK_INTERVAL = 1500; // default tick interval
     this.SPEEDUP_RATE = 100;
     
     this.CLEARLINE_EFFECT_INTERVAL = 50;
