@@ -234,23 +234,23 @@ export default class TetricusModel extends EventEmitter2 {
   dropRow(filledRowList) {
     if (!filledRowList.length) return;
     return () => {
-      filledRowList.forEach((row) => {
+      filledRowList.forEach((row, y) => {
         let filledRowListX = row[0];
         let filledRowListZ = row[1];
         if (!filledRowListX.length && !filledRowListZ.length) return;
         filledRowListX.forEach((d) => {
-          this.dropRowX(d);
+          this.dropRowX(d, y);
         });
         filledRowListZ.forEach((d) => {
-          this.dropRowZ(d);
+          this.dropRowZ(d, y);
         });
       });
     };
   }
   
-  dropRowX(x) {
+  dropRowX(x, targetY) {
     let beforeList = [];
-    for ( let y = 0; y < CONST.LOGICAL_ROWS; ++y ) {
+    for ( let y = 0; y <= targetY; ++y ) {
       beforeList[y] = [];
       for ( let z = 0; z < CONST.COLS; ++z ) {
         beforeList[y][z] = this.board[z][y][x];
@@ -259,9 +259,9 @@ export default class TetricusModel extends EventEmitter2 {
     }
   }
   
-  dropRowZ(z) {
+  dropRowZ(z, targetY) {
     let beforeList = [];
-    for ( let y = 0; y < CONST.LOGICAL_ROWS; ++y ) {
+    for ( let y = 0; y <= targetY; ++y ) {
       beforeList[y] = [];
       for ( let x = 0; x < CONST.COLS; ++x ) {
         beforeList[y][x] = this.board[z][y][x];
