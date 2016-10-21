@@ -1,4 +1,5 @@
 // import $ from 'jquery';
+import _ from 'lodash';
 import { EventEmitter2 } from 'eventemitter2';
 import TetricusCONST from './TetricusCONST';
 
@@ -71,7 +72,7 @@ export default class TetricusModel extends EventEmitter2 {
     let isMoveDown = this.moveBlockY();
     if (!isMoveDown) {
       this.freeze();
-      this.clearLines();
+      this.checkClearLines();
       if (this.checkGameOver()) {
         this.emit('gameover');
         // this.quitGame().then(function(){});
@@ -161,28 +162,11 @@ export default class TetricusModel extends EventEmitter2 {
     this.emit('freeze');
   }
   
-  clearLines() {
-    let clearLineLength = 0; // 同時消去ライン数
-    let filledRowList = [];
-    let dfd = $.Deferred();
+  checkClearLines() {
+    const dfd = $.Deferred();
     
-    for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
-      let filledRowListZ = [];
-      let filledRowListX = [];
-      for ( let z = 0; z < CONST.COLS; ++z ) {
-        let isRowFilled = this.board[z][y].every(val => val !== 0);
-        if (!isRowFilled) continue;
-        filledRowListZ.push(z);
-        clearLineLength++;
-      }
-      for ( let x = 0; x < CONST.COLS; ++x ) {
-        let isRowFilled = this.board.every(val => val[y][x] !== 0);
-        if (!isRowFilled) continue;
-        filledRowListX.push(x);
-        clearLineLength++;
-      }
-      filledRowList.push([filledRowListX, filledRowListZ]);
-    }
+    const filledRowList = this.getFilledRowList();
+    const clearLineLength = _.compact(_.flattenDeep(filledRowList)).length; // 同時消去ライン数
     
     if (!clearLineLength) {
       return;
@@ -191,15 +175,15 @@ export default class TetricusModel extends EventEmitter2 {
     dfd
       .resolve()
       .then(() => {
-        const dfd = $.Deferred();
+        const d = $.Deferred();
         const evt = {
           filledRowList: filledRowList,
-          dfd: dfd,
+          dfd: d,
         };
         this.emit('beforeDropClearLines', evt);
-        return dfd.promise();
+        return d.promise();
       })
-      .then(this.dropRow(filledRowList))
+      .then(() => this.dropRow(filledRowList))
       .then(() => {
         this.emit('afterDropClearLines');
         
@@ -211,6 +195,26 @@ export default class TetricusModel extends EventEmitter2 {
         
         if (clearLineLength > 0) this.emit('clearline');
       });
+  }
+  
+  getFilledRowList() {
+    const filledRowList = [];
+    for ( let y = CONST.LOGICAL_ROWS - 1; y >= 0; --y ) {
+      const filledRowListZ = [];
+      const filledRowListX = [];
+      for ( let z = 0; z < CONST.COLS; ++z ) {
+        const isRowFilled = this.board[z][y].every(val => val !== 0);
+        if (!isRowFilled) continue;
+        filledRowListZ.push(z);
+      }
+      for ( let x = 0; x < CONST.COLS; ++x ) {
+        const isRowFilled = this.board.every(val => val[y][x] !== 0);
+        if (!isRowFilled) continue;
+        filledRowListX.push(x);
+      }
+      filledRowList.push([filledRowListX, filledRowListZ]);
+    }
+    return filledRowList;
   }
   
   levelUp() {
@@ -233,19 +237,17 @@ export default class TetricusModel extends EventEmitter2 {
   
   dropRow(filledRowList) {
     if (!filledRowList.length) return;
-    return () => {
-      filledRowList.forEach((row, y) => {
-        let filledRowListX = row[0];
-        let filledRowListZ = row[1];
-        if (!filledRowListX.length && !filledRowListZ.length) return;
-        filledRowListX.forEach((d) => {
-          this.dropRowX(d, y);
-        });
-        filledRowListZ.forEach((d) => {
-          this.dropRowZ(d, y);
-        });
+    filledRowList.forEach((row, y) => {
+      let filledRowListX = row[0];
+      let filledRowListZ = row[1];
+      if (!filledRowListX.length && !filledRowListZ.length) return;
+      filledRowListX.forEach((d) => {
+        this.dropRowX(d, y);
       });
-    };
+      filledRowListZ.forEach((d) => {
+        this.dropRowZ(d, y);
+      });
+    });
   }
   
   dropRowX(x, targetY) {
