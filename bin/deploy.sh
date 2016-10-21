@@ -14,9 +14,8 @@ if [[ $has_dir == 1 ]]; then
   git fetch --depth 1 origin master:refs/remotes/origin/master
 fi
 
-git pull
-# git pull origin gh-pages
-# git fetch origin master
+git pull origin gh-pages
+git fetch origin master:refs/remotes/origin/master
 git checkout origin/master public
 cp -rf public/* ./
 rm -rf public
