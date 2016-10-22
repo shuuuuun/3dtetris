@@ -5,7 +5,7 @@ export default class StickController extends EventEmitter2 {
   constructor(opts = {}) {
     super();
     
-    this.$element = opts.$element;
+    this.element = opts.element;
     this.maxDistance = opts.maxDistance;
     this.holdingDelay = opts.holdingDelay || 1000;
     this.watchInterval = opts.watchInterval || 100;
@@ -16,7 +16,7 @@ export default class StickController extends EventEmitter2 {
   
   setEvent(){
     const touch = new TouchController({
-      touchstartElement: this.$element.get(0),
+      touchstartElement: this.element,
       touchmoveElement: document,
       touchendElement: document,
       holdingDelay: this.holdingDelay,
@@ -78,9 +78,7 @@ export default class StickController extends EventEmitter2 {
       target.x = x;
       target.y = y;
     }
-    this.$element.css({
-      'transform': `translate(${x}px, ${y}px)`,
-    });
+    this.element.style.transform = `translate(${x}px, ${y}px)`;
     this.setPosition(target);
     this.emit('jumped', this.position);
   }

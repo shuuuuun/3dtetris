@@ -1,4 +1,3 @@
-// import $ from 'jquery';
 import _ from 'lodash';
 import { EventEmitter2 } from 'eventemitter2';
 import TetricusCONST from './TetricusCONST';

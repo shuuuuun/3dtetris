@@ -1,4 +1,3 @@
-// import $ from 'jquery';
 import _ from 'lodash';
 import { EventEmitter2 } from 'eventemitter2';
 import Util from './Util';
@@ -15,21 +14,21 @@ export default class TetricusController extends EventEmitter2 {
     this.model = model;
     this.view = view;
     
-    this.$root = $('.js-game-controller');
-    this.$infoLevel = $('.js-info-level');
-    this.$infoScore = $('.js-info-score');
-    this.$infoLines = $('.js-info-lines');
-    this.$stickContainer = $('.js-stick-container');
-    this.$stickToucharea = $('.js-stick-toucharea');
+    this.rootElm = document.querySelector('.js-game-controller');
+    this.stickTouchareaElm = document.querySelector('.js-stick-toucharea');
+    this.infoLevelElm = document.querySelector('.js-info-level');
+    this.infoScoreElm = document.querySelector('.js-info-score');
+    this.infoLinesElm = document.querySelector('.js-info-lines');
+    
     this.touch = new TouchController({
-      touchstartElement: this.$root.get(0),
+      touchstartElement: this.rootElm,
       touchmoveElement: document,
       touchendElement: document,
       holdingDelay: 500,
       watchInterval: 100,
     });
     this.stick = new StickController({
-      $element: this.$stickToucharea,
+      element: this.stickTouchareaElm,
       maxDistance: 30,
       holdingDelay: 50,
       watchInterval: CONST.STICK_CONTROLL_THROTTLE,
@@ -130,9 +129,9 @@ export default class TetricusController extends EventEmitter2 {
     });
     this.model.on('clearline', () => {
       this.updateBoard();
-      this.$infoLevel.text(this.model.level);
-      this.$infoScore.text(Util.zeroPadding(this.model.score, 4));
-      this.$infoLines.text(Util.zeroPadding(this.model.sumOfClearLines, 4));
+      this.infoLevelElm.innerText = this.model.level;
+      this.infoScoreElm.innerText = Util.zeroPadding(this.model.score, 4);
+      this.infoLinesElm.innerText = Util.zeroPadding(this.model.sumOfClearLines, 4);
     });
     this.model.on('beforeDropClearLines', (evt) => {
       const dfd = $.Deferred();
@@ -223,17 +222,18 @@ export default class TetricusController extends EventEmitter2 {
   initResizeEvent() {
     window.addEventListener('resize', () => {
       this.view.setSize();
-    });
+    }, false);
   }
   
   initBlurEvent() {
-    $(window).on('blur', () => {
-        this.pauseGame();
-    }).on('focus', () => {
+    window.addEventListener('blur', () => {
+      this.pauseGame();
+    }, false);
+    window.addEventListener('focus', () => {
       if (this.isAutoMode || this.isTutorialMode) {
         this.resumeGame();
       }
-    });
+    }, false);
   }
   
   initKeyEvent() {
