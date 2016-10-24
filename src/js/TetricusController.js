@@ -130,6 +130,10 @@ export default class TetricusController extends EventEmitter2 {
       let shadowBlock = this.getShadowBlock();
       let board = this.setBlockToBoard(shadowBlock);
       this.updateBoard(board);
+      
+      if (!this.isAutoMode && !this.isTutorialMode) {
+        this.saveDataToStrage();
+      }
     });
     this.model.on('blockmoved', () => {
       this.view.moveCurrentBlock(this.model.currentBlock);
