@@ -165,7 +165,7 @@ export default class TetricusModel extends EventEmitter2 {
     const dfd = $.Deferred();
     
     const filledRowList = this.getFilledRowList();
-    const clearLineLength = _.compact(_.flattenDeep(filledRowList)).length; // 同時消去ライン数
+    const clearLineLength = _.flattenDeep(filledRowList).length; // 同時消去ライン数
     
     if (!clearLineLength) {
       return;
