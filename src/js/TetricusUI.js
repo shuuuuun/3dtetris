@@ -65,7 +65,13 @@ export default class TetricusUI extends EventEmitter2 {
       this.$modals.hide();
     });
     this.$btnResume.on('click', () => {
-      this.controller.resumeGame();
+      if (this.controller.isAutoMode) {
+        this.controller.isAutoMode = false;
+        this.controller.resumeLastGame();
+      }
+      else {
+        this.controller.resumeGame();
+      }
     });
     this.$btnStart.on('click', () => {
       this.controller.isAutoMode = false;
