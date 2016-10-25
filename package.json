@@ -44,7 +44,8 @@
     "three": "latest",
     "tween.js": "latest",
     "vinyl-buffer": "latest",
-    "vinyl-source-stream": "latest"
+    "vinyl-source-stream": "latest",
+    "watchify": "latest"
   },
   "babel": {
     "presets": [
