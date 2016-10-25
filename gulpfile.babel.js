@@ -64,11 +64,12 @@ gulp.task('watch', () => {
     gulp.start('pug');
   });
   watch(GLOB_JS, () => {
-    gulp.start('js');
+    gulp.start(['lint', 'js-copy']);
   });
   watch([GLOB_SASS, GLOB_SCSS], () => {
     gulp.start('sass');
   });
+  gulp.start('watchify');
 });
 
 gulp.task('server', () => {
