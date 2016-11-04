@@ -256,7 +256,7 @@ export default class TetricusController extends EventEmitter2 {
     ];
     const keyMap = new Map(mapArray);
     
-    $(document).on('keydown', (evt) => {
+    document.addEventListener('keydown', (evt) => {
       if (!this.isPlayngGame) { // プレイ中以外はキー操作無効
         return;
       }
@@ -266,7 +266,7 @@ export default class TetricusController extends EventEmitter2 {
       }
       evt.preventDefault();
       this.handleMethod(methodName);
-    });
+    }, false);
   }
   
   handleMethod(methodName) { // helper
