@@ -45,6 +45,7 @@ class TetricusCONST {
       id: 8,
       color: '#000',
       opacity: 0.3,
+      scale: 0.99,
     };
     
     this.CLEARLINE_BLOCK = {
