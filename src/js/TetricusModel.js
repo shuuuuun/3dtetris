@@ -25,7 +25,7 @@ export default class TetricusModel extends EventEmitter2 {
     this.level = 1;
     this.score = 0;
     this.frameCount = 0;
-    this.initBoad();
+    this.initBoard();
     this.initBlock();
     this.createNextBlock();
   }
@@ -85,7 +85,7 @@ export default class TetricusModel extends EventEmitter2 {
     this.emit('tick', !isMoveDown);
   }
   
-  initBoad() {
+  initBoard() {
     this.board = [];
     for ( let z = 0; z < CONST.COLS; ++z ) {
       this.board[z] = [];
