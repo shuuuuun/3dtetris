@@ -63,6 +63,7 @@ export default class TetricusController extends EventEmitter2 {
     this.model.pauseGame();
     this.isPlayngGame = false;
     this.isPausingGame = true;
+    this.saveDataToStrage();
     this.emit('pauseGame');
   }
   
@@ -72,6 +73,24 @@ export default class TetricusController extends EventEmitter2 {
     this.isPlayngGame = true;
     this.isPausingGame = false;
     this.emit('resumeGame');
+  }
+  
+  resumeLastGame() {
+    const data = this.getStrageData();
+    this.setDataToModel(data);
+    if (this.model.checkGameOver()) {
+      this.newGame();
+      return;
+    }
+    this.view.isAutoRotate = false;
+    this.view.dispose();
+    this.view.init();
+    this.view.start();
+    this.view.drawCurrentBlock(this.model.currentBlock);
+    this.isPlayngGame = true;
+    this.isPausingGame = false;
+    this.model.resumeGame();
+    this.updateBoard();
   }
   
   setAutoMode() {
@@ -115,6 +134,10 @@ export default class TetricusController extends EventEmitter2 {
       let shadowBlock = this.getShadowBlock();
       let board = this.setBlockToBoard(shadowBlock);
       this.updateBoard(board);
+      
+      if (!this.isAutoMode && !this.isTutorialMode) {
+        this.saveDataToStrage();
+      }
     });
     this.model.on('blockmoved', () => {
       this.view.moveCurrentBlock(this.model.currentBlock);
@@ -493,5 +516,41 @@ export default class TetricusController extends EventEmitter2 {
   dropBlock() {
     this.model.dropBlockY();
     this.view.moveCurrentBlock(this.model.currentBlock);
+  }
+  
+  setDataToModel(data = {}) {
+    if (data.level) this.model.level = data.level;
+    if (data.score) this.model.score = data.score;
+    if (data.sumOfClearLines) this.model.sumOfClearLines = data.sumOfClearLines;
+    if (data.tickInterval) this.model.tickInterval = data.tickInterval;
+    if (data.frameCount) this.model.frameCount = data.frameCount;
+    if (data.board) this.model.board = data.board;
+    if (data.currentBlock) this.model.currentBlock = data.currentBlock;
+    if (data.nextBlock) this.model.nextBlock = data.nextBlock;
+  }
+  
+  getStrageData() {
+    if (!window.localStorage) {
+      return;
+    }
+    const currentData = JSON.parse(window.localStorage.getItem('tetricus')) || {};
+    return currentData;
+  }
+  
+  saveDataToStrage() {
+    if (!window.localStorage) {
+      return;
+    }
+    const newData = {
+      level: this.model.level,
+      score: this.model.score,
+      sumOfClearLines: this.model.sumOfClearLines,
+      tickInterval: this.model.tickInterval,
+      frameCount: this.model.frameCount,
+      board: this.model.board,
+      currentBlock: this.model.currentBlock,
+      nextBlock: this.model.nextBlock,
+    };
+    window.localStorage.setItem('tetricus', JSON.stringify(newData));
   }
 }
