@@ -78,6 +78,10 @@ export default class TetricusController extends EventEmitter2 {
   resumeLastGame() {
     const data = this.getStrageData();
     this.setDataToModel(data);
+    if (this.model.checkGameOver()) {
+      this.newGame();
+      return;
+    }
     this.view.isAutoRotate = false;
     this.view.dispose();
     this.view.init();
