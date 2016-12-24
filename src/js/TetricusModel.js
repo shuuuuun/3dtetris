@@ -287,16 +287,16 @@ export default class TetricusModel extends EventEmitter2 {
   }
   
   dropBlockY(block = this.currentBlock) {
-    let isValid = this.valid(0, 1, 0, block);
+    let isValid = this.validate(0, 1, 0, block);
     while (isValid) {
       block.y++;
-      isValid = this.valid(0, 1, 0, block);
+      isValid = this.validate(0, 1, 0, block);
     }
     return isValid;
   }
   
   moveBlockX(distance = 1) {
-    const isValid = this.valid(distance, 0, 0);
+    const isValid = this.validate(distance, 0, 0);
     if (isValid) {
       this.currentBlock.x += distance;
       this.emit('blockmoved');
@@ -305,7 +305,7 @@ export default class TetricusModel extends EventEmitter2 {
   }
   
   moveBlockY(distance = 1) {
-    const isValid = this.valid(0, distance, 0);
+    const isValid = this.validate(0, distance, 0);
     if (isValid) {
       this.currentBlock.y += distance;
       this.emit('blockmoved');
@@ -314,7 +314,7 @@ export default class TetricusModel extends EventEmitter2 {
   }
   
   moveBlockZ(distance = 1) {
-    const isValid = this.valid(0, 0, distance);
+    const isValid = this.validate(0, 0, distance);
     if (isValid) {
       this.currentBlock.z += distance;
       this.emit('blockmoved');
@@ -325,7 +325,7 @@ export default class TetricusModel extends EventEmitter2 {
   rotateBlockXZ(sign = true) {
     const rotatedBlock = Object.assign({}, this.currentBlock);
     rotatedBlock.shape = this.rotateXZ(this.currentBlock.shape, sign);
-    const isValid = this.valid(0, 0, 0, rotatedBlock);
+    const isValid = this.validate(0, 0, 0, rotatedBlock);
     if (isValid) this.currentBlock = rotatedBlock;
     return isValid;
   }
@@ -333,7 +333,7 @@ export default class TetricusModel extends EventEmitter2 {
   rotateBlockXY(sign = true) {
     const rotatedBlock = Object.assign({}, this.currentBlock);
     rotatedBlock.shape = this.rotateXY(this.currentBlock.shape, sign);
-    const isValid = this.valid(0, 0, 0, rotatedBlock);
+    const isValid = this.validate(0, 0, 0, rotatedBlock);
     if (isValid) this.currentBlock = rotatedBlock;
     return isValid;
   }
@@ -341,7 +341,7 @@ export default class TetricusModel extends EventEmitter2 {
   rotateBlockZY(sign = true) {
     const rotatedBlock = Object.assign({}, this.currentBlock);
     rotatedBlock.shape = this.rotateZY(this.currentBlock.shape, sign);
-    const isValid = this.valid(0, 0, 0, rotatedBlock);
+    const isValid = this.validate(0, 0, 0, rotatedBlock);
     if (isValid) this.currentBlock = rotatedBlock;
     return isValid;
   }
@@ -394,7 +394,7 @@ export default class TetricusModel extends EventEmitter2 {
     return newBlockShape;
   }
   
-  valid(offsetX = 0, offsetY = 0, offsetZ = 0, block = this.currentBlock) {
+  validate(offsetX = 0, offsetY = 0, offsetZ = 0, block = this.currentBlock) {
     const nextX = block.x + offsetX;
     const nextY = block.y + offsetY;
     const nextZ = block.z + offsetZ;
