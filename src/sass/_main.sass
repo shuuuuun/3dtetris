@@ -66,11 +66,6 @@
   top: 0
   right: 0
 
-.game__controller__btns--right-bottom
-  @extend %game__controller__btns
-  right: 0
-  bottom: 0
-
 %game__controller__btn
   margin: 10px
   button
@@ -107,21 +102,6 @@
   button
     &:before
       content: '\f28b'
-
-.game__controller__btn--rotate-vertical
-  @extend %game__controller__btn
-  button
-    &:before
-      content: '\f01b'
-      font-size: 450%
-
-.game__controller__btn--rotate-horizontal
-  @extend %game__controller__btn
-  button
-    // transform: rotateZ(90deg)
-    &:before
-      content: '\f18e'
-      font-size: 450%
 
 .game__controller__tap-area
   display: flex

@@ -19,9 +19,6 @@ export default class TetricusUI extends EventEmitter2 {
     this.$btnToResult = $('.js-btn-to-result');
     this.$btnToHowto = $('.js-btn-to-howto');
     this.$btnToBack = $('.js-btn-to-back');
-    this.$btnRotateVertical = $('.js-btn-rotate-vertical');
-    this.$btnRotateHorizontal = $('.js-btn-rotate-horizontal');
-    this.$btnRotate = this.$btnRotateVertical.add(this.$btnRotateHorizontal);
     this.$tapAreaTop = $('.js-tap-area-top');
     this.$tapAreaLeft = $('.js-tap-area-left');
     this.$tapAreaRight = $('.js-tap-area-right');
@@ -58,12 +55,6 @@ export default class TetricusUI extends EventEmitter2 {
       this.emit('toggleSound', {
         isSoundOn: isSoundOn,
       });
-    });
-    this.$btnRotateVertical.on('touchstart', () => {
-      this.controller.rotateBlockVertical();
-    });
-    this.$btnRotateHorizontal.on('touchstart', () => {
-      this.controller.rotateBlockHorizontal();
     });
     this.$btnModalClose.on('click', () => {
       this.$modals.hide();
@@ -179,14 +170,6 @@ export default class TetricusUI extends EventEmitter2 {
         return;
       }
       if (index === 1 && evt.isStickMoved) {
-        nextSlide();
-      }
-    });
-    this.$btnRotate.on('click', (evt) => {
-      if (!this.controller.isTutorialMode) {
-        return;
-      }
-      if (index === 2) {
         nextSlide();
       }
     });
