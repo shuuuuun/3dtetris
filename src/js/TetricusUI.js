@@ -22,6 +22,10 @@ export default class TetricusUI extends EventEmitter2 {
     this.$btnRotateVertical = $('.js-btn-rotate-vertical');
     this.$btnRotateHorizontal = $('.js-btn-rotate-horizontal');
     this.$btnRotate = this.$btnRotateVertical.add(this.$btnRotateHorizontal);
+    this.$btnRotateBack = $('.js-btn-rotate-back');
+    this.$btnRotateLeft = $('.js-btn-rotate-left');
+    this.$btnRotateRight = $('.js-btn-rotate-right');
+    this.$btnRotateFront = $('.js-btn-rotate-front');
     this.$slideHowto = $('.js-slide-howto');
     this.$slideDots = $('.js-slide-dots');
     
@@ -60,6 +64,18 @@ export default class TetricusUI extends EventEmitter2 {
     });
     this.$btnRotateHorizontal.on('touchstart', () => {
       this.controller.rotateBlockHorizontal();
+    });
+    this.$btnRotateBack.on('touchstart', () => {
+      this.controller.rotateBlockVertical(true);
+    });
+    this.$btnRotateLeft.on('touchstart', () => {
+      this.controller.rotateBlockHorizontal(false);
+    });
+    this.$btnRotateRight.on('touchstart', () => {
+      this.controller.rotateBlockHorizontal(true);
+    });
+    this.$btnRotateFront.on('touchstart', () => {
+      this.controller.rotateBlockVertical(false);
     });
     this.$btnModalClose.on('click', () => {
       this.$modals.hide();
