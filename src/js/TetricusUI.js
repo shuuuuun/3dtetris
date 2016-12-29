@@ -85,16 +85,16 @@ export default class TetricusUI extends EventEmitter2 {
       $(evt.currentTarget).addClass('is-active');
       this.controller.rotateBlockVertical(false);
     });
-    this.$btnRotateBack.on('touchend', evt => {
+    this.$btnRotateBack.on('touchmove touchend', evt => {
       $(evt.currentTarget).removeClass('is-active');
     });
-    this.$btnRotateLeft.on('touchend', evt => {
+    this.$btnRotateLeft.on('touchmove touchend', evt => {
       $(evt.currentTarget).removeClass('is-active');
     });
-    this.$btnRotateRight.on('touchend', evt => {
+    this.$btnRotateRight.on('touchmove touchend', evt => {
       $(evt.currentTarget).removeClass('is-active');
     });
-    this.$btnRotateFront.on('touchend', evt => {
+    this.$btnRotateFront.on('touchmove touchend', evt => {
       $(evt.currentTarget).removeClass('is-active');
     });
     this.$btnModalClose.on('click', () => {
