@@ -104,6 +104,9 @@ export default class TetricusUI extends EventEmitter2 {
   }
   
   setControllerEvent() {
+    const ACTIVE_CLASSNAME = 'is-active';
+    const TAP_FB_DURATION = 500;
+    
     this.controller.on('pauseGame', () => {
       if (this.isModalShown()) {
         // なにかしらmodalが既に表示されてたらreturn
@@ -124,20 +127,20 @@ export default class TetricusUI extends EventEmitter2 {
       this.$modalResult.show();
     });
     this.controller.on('taptop', () => {
-      this.$tapAreaTop.addClass('is-active');
-      setTimeout(() => this.$tapAreaTop.removeClass('is-active'), 500);
+      this.$tapAreaTop.addClass(ACTIVE_CLASSNAME);
+      setTimeout(() => this.$tapAreaTop.removeClass(ACTIVE_CLASSNAME), TAP_FB_DURATION);
     });
     this.controller.on('tapleft', () => {
-      this.$tapAreaLeft.addClass('is-active');
-      setTimeout(() => this.$tapAreaLeft.removeClass('is-active'), 500);
+      this.$tapAreaLeft.addClass(ACTIVE_CLASSNAME);
+      setTimeout(() => this.$tapAreaLeft.removeClass(ACTIVE_CLASSNAME), TAP_FB_DURATION);
     });
     this.controller.on('tapright', () => {
-      this.$tapAreaRight.addClass('is-active');
-      setTimeout(() => this.$tapAreaRight.removeClass('is-active'), 500);
+      this.$tapAreaRight.addClass(ACTIVE_CLASSNAME);
+      setTimeout(() => this.$tapAreaRight.removeClass(ACTIVE_CLASSNAME), TAP_FB_DURATION);
     });
     this.controller.on('tapbottom', () => {
-      this.$tapAreaBottom.addClass('is-active');
-      setTimeout(() => this.$tapAreaBottom.removeClass('is-active'), 500);
+      this.$tapAreaBottom.addClass(ACTIVE_CLASSNAME);
+      setTimeout(() => this.$tapAreaBottom.removeClass(ACTIVE_CLASSNAME), TAP_FB_DURATION);
     });
   }
   
