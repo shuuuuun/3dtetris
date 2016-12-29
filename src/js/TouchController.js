@@ -13,10 +13,10 @@ export default class TouchController extends EventEmitter2 {
     this.holdingDelay = opts.holdingDelay || 1000;
     this.watchInterval = opts.watchInterval || 100;
     
-    this.touchSupport = ('ontouchstart' in window);
-    this.touchstart = (this.touchSupport) ? 'touchstart' : 'mousedown';
-    this.touchmove  = (this.touchSupport) ? 'touchmove'  : 'mousemove';
-    this.touchend   = (this.touchSupport) ? 'touchend'   : 'mouseup';
+    this.isTouchSupport = 'ontouchstart' in window;
+    this.touchstart = this.isTouchSupport ? 'touchstart' : 'mousedown';
+    this.touchmove  = this.isTouchSupport ? 'touchmove'  : 'mousemove';
+    this.touchend   = this.isTouchSupport ? 'touchend'   : 'mouseup';
     
     this.deltaX = 0;
     this.deltaY = 0;
@@ -68,8 +68,8 @@ export default class TouchController extends EventEmitter2 {
       this.isTap = true;
       this.touchStartTime = Date.now();
       
-      this.touchStartX = (this.touchSupport) ? evt.touches[0].pageX : evt.pageX;
-      this.touchStartY = (this.touchSupport) ? evt.touches[0].pageY : evt.pageY;
+      this.touchStartX = this.isTouchSupport ? evt.touches[0].pageX : evt.pageX;
+      this.touchStartY = this.isTouchSupport ? evt.touches[0].pageY : evt.pageY;
       
       setWatcher();
       
@@ -90,8 +90,8 @@ export default class TouchController extends EventEmitter2 {
       this.lasttouchX = this.touchX || this.touchStartX;
       this.lasttouchY = this.touchY || this.touchStartY;
       
-      this.touchX = (this.touchSupport) ? evt.touches[0].pageX : evt.pageX;
-      this.touchY = (this.touchSupport) ? evt.touches[0].pageY : evt.pageY;
+      this.touchX = this.isTouchSupport ? evt.touches[0].pageX : evt.pageX;
+      this.touchY = this.isTouchSupport ? evt.touches[0].pageY : evt.pageY;
       this.deltaX = this.touchX - this.lasttouchX;
       this.deltaY = this.touchY - this.lasttouchY;
       this.moveX  = this.touchX - this.touchStartX;
@@ -122,8 +122,8 @@ export default class TouchController extends EventEmitter2 {
       clearWatcher();
       
       this.elapsedTime = Date.now() - this.touchStartTime;
-      this.touchEndX = this.touchX;
-      this.touchEndY = this.touchY;
+      this.touchEndX = this.isTouchSupport ? evt.changedTouches[0].pageX : evt.pageX;
+      this.touchEndY = this.isTouchSupport ? evt.changedTouches[0].pageY : evt.pageY;
       
       this.emit('touchend', {
         'elapsedTime': this.elapsedTime,
