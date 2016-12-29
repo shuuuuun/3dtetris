@@ -24,18 +24,14 @@ html(lang="ja")
               | lines 
               span.js-info-lines 0000
           div.game__controller__center-ui
-            div.game__controller__center-ui__top
-              button.js-btn-rotate-back(type="button")
-                span rotate back side
-            div.game__controller__center-ui__left
-              button.js-btn-rotate-left(type="button")
-                span rotate left side
-            div.game__controller__center-ui__right
-              button.js-btn-rotate-right(type="button")
-                span rotate right side
-            div.game__controller__center-ui__bottom
-              button.js-btn-rotate-front(type="button")
-                span rotate front side
+            div.game__controller__center-ui__top.js-btn-rotate-back
+              span rotate back side
+            div.game__controller__center-ui__left.js-btn-rotate-left
+              span rotate left side
+            div.game__controller__center-ui__right.js-btn-rotate-right
+              span rotate right side
+            div.game__controller__center-ui__bottom.js-btn-rotate-front
+              span rotate front side
           div.game__controller__btns--top-right
             div.game__controller__btn--sound
               button.js-btn-sound.is-sound-on(type="button")

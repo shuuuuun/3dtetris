@@ -396,15 +396,19 @@ export default class TetricusController extends EventEmitter2 {
       if (evt.isTap) {
         if (evt.touchEndY < verticalBtnHeight) {
           this.rotateBlockVertical(true);
+          this.emit('taptop');
         }
         else if (evt.touchEndY > bottomBtnY) {
           this.rotateBlockVertical(false);
+          this.emit('tapbottom');
         }
         else if (evt.touchEndX < horizontalBtnWidth) {
           this.rotateBlockHorizontal(false);
+          this.emit('tapleft');
         }
         else {
           this.rotateBlockHorizontal(true);
+          this.emit('tapright');
         }
       }
       this.emit('touchend', {

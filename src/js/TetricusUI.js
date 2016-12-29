@@ -123,6 +123,22 @@ export default class TetricusUI extends EventEmitter2 {
       }
       this.$modalResult.show();
     });
+    this.controller.on('taptop', () => {
+      this.$btnRotateBack.addClass('is-active');
+      setTimeout(() => this.$btnRotateBack.removeClass('is-active'), 500);
+    });
+    this.controller.on('tapleft', () => {
+      this.$btnRotateLeft.addClass('is-active');
+      setTimeout(() => this.$btnRotateLeft.removeClass('is-active'), 500);
+    });
+    this.controller.on('tapright', () => {
+      this.$btnRotateRight.addClass('is-active');
+      setTimeout(() => this.$btnRotateRight.removeClass('is-active'), 500);
+    });
+    this.controller.on('tapbottom', () => {
+      this.$btnRotateFront.addClass('is-active');
+      setTimeout(() => this.$btnRotateFront.removeClass('is-active'), 500);
+    });
   }
   
   setHowto() {
