@@ -478,17 +478,17 @@ export default class TetricusController extends EventEmitter2 {
     }
   }
   
-  rotateBlockHorizontal() {
-    this.model.rotateBlockXZ();
+  rotateBlockHorizontal(sign = true) {
+    this.model.rotateBlockXZ(sign);
   }
   
-  rotateBlockVertical() {
+  rotateBlockVertical(sign = true) {
     let direction = this.view.checkCameraDirection();
     if (direction.x !== 0) {
-      this.model.rotateBlockXY(direction.x < 0);
+      this.model.rotateBlockXY(sign ? direction.x < 0 : direction.x >= 0);
     }
     if (direction.z !== 0) {
-      this.model.rotateBlockZY(direction.z < 0);
+      this.model.rotateBlockZY(sign ? direction.z < 0 : direction.z >= 0);
     }
   }
   
