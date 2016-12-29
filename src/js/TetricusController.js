@@ -384,13 +384,28 @@ export default class TetricusController extends EventEmitter2 {
       }
     });
     this.touch.on('touchend', (evt) => {
+      const elm = this.rootElm;
+      const verticalBtnHeight = elm.clientHeight * 0.25;
+      const horizontalBtnWidth = elm.clientWidth * 0.5;
+      const bottomBtnY = elm.clientHeight - verticalBtnHeight;
       if (evt.isDoubleTap) {
         // TODO: ダブルタップの一回目のタップを区別する解決策
         // this.dropBlock();
         // return;
       }
       if (evt.isTap) {
-        this.rotateBlock();
+        if (evt.touchEndY < verticalBtnHeight) {
+          this.rotateBlockVertical(true);
+        }
+        else if (evt.touchEndY > bottomBtnY) {
+          this.rotateBlockVertical(false);
+        }
+        else if (evt.touchEndX < horizontalBtnWidth) {
+          this.rotateBlockHorizontal(false);
+        }
+        else {
+          this.rotateBlockHorizontal(true);
+        }
       }
       this.emit('touchend', {
         isBlockMoved: isBlockMoved,
