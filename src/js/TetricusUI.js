@@ -22,10 +22,10 @@ export default class TetricusUI extends EventEmitter2 {
     this.$btnRotateVertical = $('.js-btn-rotate-vertical');
     this.$btnRotateHorizontal = $('.js-btn-rotate-horizontal');
     this.$btnRotate = this.$btnRotateVertical.add(this.$btnRotateHorizontal);
-    this.$btnRotateBack = $('.js-btn-rotate-back');
-    this.$btnRotateLeft = $('.js-btn-rotate-left');
-    this.$btnRotateRight = $('.js-btn-rotate-right');
-    this.$btnRotateFront = $('.js-btn-rotate-front');
+    this.$tapAreaTop = $('.js-tap-area-top');
+    this.$tapAreaLeft = $('.js-tap-area-left');
+    this.$tapAreaRight = $('.js-tap-area-right');
+    this.$tapAreaBottom = $('.js-tap-area-bottom');
     this.$slideHowto = $('.js-slide-howto');
     this.$slideDots = $('.js-slide-dots');
     
@@ -124,20 +124,20 @@ export default class TetricusUI extends EventEmitter2 {
       this.$modalResult.show();
     });
     this.controller.on('taptop', () => {
-      this.$btnRotateBack.addClass('is-active');
-      setTimeout(() => this.$btnRotateBack.removeClass('is-active'), 500);
+      this.$tapAreaTop.addClass('is-active');
+      setTimeout(() => this.$tapAreaTop.removeClass('is-active'), 500);
     });
     this.controller.on('tapleft', () => {
-      this.$btnRotateLeft.addClass('is-active');
-      setTimeout(() => this.$btnRotateLeft.removeClass('is-active'), 500);
+      this.$tapAreaLeft.addClass('is-active');
+      setTimeout(() => this.$tapAreaLeft.removeClass('is-active'), 500);
     });
     this.controller.on('tapright', () => {
-      this.$btnRotateRight.addClass('is-active');
-      setTimeout(() => this.$btnRotateRight.removeClass('is-active'), 500);
+      this.$tapAreaRight.addClass('is-active');
+      setTimeout(() => this.$tapAreaRight.removeClass('is-active'), 500);
     });
     this.controller.on('tapbottom', () => {
-      this.$btnRotateFront.addClass('is-active');
-      setTimeout(() => this.$btnRotateFront.removeClass('is-active'), 500);
+      this.$tapAreaBottom.addClass('is-active');
+      setTimeout(() => this.$tapAreaBottom.removeClass('is-active'), 500);
     });
   }
   
