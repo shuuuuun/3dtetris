@@ -112,11 +112,7 @@ export default class TetricusController extends EventEmitter2 {
     });
     this.model.on('newblockcreated', () => {});
     this.model.on('currentblockcreated', () => {
-      this.view.drawCurrentBlock(this.model.currentBlock);
-      
-      let shadowBlock = this.getShadowBlock();
-      let board = this.setBlockToBoard(shadowBlock);
-      this.updateBoard(board);
+      this.updateCurrentBlock(true);
     });
     this.model.on('nextblockcreated', () => {});
     this.model.on('gameover', () => {
@@ -129,22 +125,14 @@ export default class TetricusController extends EventEmitter2 {
       this.emit('gameover');
     });
     this.model.on('tick', (isNewBlock) => {
-      this.view.moveCurrentBlock(this.model.currentBlock);
-      
-      let shadowBlock = this.getShadowBlock();
-      let board = this.setBlockToBoard(shadowBlock);
-      this.updateBoard(board);
+      this.updateCurrentBlock();
       
       if (!this.isAutoMode && !this.isTutorialMode) {
         this.saveDataToStrage();
       }
     });
     this.model.on('blockmoved', () => {
-      this.view.moveCurrentBlock(this.model.currentBlock);
-      
-      let shadowBlock = this.getShadowBlock();
-      let board = this.setBlockToBoard(shadowBlock);
-      this.updateBoard(board);
+      this.updateCurrentBlock();
     });
     this.model.on('gamequit', () => {});
     this.model.on('freeze', () => {
@@ -410,6 +398,7 @@ export default class TetricusController extends EventEmitter2 {
           this.rotateBlockHorizontal(true);
           this.emit('tapright');
         }
+        this.updateCurrentBlock();
       }
       this.emit('touchend', {
         isBlockMoved: isBlockMoved,
@@ -475,6 +464,15 @@ export default class TetricusController extends EventEmitter2 {
   changeRotateDirection() {
     this.isVertical = !this.isVertical;
     this.emit('changeRotateDirection');
+  }
+  
+  updateCurrentBlock(isCreate = false) {
+    if (isCreate) this.view.drawCurrentBlock(this.model.currentBlock);
+    else this.view.moveCurrentBlock(this.model.currentBlock);
+    
+    const shadowBlock = this.getShadowBlock();
+    const board = this.setBlockToBoard(shadowBlock);
+    this.updateBoard(board);
   }
   
   updateBoard(board = this.model.board) {
