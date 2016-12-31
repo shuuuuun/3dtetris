@@ -24,7 +24,7 @@ export default class TetricusController extends EventEmitter2 {
       touchstartElement: this.rootElm,
       touchmoveElement: document,
       touchendElement: document,
-      holdingDelay: 500,
+      holdingDelay: 200,
       watchInterval: 100,
     });
     this.stick = new StickController({
