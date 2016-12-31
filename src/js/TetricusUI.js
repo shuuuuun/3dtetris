@@ -96,7 +96,7 @@ export default class TetricusUI extends EventEmitter2 {
   
   setControllerEvent() {
     const ACTIVE_CLASSNAME = 'is-active';
-    const TAP_FB_DURATION = 500;
+    const TAP_FB_DURATION = 100;
     
     this.controller.on('pauseGame', () => {
       if (this.isModalShown()) {
