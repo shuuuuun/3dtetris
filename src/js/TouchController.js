@@ -52,6 +52,7 @@ export default class TouchController extends EventEmitter2 {
     const setWatcher = () => {
       clearWatcher();
       delayTimer = setTimeout(() => {
+        this.isTap = this.isDoubleTap = false;
         watchTimer = setInterval(() => {
           this.emit('touchholding', this);
         }, this.watchInterval);

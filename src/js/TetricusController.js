@@ -398,7 +398,6 @@ export default class TetricusController extends EventEmitter2 {
       isBlockMoved = false;
     });
     this.touch.on('touchholding', () => {
-      // TODO: バグありそう
       this.model.moveBlockY();
     });
   }
