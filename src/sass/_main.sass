@@ -81,6 +81,13 @@
     span
       display: none
 
+.common-btns__btn--restart
+  @extend %common-btns__btn
+  button
+    &:before
+      content: '\f021'
+      content: '\f01e'
+
 .common-btns__btn--sound
   $size: 48px
   @extend %common-btns__btn
