@@ -126,17 +126,7 @@ gulp.task('js-copy', () => {
 });
 
 gulp.task('browserify', () => {
-  browserify({
-    entries: config.browserify.entries,
-  })
-  .transform(babelify)
-  .bundle()
-  .on('error', notify.onError('<%= error.message %>'))
-  .pipe(source(config.browserify.dest))
-  .pipe(buffer())
-  .pipe(gulpif(!gutil.env.develop, uglify({ preserveComments: 'some' }))) // developモードではminifyしない
-  .pipe(gulp.dest(DEST_JS))
-  .pipe(notify('browserify build succeeded!!'));
+  bundleJs();
 });
 
 gulp.task('watchify', () => {
@@ -159,18 +149,17 @@ function bundleJs(watching = false) {
     plugin: watching ? [watchify] : null,
   });
   b.on('update', () => {
+    console.log('scripts update...');
     bundler();
-    console.log('scripts rebuild');
   });
   function bundler() {
     return b.bundle()
-      .on('error', (err) => {
-        console.log(err.message);
-      })
+      .on('error', notify.onError('<%= error.message %>'))
       .pipe(source(config.browserify.dest))
       .pipe(buffer())
       .pipe(gulpif(!gutil.env.develop, uglify({ preserveComments: 'some' }))) // developモードではminifyしない
-      .pipe(gulp.dest(DEST_JS));
+      .pipe(gulp.dest(DEST_JS))
+      .pipe(notify('scripts bundle completed!'));
   }
   return bundler();
 }
