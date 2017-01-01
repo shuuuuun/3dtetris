@@ -24,12 +24,6 @@ html(lang="ja")
               | lines 
               span.js-info-lines 0000
           div.game__controller__btns--top-right
-            div.game__controller__btn--sound
-              button.js-btn-sound.is-sound-on(type="button")
-                span sound on/off
-            div.game__controller__btn--howto
-              button.js-btn-to-howto(type="button")
-                span howto
             div.game__controller__btn--pause
               button.js-btn-pause(type="button")
                 span pause
@@ -43,6 +37,7 @@ html(lang="ja")
             div.game__controller__btn--rotate-horizontal
               button.js-btn-rotate-horizontal(type="button")
                 span →
+
       div.pause-container.modal.js-modal-pause
         div.modal__inner
           div.modal__bg
@@ -50,6 +45,17 @@ html(lang="ja")
             h2.modal__title PAUSE
             p.modal__button
               span.js-btn-modal-close.js-btn-resume Tap to Resume
+            div.game__controller__btns--top-right
+              div.game__controller__btn--sound
+                button.js-btn-sound.is-sound-on(type="button")
+                  span sound on/off
+              div.game__controller__btn--howto
+                button.js-btn-to-howto(type="button")
+                  span howto
+              div.game__controller__btn--pause
+                button.js-btn-pause(type="button")
+                  span pause
+
       div.start-container.modal.js-modal-start
         div.modal__inner
           div.modal__bg
