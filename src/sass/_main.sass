@@ -56,22 +56,22 @@
     text-align: center
     line-height: $size - 6px * 2
 
-%game__controller__btns
+%common-btns
   display: flex
   position: absolute
   margin: 10px
 
-.game__controller__btns--top-right
-  @extend %game__controller__btns
+.common-btns--top-right
+  @extend %common-btns
   top: 0
   right: 0
 
-.game__controller__btns--right-bottom
-  @extend %game__controller__btns
+.common-btns--right-bottom
+  @extend %common-btns
   right: 0
   bottom: 0
 
-%game__controller__btn
+%common-btns__btn
   margin: 10px
   button
     &:before
@@ -81,9 +81,9 @@
     span
       display: none
 
-.game__controller__btn--sound
+.common-btns__btn--sound
   $size: 48px
-  @extend %game__controller__btn
+  @extend %common-btns__btn
   button
     width: $size
     height: $size
@@ -96,27 +96,33 @@
     &:before
       content: '\f028'
 
-.game__controller__btn--howto
-  @extend %game__controller__btn
+.common-btns__btn--howto
+  @extend %common-btns__btn
   button
     &:before
       content: '\f059'
 
-.game__controller__btn--pause
-  @extend %game__controller__btn
+.common-btns__btn--pause
+  @extend %common-btns__btn
   button
     &:before
       content: '\f28b'
 
-.game__controller__btn--rotate-vertical
-  @extend %game__controller__btn
+.common-btns__btn--resume
+  @extend %common-btns__btn
+  button
+    &:before
+      content: '\f144'
+
+.common-btns__btn--rotate-vertical
+  @extend %common-btns__btn
   button
     &:before
       content: '\f01b'
       font-size: 450%
 
-.game__controller__btn--rotate-horizontal
-  @extend %game__controller__btn
+.common-btns__btn--rotate-horizontal
+  @extend %common-btns__btn
   button
     // transform: rotateZ(90deg)
     &:before
