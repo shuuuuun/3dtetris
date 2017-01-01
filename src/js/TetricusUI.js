@@ -182,7 +182,7 @@ export default class TetricusUI extends EventEmitter2 {
       this.controller.setAutoMode();
     }
     else {
-      this.controller.resumeGame();
+      this.$modalPause.show();
     }
   }
   

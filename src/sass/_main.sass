@@ -58,17 +58,17 @@
     text-align: center
     line-height: $size - 6px * 2
 
-%game__controller__btns
+%common-btns
   display: flex
   position: absolute
   margin: 10px
 
-.game__controller__btns--top-right
-  @extend %game__controller__btns
+.common-btns--top-right
+  @extend %common-btns
   top: 0
   right: 0
 
-%game__controller__btn
+%common-btns__btn
   margin: 10px
   button
     &:before
@@ -78,9 +78,16 @@
     span
       display: none
 
-.game__controller__btn--sound
+.common-btns__btn--restart
+  @extend %common-btns__btn
+  button
+    &:before
+      content: '\f021'
+      content: '\f01e'
+
+.common-btns__btn--sound
   $size: 48px
-  @extend %game__controller__btn
+  @extend %common-btns__btn
   button
     width: $size
     height: $size
@@ -93,17 +100,23 @@
     &:before
       content: '\f028'
 
-.game__controller__btn--howto
-  @extend %game__controller__btn
+.common-btns__btn--howto
+  @extend %common-btns__btn
   button
     &:before
       content: '\f059'
 
-.game__controller__btn--pause
-  @extend %game__controller__btn
+.common-btns__btn--pause
+  @extend %common-btns__btn
   button
     &:before
       content: '\f28b'
+
+.common-btns__btn--resume
+  @extend %common-btns__btn
+  button
+    &:before
+      content: '\f144'
 
 .game__controller__tap-area
   display: flex
