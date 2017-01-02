@@ -24,6 +24,9 @@ export default class TetricusUI extends EventEmitter2 {
     this.$btnRotate = this.$btnRotateVertical.add(this.$btnRotateHorizontal);
     this.$slideHowto = $('.js-slide-howto');
     this.$slideDots = $('.js-slide-dots');
+    this.$infoLevel = $('.js-info-level');
+    this.$infoScore = $('.js-info-score');
+    this.$infoLines = $('.js-info-lines');
     
     this.setEvent();
     this.setControllerEvent();
@@ -118,6 +121,11 @@ export default class TetricusUI extends EventEmitter2 {
         return;
       }
       this.$modalResult.show();
+    });
+    this.controller.on('clearline', ({level, score, sumOfClearLines}) => {
+      this.$infoLevel.text(level);
+      this.$infoScore.text(score);
+      this.$infoLines.text(sumOfClearLines);
     });
   }
   

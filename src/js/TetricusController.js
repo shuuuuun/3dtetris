@@ -16,9 +16,6 @@ export default class TetricusController extends EventEmitter2 {
     
     this.rootElm = document.querySelector('.js-game-controller');
     this.stickTouchareaElm = document.querySelector('.js-stick-toucharea');
-    this.infoLevelElms = document.querySelectorAll('.js-info-level');
-    this.infoScoreElms = document.querySelectorAll('.js-info-score');
-    this.infoLinesElms = document.querySelectorAll('.js-info-lines');
     
     this.touch = new TouchController({
       touchstartElement: this.rootElm,
@@ -152,9 +149,11 @@ export default class TetricusController extends EventEmitter2 {
     });
     this.model.on('clearline', () => {
       this.updateBoard();
-      this.infoLevelElms.forEach(elm => elm.innerText = this.model.level);
-      this.infoScoreElms.forEach(elm => elm.innerText = Util.zeroPadding(this.model.score, 4));
-      this.infoLinesElms.forEach(elm => elm.innerText = Util.zeroPadding(this.model.sumOfClearLines, 4));
+      this.emit('clearline', {
+        level: this.model.level,
+        score: Util.zeroPadding(this.model.score, 4),
+        sumOfClearLines: Util.zeroPadding(this.model.sumOfClearLines, 4),
+      });
     });
     this.model.on('beforeDropClearLines', (evt) => {
       const dfd = $.Deferred();
