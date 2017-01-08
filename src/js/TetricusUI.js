@@ -121,9 +121,7 @@ export default class TetricusUI extends EventEmitter2 {
       this.$modalResult.show();
     });
     this.controller.on('clearline', ({level, score, sumOfClearLines}) => {
-      this.$infoLevel.text(level);
-      this.$infoScore.text(score);
-      this.$infoLines.text(sumOfClearLines);
+      this.updateInfo({level, score, sumOfClearLines});
     });
     this.controller.on('taptop', () => {
       this.$tapAreaTop.addClass(ACTIVE_CLASSNAME);
@@ -181,6 +179,12 @@ export default class TetricusUI extends EventEmitter2 {
         nextSlide();
       }
     });
+  }
+  
+  updateInfo({level, score, sumOfClearLines}) {
+    this.$infoLevel.text(level);
+    this.$infoScore.text(score);
+    this.$infoLines.text(sumOfClearLines);
   }
   
   backModal() {
