@@ -123,6 +123,9 @@ export default class TetricusUI extends EventEmitter2 {
     this.controller.on('clearline', ({level, score, sumOfClearLines}) => {
       this.updateInfo({level, score, sumOfClearLines});
     });
+    this.controller.on('resumeLastGame', ({level, score, sumOfClearLines}) => {
+      this.updateInfo({level, score, sumOfClearLines});
+    });
     this.controller.on('taptop', () => {
       this.$tapAreaTop.addClass(ACTIVE_CLASSNAME);
       setTimeout(() => this.$tapAreaTop.removeClass(ACTIVE_CLASSNAME), TAP_FB_DURATION);

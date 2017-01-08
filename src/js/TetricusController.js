@@ -88,6 +88,11 @@ export default class TetricusController extends EventEmitter2 {
     this.isPausingGame = false;
     this.model.resumeGame();
     this.updateBoard();
+    this.emit('resumeLastGame', {
+      level: this.model.level,
+      score: Util.zeroPadding(this.model.score, 4),
+      sumOfClearLines: Util.zeroPadding(this.model.sumOfClearLines, 4),
+    });
   }
   
   setAutoMode() {
