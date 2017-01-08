@@ -88,11 +88,7 @@ export default class TetricusController extends EventEmitter2 {
     this.isPausingGame = false;
     this.model.resumeGame();
     this.updateBoard();
-    this.emit('resumeLastGame', {
-      level: this.model.level,
-      score: Util.zeroPadding(this.model.score, 4),
-      sumOfClearLines: Util.zeroPadding(this.model.sumOfClearLines, 4),
-    });
+    this.emit('resumeLastGame', this.getInfoData());
   }
   
   setAutoMode() {
@@ -142,11 +138,7 @@ export default class TetricusController extends EventEmitter2 {
     });
     this.model.on('clearline', () => {
       this.updateBoard();
-      this.emit('clearline', {
-        level: this.model.level,
-        score: Util.zeroPadding(this.model.score, 4),
-        sumOfClearLines: Util.zeroPadding(this.model.sumOfClearLines, 4),
-      });
+      this.emit('clearline', this.getInfoData());
     });
     this.model.on('beforeDropClearLines', (evt) => {
       const dfd = $.Deferred();
@@ -535,6 +527,14 @@ export default class TetricusController extends EventEmitter2 {
   dropBlock() {
     this.model.dropBlockY();
     this.view.moveCurrentBlock(this.model.currentBlock);
+  }
+  
+  getInfoData() {
+    return {
+      level: this.model.level,
+      score: Util.zeroPadding(this.model.score, 4),
+      sumOfClearLines: Util.zeroPadding(this.model.sumOfClearLines, 4),
+    };
   }
   
   setDataToModel(data = {}) {
