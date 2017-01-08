@@ -272,6 +272,7 @@ export default class TetricusView {
     const voxel = new THREE.Mesh( this.cubeGeo, this.cubeMaterial[id] );
     voxel.position.set(blockX, blockY, blockZ);
     voxel.position.addScalar( CONST.VOXEL_SIZE / 2 ); // グリッドに合わせる。
+    // TODO: idなのに実質indexになってる（idが連番じゃないとエラー）
     voxel.scale.setScalar(this.VIEW_BLOCK_LIST[id].scale || 1);
     
     if (y < 0) return voxel; // 盤面外は描画しない

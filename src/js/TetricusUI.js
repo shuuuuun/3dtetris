@@ -19,9 +19,10 @@ export default class TetricusUI extends EventEmitter2 {
     this.$btnToResult = $('.js-btn-to-result');
     this.$btnToHowto = $('.js-btn-to-howto');
     this.$btnToBack = $('.js-btn-to-back');
-    this.$btnRotateVertical = $('.js-btn-rotate-vertical');
-    this.$btnRotateHorizontal = $('.js-btn-rotate-horizontal');
-    this.$btnRotate = this.$btnRotateVertical.add(this.$btnRotateHorizontal);
+    this.$tapAreaTop = $('.js-tap-area-top');
+    this.$tapAreaLeft = $('.js-tap-area-left');
+    this.$tapAreaRight = $('.js-tap-area-right');
+    this.$tapAreaBottom = $('.js-tap-area-bottom');
     this.$slideHowto = $('.js-slide-howto');
     this.$slideDots = $('.js-slide-dots');
     this.$infoLevel = $('.js-info-level');
@@ -57,12 +58,6 @@ export default class TetricusUI extends EventEmitter2 {
       this.emit('toggleSound', {
         isSoundOn: isSoundOn,
       });
-    });
-    this.$btnRotateVertical.on('touchstart', () => {
-      this.controller.rotateBlockVertical();
-    });
-    this.$btnRotateHorizontal.on('touchstart', () => {
-      this.controller.rotateBlockHorizontal();
     });
     this.$btnModalClose.on('click', () => {
       this.$modals.hide();
@@ -103,6 +98,9 @@ export default class TetricusUI extends EventEmitter2 {
   }
   
   setControllerEvent() {
+    const ACTIVE_CLASSNAME = 'is-active';
+    const TAP_FB_DURATION = 100;
+    
     this.controller.on('pauseGame', () => {
       if (this.isModalShown()) {
         // なにかしらmodalが既に表示されてたらreturn
@@ -126,6 +124,22 @@ export default class TetricusUI extends EventEmitter2 {
       this.$infoLevel.text(level);
       this.$infoScore.text(score);
       this.$infoLines.text(sumOfClearLines);
+    });
+    this.controller.on('taptop', () => {
+      this.$tapAreaTop.addClass(ACTIVE_CLASSNAME);
+      setTimeout(() => this.$tapAreaTop.removeClass(ACTIVE_CLASSNAME), TAP_FB_DURATION);
+    });
+    this.controller.on('tapleft', () => {
+      this.$tapAreaLeft.addClass(ACTIVE_CLASSNAME);
+      setTimeout(() => this.$tapAreaLeft.removeClass(ACTIVE_CLASSNAME), TAP_FB_DURATION);
+    });
+    this.controller.on('tapright', () => {
+      this.$tapAreaRight.addClass(ACTIVE_CLASSNAME);
+      setTimeout(() => this.$tapAreaRight.removeClass(ACTIVE_CLASSNAME), TAP_FB_DURATION);
+    });
+    this.controller.on('tapbottom', () => {
+      this.$tapAreaBottom.addClass(ACTIVE_CLASSNAME);
+      setTimeout(() => this.$tapAreaBottom.removeClass(ACTIVE_CLASSNAME), TAP_FB_DURATION);
     });
   }
   
@@ -164,14 +178,6 @@ export default class TetricusUI extends EventEmitter2 {
         return;
       }
       if (index === 1 && evt.isStickMoved) {
-        nextSlide();
-      }
-    });
-    this.$btnRotate.on('click', (evt) => {
-      if (!this.controller.isTutorialMode) {
-        return;
-      }
-      if (index === 2) {
         nextSlide();
       }
     });

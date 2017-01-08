@@ -109,11 +109,7 @@ export default class TetricusController extends EventEmitter2 {
     });
     this.model.on('newblockcreated', () => {});
     this.model.on('currentblockcreated', () => {
-      this.view.drawCurrentBlock(this.model.currentBlock);
-      
-      let shadowBlock = this.getShadowBlock();
-      let board = this.setBlockToBoard(shadowBlock);
-      this.updateBoard(board);
+      this.updateCurrentBlock(true);
     });
     this.model.on('nextblockcreated', () => {});
     this.model.on('gameover', () => {
@@ -126,22 +122,14 @@ export default class TetricusController extends EventEmitter2 {
       this.emit('gameover');
     });
     this.model.on('tick', (isNewBlock) => {
-      this.view.moveCurrentBlock(this.model.currentBlock);
-      
-      let shadowBlock = this.getShadowBlock();
-      let board = this.setBlockToBoard(shadowBlock);
-      this.updateBoard(board);
+      this.updateCurrentBlock();
       
       if (!this.isAutoMode && !this.isTutorialMode) {
         this.saveDataToStrage();
       }
     });
     this.model.on('blockmoved', () => {
-      this.view.moveCurrentBlock(this.model.currentBlock);
-      
-      let shadowBlock = this.getShadowBlock();
-      let board = this.setBlockToBoard(shadowBlock);
-      this.updateBoard(board);
+      this.updateCurrentBlock();
     });
     this.model.on('gamequit', () => {});
     this.model.on('freeze', () => {
@@ -383,13 +371,33 @@ export default class TetricusController extends EventEmitter2 {
       }
     });
     this.touch.on('touchend', (evt) => {
+      const elm = this.rootElm;
+      const verticalBtnHeight = elm.clientHeight * 0.25;
+      const horizontalBtnWidth = elm.clientWidth * 0.5;
+      const bottomBtnY = elm.clientHeight - verticalBtnHeight;
       if (evt.isDoubleTap) {
         // TODO: ダブルタップの一回目のタップを区別する解決策
         // this.dropBlock();
         // return;
       }
       if (evt.isTap) {
-        this.rotateBlock();
+        if (evt.touchEndY < verticalBtnHeight) {
+          this.rotateBlockVertical(true);
+          this.emit('taptop');
+        }
+        else if (evt.touchEndY > bottomBtnY) {
+          this.rotateBlockVertical(false);
+          this.emit('tapbottom');
+        }
+        else if (evt.touchEndX < horizontalBtnWidth) {
+          this.rotateBlockHorizontal(false);
+          this.emit('tapleft');
+        }
+        else {
+          this.rotateBlockHorizontal(true);
+          this.emit('tapright');
+        }
+        this.updateCurrentBlock();
       }
       this.emit('touchend', {
         isBlockMoved: isBlockMoved,
@@ -457,9 +465,17 @@ export default class TetricusController extends EventEmitter2 {
     this.emit('changeRotateDirection');
   }
   
+  updateCurrentBlock(isCreate = false) {
+    if (isCreate) this.view.drawCurrentBlock(this.model.currentBlock);
+    else this.view.moveCurrentBlock(this.model.currentBlock);
+    
+    const shadowBlock = this.getShadowBlock();
+    const board = this.setBlockToBoard(shadowBlock);
+    this.updateBoard(board);
+  }
+  
   updateBoard(board = this.model.board) {
     // viewのためにboardを整形、CONST.HIDDEN_ROWSのぶんyを減らして渡す
-    // let board = _.cloneDeep(this.model.board);
     board = _.cloneDeep(board);
     board.forEach((aryZ) => {
       aryZ.splice(0, CONST.HIDDEN_ROWS);
@@ -477,17 +493,17 @@ export default class TetricusController extends EventEmitter2 {
     }
   }
   
-  rotateBlockHorizontal() {
-    this.model.rotateBlockXZ();
+  rotateBlockHorizontal(sign = true) {
+    this.model.rotateBlockXZ(sign);
   }
   
-  rotateBlockVertical() {
+  rotateBlockVertical(sign = true) {
     let direction = this.view.checkCameraDirection();
     if (direction.x !== 0) {
-      this.model.rotateBlockXY(direction.x < 0);
+      this.model.rotateBlockXY(sign ? direction.x < 0 : direction.x >= 0);
     }
     if (direction.z !== 0) {
-      this.model.rotateBlockZY(direction.z < 0);
+      this.model.rotateBlockZY(sign ? direction.z < 0 : direction.z >= 0);
     }
   }
   

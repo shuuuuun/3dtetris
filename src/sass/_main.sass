@@ -16,7 +16,9 @@
 .game__controller__stick
   position: absolute
   left: 0
-  bottom: 0
+  right: 0
+  bottom: 0 
+  margin: auto
   width: $size_stick
   height: $size_stick
   border-radius: $size_stick
@@ -65,11 +67,6 @@
   @extend %common-btns
   top: 0
   right: 0
-
-.common-btns--right-bottom
-  @extend %common-btns
-  right: 0
-  bottom: 0
 
 %common-btns__btn
   margin: 10px
@@ -121,20 +118,37 @@
     &:before
       content: '\f144'
 
-.common-btns__btn--rotate-vertical
-  @extend %common-btns__btn
-  button
-    &:before
-      content: '\f01b'
-      font-size: 450%
+.game__controller__tap-area
+  display: flex
+  flex-wrap: wrap
+  width: 100%
+  height: 100%
+  pointer-events: none
+  span
+    display: none
+  .is-active
+    background-color: rgba(#000, 0.3)
 
-.common-btns__btn--rotate-horizontal
-  @extend %common-btns__btn
-  button
-    // transform: rotateZ(90deg)
-    &:before
-      content: '\f18e'
-      font-size: 450%
+.game__controller__tap-area__top
+  width: 100%
+  height: 25%
+  position: relative
+
+.game__controller__tap-area__left
+  width: 50%
+  height: 50%
+  position: relative
+
+.game__controller__tap-area__right
+  width: 50%
+  height: 50%
+  position: relative
+
+.game__controller__tap-area__bottom
+  width: 100%
+  height: 25%
+  position: relative
+
 
 .game__controller__info
   position: absolute

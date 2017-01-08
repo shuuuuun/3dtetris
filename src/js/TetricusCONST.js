@@ -33,8 +33,8 @@ class TetricusCONST {
     
     this.AUTO_ROTATE_SPEED = 0.02;
     
-    this.STICK_WEIGHT = 850;
-    this.STICK_CONTROLL_THROTTLE = 50;
+    this.STICK_WEIGHT = 800;
+    this.STICK_CONTROLL_THROTTLE = 30;
     
     this.CAMERA_HEIGHT_DEFAULT = 300;
     this.CAMERA_DISTANCE_DEFAULT = 1400;
