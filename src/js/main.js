@@ -45,11 +45,6 @@ tetricusController.newGame();
 // debug mode
 const query = Util.getQueryString();
 if (query.debug) {
-  const blockId = +query.debug || 0;
-  const shape = TetricusCONST.BLOCK_LIST[blockId].shape;
-  TetricusCONST.BLOCK_LIST.forEach(function(data){
-    data.shape = shape;
-  });
   const resetCONST = () => {
     TetricusCONST.START_X = Math.floor((TetricusCONST.COLS - TetricusCONST.VOXEL_LENGTH) / 2);
     TetricusCONST.START_Y = 0;
@@ -67,6 +62,11 @@ if (query.debug) {
     
     tetricusView.constructor();
   };
+  if (query.shape) {
+    const blockId = +query.shape || 0;
+    const shape = TetricusCONST.BLOCK_LIST[blockId].shape;
+    TetricusCONST.BLOCK_LIST.forEach(data => data.shape = shape);
+  }
   if (query.interval) {
     tetricusModel.tickInterval = +query.interval;
   }
