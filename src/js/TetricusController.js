@@ -477,7 +477,6 @@ export default class TetricusController extends EventEmitter2 {
   
   updateBoard(board = this.model.board) {
     // viewのためにboardを整形、CONST.HIDDEN_ROWSのぶんyを減らして渡す
-    // let board = _.cloneDeep(this.model.board);
     board = _.cloneDeep(board);
     board.forEach((aryZ) => {
       aryZ.splice(0, CONST.HIDDEN_ROWS);
