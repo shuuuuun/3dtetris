@@ -11,22 +11,22 @@ module.exports = {
   title: "Tetricus",
   
   meta_description: meta_description,
-  meta_keywords: ["Tetricus", "game"],
+  meta_keywords: ["tetricus", "3d", "puzzle", "game", "tetris", "cubes"],
   
-  // share_image: domain + "/img/ogp.png",
+  share_image: url + "img/ogp.png",
   
-  // og_description: meta_description,
-  // og_image_width: 0,
-  // og_image_height: 0,
+  og_description: meta_description,
+  og_image_width: 1200,
+  og_image_height: 630,
   
-  // tw_description: meta_description,
-  // tw_hashtags: ["hashtag"],
+  tw_description: meta_description,
+  tw_hashtags: ["tetricus"],
   // tw_site: "@hoge",
   // tw_creator: "@hoge",
   
   // line_description: meta_description + " " + url,
   
-  // fb_appid: "",
+  fb_appid: "106746043168529",
   
   favicon_url: url + "img/icon_t.png",
   apple_touch_icon_url: url + "img/icon.png",
