@@ -26,7 +26,7 @@ module.exports = {
   
   // line_description: meta_description + " " + url,
   
-  // fb_appid: "",
+  fb_appid: "106746043168529",
   
   favicon_url: url + "img/icon_t.png",
   apple_touch_icon_url: url + "img/icon.png",
