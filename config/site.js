@@ -13,14 +13,14 @@ module.exports = {
   meta_description: meta_description,
   meta_keywords: ["tetricus", "3d", "puzzle", "game", "tetris"],
   
-  // share_image: domain + "/img/ogp.png",
+  share_image: url + "img/ogp.png",
   
-  // og_description: meta_description,
-  // og_image_width: 0,
-  // og_image_height: 0,
+  og_description: meta_description,
+  og_image_width: 1200,
+  og_image_height: 630,
   
-  // tw_description: meta_description,
-  // tw_hashtags: ["hashtag"],
+  tw_description: meta_description,
+  tw_hashtags: ["tetricus"],
   // tw_site: "@hoge",
   // tw_creator: "@hoge",
   
