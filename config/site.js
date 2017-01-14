@@ -11,7 +11,7 @@ module.exports = {
   title: "Tetricus",
   
   meta_description: meta_description,
-  meta_keywords: ["tetricus", "3d", "puzzle", "game", "tetris"],
+  meta_keywords: ["tetricus", "3d", "puzzle", "game", "tetris", "cubes"],
   
   share_image: url + "img/ogp.png",
   
